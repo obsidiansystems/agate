@@ -59,7 +59,10 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  MyLib
+    exposed-modules:
+        Math.Agate
+        Math.Agate.ODESystem
+        Math.Agate.PetriNet
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -68,13 +71,22 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base >=4
+    build-depends:
+        base >=4,
+        containers >=0.6,
+        HaskellForMaths >=0.4.9
 
     -- Directories containing source files.
     hs-source-dirs:   src
 
     -- Base language which the package is written in.
     default-language: Haskell2010
+    default-extensions:
+        DerivingStrategies
+        FlexibleContexts
+        GeneralizedNewtypeDeriving
+        ImportQualifiedPost
+        TypeFamilies
 
 test-suite agate-test
     -- Import common warning flags.

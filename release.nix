@@ -7,6 +7,11 @@ let
   inherit (pkgs) lib;
   haskellLib = pkgs.haskell.lib;
   commonOverrides = self: super: {
+    HaskellForMaths = haskellLib.doJailbreak (self.callHackageDirect {
+        pkg = "HaskellForMaths";
+        ver = "0.4.10";
+        sha256 = "sha256-yPNKgyZTG5iJ2WYE6doskGripTDgtouTN2Np4tjQBHE=";
+    } {});
   };
   ghcs = lib.genAttrs supportedSystems (system: let
     rp = reflex-platform { inherit system; __useNewerCompiler = true; };
