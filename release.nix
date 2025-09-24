@@ -29,7 +29,7 @@ let
   in
   {
     recurseForDerivations = true;
-    ghc810 = rpGhc.callCabal2nix "agate" (import ./src.nix) {};
+    #ghc810 = rpGhc.callCabal2nix "agate" (import ./src.nix) {};
     ghc945 = nixGhc945.callCabal2nix "agate" (import ./src.nix) {};
     ghc961 = nixGhc961.callCabal2nix "agate" (import ./src.nix) {};
   });
