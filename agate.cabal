@@ -86,6 +86,8 @@ library
         FlexibleContexts
         GeneralizedNewtypeDeriving
         ImportQualifiedPost
+        ScopedTypeVariables
+        TypeApplications
         TypeFamilies
 
 test-suite agate-test

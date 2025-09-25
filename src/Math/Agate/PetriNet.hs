@@ -9,12 +9,22 @@ class Monoid net => PetriNet net where
   -- These can then be combined with the monoid instance to build larger nets.
   transition :: [Place net] -> Transition net -> [Place net] -> net
 
-newtype AsODE system = AsODE system
-  deriving newtype (Semigroup, Monoid)
+newtype AsODE system = AsODE { asODE :: system }
+  deriving newtype (Semigroup, Monoid, Show)
 
-instance ODESystem system => PetriNet (AsODE system) where
+instance forall system. ODESystem system => PetriNet (AsODE system) where
   type Place (AsODE system) = Var system
   type Transition (AsODE system) = Exp system
   transition inputs rate outputs = AsODE $
-       mconcat [i += (- rate) | i <- inputs]
-    <> mconcat [o += rate     | o <- outputs]
+       mconcat [i += (- rate) * product (map (var @system) outputs) | i <- inputs]
+    <> mconcat [o += rate * product (map (var @system) inputs)      | o <- outputs]
+
+exampleSIR :: (Fractional (Transition net), PetriNet net) => (String -> Place net) -> Transition net -> Transition net -> net
+exampleSIR place recovery transmission =
+  mconcat
+    [ transition [place "I", place "S"] transmission [place "I", place "I"]
+    , transition [place "I"] recovery [place "R"]
+    ]
+
+exampleSIRODE :: PolynomialODE Double String
+exampleSIRODE = asODE $ exampleSIR id 0.02 0.1
