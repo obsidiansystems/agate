@@ -1,4 +1,3 @@
-{-# LANGUAGE StrictData #-}
 module Math.Agate.PetriNet where
 
 import Math.Agate.ODESystem
