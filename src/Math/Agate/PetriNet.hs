@@ -29,7 +29,7 @@ exampleSIR place recovery transmission =
     ]
 
 exampleSIRODE :: PolynomialODE Double String
-exampleSIRODE = asODE $ exampleSIR id 0.02 0.1
+exampleSIRODE = asODE $ exampleSIR id 0.02 0.5
 
 -- PETRI NET DEFINITION
 data Petri p t = Petri
