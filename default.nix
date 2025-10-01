@@ -26,10 +26,6 @@ reflex-platform.project ({ pkgs, thunkSource, ... }: {
       compiler-nix-name = "ghc8107";
       index-state = "2023-03-04T00:00:00Z";
     };
-    ghcid = {
-      version = "0.8.9";
-      index-state = "2023-03-04T00:00:00Z";
-    };
   };
 
   overrides = [ ];
