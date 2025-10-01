@@ -8,13 +8,6 @@ import Diagrams.Backend.SVG.CmdLine
 import Diagrams.Prelude
 import Math.Agate.Examples.ODE (runSolverSIR)
 
-renderDiagram :: FilePath -> Double -> Diagram B -> IO ()
-renderDiagram file svgWidth d =
-    renderSVG
-        file
-        (mkSizeSpec (V2 (Just svgWidth) Nothing))
-        d
-
 sirDiagram :: Double -> (Colour Double, Colour Double, Colour Double) -> [(Double, Double, Double)] -> Diagram B
 sirDiagram overallWidth (sColour, iColour, rColour) sirData =
     hcat $
@@ -34,4 +27,9 @@ sirDiagram overallWidth (sColour, iColour, rColour) sirData =
     w = overallWidth / genericLength sirData
 
 test :: IO ()
-test = renderDiagram "/tmp/out.svg" 1000 $ sirDiagram 3 (blue, red, green) $ runSolverSIR
+test =
+    renderSVG
+        "/tmp/out.svg"
+        (mkSizeSpec (V2 (Just 1000) Nothing))
+        $ sirDiagram 3 (blue, red, green)
+        $ runSolverSIR
