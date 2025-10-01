@@ -27,8 +27,8 @@ sirDiagram overallWidth (sColour, iColour, rColour) sirData =
                     . vcat
                     $ map
                         (\(h, c) -> rect w h & fc c & lcA transparent)
-                        [ (s, sColour)
-                        , (i, iColour)
+                        [ (i, iColour)
+                        , (s, sColour)
                         , (r, rColour)
                         ]
             )
