@@ -14,7 +14,7 @@ helloDiagram = text "3" <> circle 1
 renderDiagram :: Diagram B -> IO ()
 renderDiagram d =
     renderSVG
-        "out.svg"
+        "/tmp/out.svg"
         (mkSizeSpec (V2 (Just 1000) Nothing))
         d
 
