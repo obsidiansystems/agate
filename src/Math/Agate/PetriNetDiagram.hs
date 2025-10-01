@@ -1,14 +1,40 @@
+{-# LANGUAGE BlockArguments #-}
+
 module Math.Agate.PetriNetDiagram where
 
-import Diagrams.Prelude
-import Diagrams.Backend.SVG.CmdLine
+import Data.List
 import Diagrams.Backend.SVG (renderSVG)
+import Diagrams.Backend.SVG.CmdLine
+import Diagrams.Prelude
+import Math.Agate.Examples.ODE (runSolverSIR)
 
 helloDiagram :: Diagram B
-helloDiagram = text "hello again" <> circle 1
+helloDiagram = text "3" <> circle 1
 
 renderDiagram :: Diagram B -> IO ()
-renderDiagram d = renderSVG "out.svg"
-              (mkSizeSpec (V2 (Just 200) Nothing)) d
+renderDiagram d =
+    renderSVG
+        "out.svg"
+        (mkSizeSpec (V2 (Just 1000) Nothing))
+        d
 
-test = renderDiagram helloDiagram
+sirDiagram :: Double -> (Colour Double, Colour Double, Colour Double) -> [(Double, Double, Double)] -> Diagram B
+sirDiagram overallWidth (sColour, iColour, rColour) sirData =
+    hcat $
+        map
+            ( \(s, i, r) ->
+                alignB
+                    . vcat
+                    $ map
+                        (\(h, c) -> rect w h & fc c & lcA transparent)
+                        [ (s, sColour)
+                        , (i, iColour)
+                        , (r, rColour)
+                        ]
+            )
+            sirData
+  where
+    w = overallWidth / genericLength sirData
+
+test :: IO ()
+test = renderDiagram $ sirDiagram 3 (blue, red, green) $ runSolverSIR
