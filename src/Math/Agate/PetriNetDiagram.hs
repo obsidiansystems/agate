@@ -15,7 +15,7 @@ sirDiagram overallWidth colours sirData =
             ( alignB
                 . vcat
                 . map (\(c, h) -> rect w h & fc c & lcA transparent)
-                . zip colours
+                . zip (colours <> cycle [black, lightgrey])
             )
             sirData
   where
