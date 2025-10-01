@@ -12,11 +12,10 @@ sirDiagram :: Double -> [Colour Double] -> [[Double]] -> Diagram B
 sirDiagram overallWidth colours sirData =
     hcat $
         map
-            ( \ds ->
-                alignB
-                    . vcat
-                    . map (\(h, c) -> rect w h & fc c & lcA transparent)
-                    $ zip ds colours
+            ( alignB
+                . vcat
+                . map (\(c, h) -> rect w h & fc c & lcA transparent)
+                . zip colours
             )
             sirData
   where
