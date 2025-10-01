@@ -63,6 +63,8 @@ library
         Math.Agate
         Math.Agate.ODESystem
         Math.Agate.PetriNet
+        Math.Agate.PetriNetDiagram
+
 
     -- Modules included in this library but not exported.
     other-modules:

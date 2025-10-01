@@ -14,6 +14,7 @@ reflex-platform.project ({ pkgs, thunkSource, ... }: {
   #inputThunks = thunkInputs ++ pkgs.obsidianCompilers.thunkSets.aeson-1541;
   shells = ps: with ps; [ agate ];
 
+  nativeBuildInputs = [pkgs.graphviz];
 
   shellTools = {
     cabal = {
@@ -23,6 +24,10 @@ reflex-platform.project ({ pkgs, thunkSource, ... }: {
     haskell-language-server = {
       version = "1.8.0.0";
       compiler-nix-name = "ghc8107";
+      index-state = "2023-03-04T00:00:00Z";
+    };
+    ghcid = {
+      version = "0.8.9";
       index-state = "2023-03-04T00:00:00Z";
     };
   };
