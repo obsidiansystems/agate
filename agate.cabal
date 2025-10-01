@@ -76,7 +76,11 @@ library
     build-depends:
         base >=4,
         containers >=0.6,
-        HaskellForMaths >=0.4.9
+        HaskellForMaths >=0.4.9,
+        diagrams-core,
+        diagrams-lib,
+        diagrams-svg,
+        diagrams-graphviz
 
     -- Directories containing source files.
     hs-source-dirs:   src
