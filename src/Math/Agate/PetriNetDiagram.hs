@@ -8,19 +8,15 @@ import Diagrams.Backend.SVG.CmdLine
 import Diagrams.Prelude
 import Math.Agate.Examples.ODE (runSolverSIR)
 
-sirDiagram :: Double -> (Colour Double, Colour Double, Colour Double) -> [(Double, Double, Double)] -> Diagram B
-sirDiagram overallWidth (sColour, iColour, rColour) sirData =
+sirDiagram :: Double -> [Colour Double] -> [[Double]] -> Diagram B
+sirDiagram overallWidth colours sirData =
     hcat $
         map
-            ( \(s, i, r) ->
+            ( \ds ->
                 alignB
                     . vcat
-                    $ map
-                        (\(h, c) -> rect w h & fc c & lcA transparent)
-                        [ (i, iColour)
-                        , (s, sColour)
-                        , (r, rColour)
-                        ]
+                    . map (\(h, c) -> rect w h & fc c & lcA transparent)
+                    $ zip ds colours
             )
             sirData
   where
@@ -31,5 +27,5 @@ test =
     renderSVG
         "/tmp/out.svg"
         (mkSizeSpec (V2 (Just 1000) Nothing))
-        $ sirDiagram 3 (blue, red, green)
-        $ runSolverSIR
+        $ sirDiagram 3 [red, blue, green]
+        $ map (\(s, i, r) -> [i, s, r]) runSolverSIR
