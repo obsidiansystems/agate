@@ -8,9 +8,6 @@ import Diagrams.Backend.SVG.CmdLine
 import Diagrams.Prelude
 import Math.Agate.Examples.ODE (runSolverSIR)
 
-helloDiagram :: Diagram B
-helloDiagram = text "3" <> circle 1
-
 renderDiagram :: Diagram B -> IO ()
 renderDiagram d =
     renderSVG
