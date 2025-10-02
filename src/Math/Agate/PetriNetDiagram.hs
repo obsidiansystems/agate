@@ -1,5 +1,3 @@
-{-# LANGUAGE BlockArguments #-}
-
 module Math.Agate.PetriNetDiagram where
 
 import Data.ByteString.Lazy qualified as BS
