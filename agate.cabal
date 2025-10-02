@@ -64,11 +64,15 @@ common common
     ghc-options: -Wall
     build-depends:
         base >=4,
+        bytestring,
         containers >=0.6,
         diagrams-core,
         diagrams-graphviz,
         diagrams-lib,
         diagrams-svg,
+        filepath,
+        svg-builder,
+        text,
 
 library
     -- Import common warning flags.
