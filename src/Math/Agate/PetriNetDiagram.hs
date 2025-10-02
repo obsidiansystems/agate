@@ -26,3 +26,21 @@ sirDiagram overallWidth colours sirData =
     w = overallWidth / genericLength sirData
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs xs = zip xs $ tail xs
+sirDiagramDecorated :: Double -> [Colour Double] -> [String] -> [[Double]] -> Diagram B
+sirDiagramDecorated w cs ns d =
+  hsep
+    0.1
+    [ sirDiagram w cs d & centerY
+    , key & alignL & centerY
+    ]
+ where
+  key :: Diagram B
+  key =
+    vcat
+      . map
+        ( \(c, n) ->
+            (rect 0.1 0.1 & fc c)
+              ||| ((text n & scale 0.1) <> rect 1 0.1)
+        )
+      . reverse
+      $ zip cs ns
