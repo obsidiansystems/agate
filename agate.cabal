@@ -66,9 +66,9 @@ common common
         base >=4,
         containers >=0.6,
         diagrams-core,
+        diagrams-graphviz,
         diagrams-lib,
         diagrams-svg,
-        diagrams-graphviz,
 
 library
     -- Import common warning flags.
