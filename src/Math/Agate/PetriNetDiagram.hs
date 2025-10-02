@@ -26,6 +26,7 @@ sirDiagram overallWidth colours sirData =
     w = overallWidth / genericLength sirData
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs xs = zip xs $ tail xs
+
 sirDiagramDecorated :: Double -> [Colour Double] -> [String] -> [[Double]] -> Diagram B
 sirDiagramDecorated w cs ns d =
   hsep
