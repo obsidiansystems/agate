@@ -6,13 +6,23 @@ import Diagrams.Prelude
 
 sirDiagram :: Double -> [Colour Double] -> [[Double]] -> Diagram B
 sirDiagram overallWidth colours sirData =
-    hcat $
-        map
-            ( alignB
-                . vcat
-                . map (\(c, h) -> rect w h & fc c & lcA transparent)
-                . zip (colours <> cycle [black, lightgrey])
+    mconcat
+        $ map
+            ( \(colour, (bottoms, tops)) ->
+                fromVertices
+                    (zipWith (curry p2) [0, w ..] bottoms <> reverse (zipWith (curry p2) [0, w ..] tops))
+                    & closeLine
+                    & strokeLoop
+                    & translate (V2 0 (head bottoms))
+                    & fc colour
+                    & lcA transparent
             )
-            sirData
+        $ zip (colours <> cycle [black, lightgrey])
+        $ adjacentPairs
+        $ transpose -- turns lists of all data at single timestep in to lists of all timestep values for single variable
+        $ map (scanl (+) 0) -- accumulate y position from sums of preceding data points
+        $ sirData
   where
     w = overallWidth / genericLength sirData
+    adjacentPairs :: [a] -> [(a, a)]
+    adjacentPairs xs = zip xs $ tail xs

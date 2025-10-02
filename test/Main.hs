@@ -21,6 +21,6 @@ tests =
             $ pure
             $ renderBS
             $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True)
-            $ sirDiagram 3 [red, blue, green]
-            $ map (\(s, i, r) -> [i, s, r]) runSolverSIR
+            $ sirDiagram 3 [green, blue, red]
+            $ map (\(s, i, r) -> [r, s, i]) runSolverSIR
         ]
