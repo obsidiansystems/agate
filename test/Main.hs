@@ -21,6 +21,6 @@ tests =
             $ pure
             $ renderBS
             $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True)
-            $ sirDiagram 3 [green, blue, red]
+            $ sirDiagramDecorated 3 [green, blue, red] ["recovered", "susceptible", "infected"]
             $ map (\(s, i, r) -> [r, s, i]) runSolverSIR
         ]
