@@ -33,7 +33,7 @@ sirDiagram overallWidth sirData =
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs xs = zip xs $ tail xs
     mapColumns :: ([a] -> [b]) -> [[a]] -> [[b]]
-    mapColumns f = transpose . zipWithN \as -> f as
+    mapColumns f = transpose . zipWithN f
     zipWithN :: (Traversable t) => (t a -> b) -> t [a] -> [b]
     zipWithN f xs = getZipList $ f <$> traverse ZipList xs
 
