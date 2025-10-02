@@ -81,14 +81,13 @@ library
     -- Modules exported by the library.
     exposed-modules:
         Math.Agate
+        Math.Agate.Examples.ODE
         Math.Agate.ODESystem
         Math.Agate.PetriNet
         Math.Agate.PetriNetDiagram
 
     -- Modules included in this library but not exported.
     other-modules:
-        Math.Agate.Examples.ODE
-        
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -120,4 +119,8 @@ test-suite agate-test
 
     -- Test dependencies.
     build-depends:
-        agate
+        agate,
+        tasty,
+        tasty-quickcheck,
+        tasty-golden,
+        tasty-hunit,

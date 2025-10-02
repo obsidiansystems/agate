@@ -1,4 +1,26 @@
 module Main (main) where
 
+import Diagrams.Backend.SVG
+import Diagrams.Prelude
+import Graphics.Svg
+import Math.Agate.Examples.ODE
+import Math.Agate.PetriNetDiagram
+import Test.Tasty
+import Test.Tasty.Golden
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented."
+main = defaultMain tests
+
+tests :: TestTree
+tests =
+    testGroup
+        "Tests"
+        [ goldenVsString
+            "SIR SVG"
+            "test/outputs/sir.svg"
+            $ pure
+            $ renderBS
+            $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True)
+            $ sirDiagram 3 [red, blue, green]
+            $ map (\(s, i, r) -> [i, s, r]) runSolverSIR
+        ]
