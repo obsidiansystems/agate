@@ -1,5 +1,6 @@
 module Main (main) where
 
+import Data.List
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
 import Graphics.Svg
@@ -21,6 +22,14 @@ tests =
             $ pure
             $ renderBS
             $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True)
-            $ sirDiagramDecorated 3 [green, blue, red] ["recovered", "susceptible", "infected"]
-            $ map (\(s, i, r) -> [r, s, i]) runSolverSIR
+            $ sirDiagramDecorated 3
+            $ zipWith
+                (\(colour, name) values -> Variable{name, colour, values})
+                [ (green, "recovered")
+                , (blue, "susceptible")
+                , (red, "infected")
+                ]
+            $ transpose
+            $ map (\(s, i, r) -> [r, s, i])
+            $ runSolverSIR
         ]

@@ -1,14 +1,21 @@
 module Math.Agate.PetriNetDiagram where
 
+import Control.Applicative
 import Data.List
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
 
-sirDiagram :: Double -> [Colour Double] -> [[Double]] -> Diagram B
-sirDiagram overallWidth colours sirData =
+data Variable = Variable
+    { name :: String
+    , colour :: Colour Double
+    , values :: [Double]
+    }
+
+sirDiagram :: Double -> [Variable] -> Diagram B
+sirDiagram overallWidth sirData =
     mconcat
         $ map
-            ( \(colour, (bottoms, tops)) ->
+            ( \((bottoms, tops), Variable{colour}) ->
                 fromVertices
                     (zipWith (curry p2) [0, w ..] bottoms <> reverse (zipWith (curry p2) [0, w ..] tops))
                     & closeLine
@@ -17,21 +24,24 @@ sirDiagram overallWidth colours sirData =
                     & fc colour
                     & lcA transparent
             )
-        $ zip (colours <> cycle [black, lightgrey])
-        $ adjacentPairs
-        $ transpose -- turns lists of all data at single timestep in to lists of all timestep values for single variable
-        $ map (scanl (+) 0) -- accumulate y position from sums of preceding data points
+        $ zip
+            -- accumulate y bounds from sums of preceding data points
+            (map unzip $ mapColumns (adjacentPairs . scanl (+) 0 . id) $ map (\Variable{values} -> values) sirData)
         $ sirData
   where
-    w = overallWidth / genericLength sirData
+    w = overallWidth / maximum (map (genericLength . \Variable{values} -> values) sirData)
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs xs = zip xs $ tail xs
+    mapColumns :: ([a] -> [b]) -> [[a]] -> [[b]]
+    mapColumns f = transpose . zipWithN \as -> f as
+    zipWithN :: (Traversable t) => (t a -> b) -> t [a] -> [b]
+    zipWithN f xs = getZipList $ f <$> traverse ZipList xs
 
-sirDiagramDecorated :: Double -> [Colour Double] -> [String] -> [[Double]] -> Diagram B
-sirDiagramDecorated w cs ns d =
+sirDiagramDecorated :: Double -> [Variable] -> Diagram B
+sirDiagramDecorated w sirData =
     hsep
         0.1
-        [ sirDiagram w cs d & centerY
+        [ sirDiagram w sirData & centerY
         , key & alignL & centerY
         ]
   where
@@ -39,9 +49,9 @@ sirDiagramDecorated w cs ns d =
     key =
         vcat
             . map
-                ( \(c, n) ->
-                    (rect 0.1 0.1 & fc c)
-                        ||| ((text n & scale 0.1) <> rect 1 0.1)
+                ( \Variable{name, colour} ->
+                    (rect 0.1 0.1 & fc colour)
+                        ||| ((text name & scale 0.1) <> rect 1 0.1)
                 )
             . reverse
-            $ zip cs ns
+            $ sirData
