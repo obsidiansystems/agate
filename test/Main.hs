@@ -28,10 +28,10 @@ tests =
             $ zipWith
                 (\(colour, name) values -> Variable{name, colour, values})
                 [ (uncurryRGB sRGB $ hsl 120 0.7 0.32, "recovered")
-                , (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
                 , (uncurryRGB sRGB $ hsl 0 0.7 0.55, "infected")
+                , (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
                 ]
             $ transpose
-            $ map (\(s, i, r) -> [r, s, i])
+            $ map (\(s, i, r) -> [r, i, s])
             $ runSolverSIR
         ]
