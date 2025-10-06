@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 module Math.Agate.PetriNet where
 
 import Math.Agate.ODESystem
@@ -33,43 +34,52 @@ exampleSIRODE = asODE $ exampleSIR id 0.02 0.5
 
 -- PETRI NET DEFINITION
 data Petri p t = Petri
-  { transitions :: S.Set t,
+  { maxId :: Int,
+    transitions :: M.Map Int t,
     places :: S.Set p,
-    placeToTransitions :: S.Set (p, t),
-    transitionToPlaces :: S.Set (t, p)
+    placeToTransitions :: M.Map (p, Int) Int,
+    transitionToPlaces :: M.Map (Int, p) Int
   }
   deriving (Show)
 
 instance (Ord p, Ord t) => Semigroup (Petri p t) where
     p1 <> p2 = Petri {
-        transitions        = foldMap transitions        $ [p1, p2],
-        places             = foldMap places             $ [p1, p2],
-        placeToTransitions = foldMap placeToTransitions $ [p1, p2],
-        transitionToPlaces = foldMap transitionToPlaces $ [p1, p2]
-    }
+        maxId              = maxP1 + maxP2 + 1,
+        transitions        = foldMap transitions        $ [p1', p2'],
+        places             = foldMap places             $ [p1', p2'],
+        placeToTransitions = foldMap placeToTransitions $ [p1', p2'],
+        transitionToPlaces = foldMap transitionToPlaces $ [p1', p2']
+    } where [maxP1, maxP2] = map maxId [p1, p2]
+            p1' = p1
+            p2' = p2 {
+                transitions = (1 + maxP1 +) `M.mapKeys` transitions p2,
+                placeToTransitions = (\(p, id) -> (p, id + maxP1 + 1)) `M.mapKeys` placeToTransitions p2,
+                transitionToPlaces = (\(id, p) -> (id + maxP1 + 1, p)) `M.mapKeys` transitionToPlaces p2
+            }
 
 instance (Ord p, Ord t) => Monoid (Petri p t) where
-    mempty = Petri S.empty S.empty S.empty S.empty
+    mempty = Petri 0 M.empty S.empty M.empty M.empty
 
 instance (Ord p, Ord t) => PetriNet (Petri p t) where
     type Place (Petri p t) = p
     type Transition (Petri p t) = t
 
     transition sources trans targets = Petri {
+        maxId = 0,
         places = S.fromList $ sources ++ targets,
-        transitions = S.singleton trans,
-        placeToTransitions = S.fromList [(s, trans) | s <- sources],
-        transitionToPlaces = S.fromList [(trans, t) | t <- targets]
+        transitions = M.singleton 0 trans,
+        placeToTransitions = M.fromListWith (+) [(pair, 1) | pair <- (,0) <$> sources],
+        transitionToPlaces = M.fromListWith (+) [(pair, 1) | pair <- (0,) <$> targets]
     }
 
 newtype PetriLabelling p = PetriLabelling (M.Map p Int) deriving (Show)
 
-fireTransition :: (Ord p, Ord t) => t -> Petri p t -> PetriLabelling p -> PetriLabelling p
-fireTransition t (Petri _ ps p2t t2p) (PetriLabelling l) = newLabelling
-  where
-    sourceDelta = [(p', -1) | (p', t') <- S.toList p2t, t' == t]
-    targetDelta = [(p', 1) | (t', p') <- S.toList t2p, t' == t]
-    base = [(p', l M.! p') | p' <- S.toList ps]
-    newLabelling = PetriLabelling $ M.fromListWith (+) (base ++ sourceDelta ++ targetDelta)
+-- fireTransition :: (Ord p, Ord t) => t -> Petri p t a -> PetriLabelling p -> PetriLabelling p
+-- fireTransition t (Petri _ _ ps p2t t2p) (PetriLabelling l) = newLabelling
+--   where
+--     sourceDelta = [(p', -1) | (p', t') <- S.toList p2t, t' == t]
+--     targetDelta = [(p', 1) | (t', p') <- S.toList t2p, t' == t]
+--     base = [(p', l M.! p') | p' <- S.toList ps]
+--     newLabelling = PetriLabelling $ M.fromListWith (+) (base ++ sourceDelta ++ targetDelta)
 
 -- Example: 
