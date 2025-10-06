@@ -50,8 +50,8 @@ sirDiagramDecorated w sirData =
         vcat
             . map
                 ( \Variable{name, colour} ->
-                    (rect 0.1 0.1 & fc colour)
-                        ||| ((text name & scale 0.1) <> rect 1 0.1)
+                    (rect 0.15 0.15 & fc colour)
+                        ||| ((text name & scale 0.1 & font "helvetica") <> (rect 0.8 0.15 & fc whitesmoke))
                 )
             . reverse
             $ sirData
