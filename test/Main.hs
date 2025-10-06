@@ -1,5 +1,7 @@
 module Main (main) where
 
+import Data.Colour.RGBSpace
+import Data.Colour.RGBSpace.HSL
 import Data.List
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
@@ -25,9 +27,9 @@ tests =
             $ sirDiagramDecorated 3
             $ zipWith
                 (\(colour, name) values -> Variable{name, colour, values})
-                [ (green, "recovered")
-                , (blue, "susceptible")
-                , (red, "infected")
+                [ (uncurryRGB sRGB $ hsl 120 0.7 0.32, "recovered")
+                , (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
+                , (uncurryRGB sRGB $ hsl 0 0.7 0.55, "infected")
                 ]
             $ transpose
             $ map (\(s, i, r) -> [r, s, i])
