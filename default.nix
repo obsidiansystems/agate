@@ -14,6 +14,7 @@ reflex-platform.project ({ pkgs, thunkSource, ... }: {
   #inputThunks = thunkInputs ++ pkgs.obsidianCompilers.thunkSets.aeson-1541;
   shells = ps: with ps; [ agate ];
 
+  nativeBuildInputs = [pkgs.graphviz];
 
   shellTools = {
     cabal = {

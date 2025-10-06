@@ -51,53 +51,58 @@ extra-doc-files:    CHANGELOG.md
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
 
-common warnings
+common common
+    default-language: Haskell2010
+    default-extensions:
+        BlockArguments
+        DerivingStrategies
+        FlexibleContexts
+        GeneralizedNewtypeDeriving
+        ImportQualifiedPost
+        NamedFieldPuns
+        ScopedTypeVariables
+        TypeApplications
+        TypeFamilies
     ghc-options: -Wall
+    build-depends:
+        base >=4,
+        bytestring,
+        containers >=0.6,
+        diagrams-core,
+        diagrams-graphviz,
+        diagrams-lib,
+        diagrams-svg,
+        filepath,
+        svg-builder,
+        text,
 
 library
     -- Import common warning flags.
-    import:           warnings
+    import:           common
 
     -- Modules exported by the library.
     exposed-modules:
         Math.Agate
+        Math.Agate.Examples.ODE
         Math.Agate.ODESystem
         Math.Agate.PetriNet
+        Math.Agate.PetriNetDiagram
 
     -- Modules included in this library but not exported.
     other-modules:
-        Math.Agate.Examples.ODE
-        
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base >=4,
-        containers >=0.6,
-        HaskellForMaths >=0.4.9
+        HaskellForMaths >=0.4.9,
 
     -- Directories containing source files.
     hs-source-dirs:   src
 
-    -- Base language which the package is written in.
-    default-language: Haskell2010
-    default-extensions:
-        DerivingStrategies
-        FlexibleContexts
-        GeneralizedNewtypeDeriving
-        ImportQualifiedPost
-        ScopedTypeVariables
-        TypeApplications
-        TypeFamilies
-
 test-suite agate-test
-    -- Import common warning flags.
-    import:           warnings
-
-    -- Base language which the package is written in.
-    default-language: Haskell2010
+    import:           common
 
     -- Modules included in this executable, other than Main.
     -- other-modules:
@@ -116,5 +121,8 @@ test-suite agate-test
 
     -- Test dependencies.
     build-depends:
-        base >=4,
-        agate
+        agate,
+        tasty,
+        tasty-quickcheck,
+        tasty-golden,
+        tasty-hunit,
