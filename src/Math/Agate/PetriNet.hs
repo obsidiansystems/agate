@@ -19,8 +19,8 @@ instance forall system. ODESystem system => PetriNet (AsODE system) where
   type Place (AsODE system) = Var system
   type Transition (AsODE system) = Exp system
   transition inputs rate outputs = AsODE $
-       mconcat [i += (- rate) * product (map (var @system) outputs) | i <- inputs]
-    <> mconcat [o += rate * product (map (var @system) inputs)      | o <- outputs]
+       mconcat [i += (- rate) * product (map (var @system) inputs) | i <- inputs]
+    <> mconcat [o += rate * product (map (var @system) inputs)     | o <- outputs]
 
 exampleSIR :: (Fractional (Transition net), PetriNet net) => (String -> Place net) -> Transition net -> Transition net -> net
 exampleSIR place recovery transmission =
@@ -30,7 +30,9 @@ exampleSIR place recovery transmission =
     ]
 
 exampleSIRODE :: PolynomialODE Double String
-exampleSIRODE = asODE $ exampleSIR id 0.02 0.5
+exampleSIRODE = asODE $ exampleSIR id recovery transmission where
+  recovery = 0.03
+  transmission = 0.4
 
 -- PETRI NET DEFINITION
 data Petri p t = Petri
