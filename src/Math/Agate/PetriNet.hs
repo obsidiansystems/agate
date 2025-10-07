@@ -25,7 +25,7 @@ instance forall system. ODESystem system => PetriNet (AsODE system) where
 -- PETRI NET DEFINITION
 type TransId  = Int
 data PetriNetImpl p t = Petri
-  { maxId :: TransId,
+  { numTransitions :: Int,
     transitions :: M.Map TransId t,
     places :: S.Set p,
     placeToTransitions :: M.Map (p, TransId) Int,
@@ -35,17 +35,17 @@ data PetriNetImpl p t = Petri
 
 instance (Ord p, Ord t) => Semigroup (PetriNetImpl p t) where
     p1 <> p2 = Petri {
-        maxId              = maxP1 + maxP2 + 1,
+        numTransitions     = numP1 + numP2,
         transitions        = foldMap transitions        $ [p1', p2'],
         places             = foldMap places             $ [p1', p2'],
         placeToTransitions = foldMap placeToTransitions $ [p1', p2'],
         transitionToPlaces = foldMap transitionToPlaces $ [p1', p2']
-    } where [maxP1, maxP2] = map maxId [p1, p2]
+    } where [numP1, numP2] = map numTransitions [p1, p2]
             p1' = p1
             p2' = p2 {
-                transitions = (1 + maxP1 +) `M.mapKeys` transitions p2,
-                placeToTransitions = (\(p, id) -> (p, id + maxP1 + 1)) `M.mapKeys` placeToTransitions p2,
-                transitionToPlaces = (\(id, p) -> (id + maxP1 + 1, p)) `M.mapKeys` transitionToPlaces p2
+                transitions = (numP1 +) `M.mapKeys` transitions p2,
+                placeToTransitions = (\(p, id) -> (p, id + numP1)) `M.mapKeys` placeToTransitions p2,
+                transitionToPlaces = (\(id, p) -> (id + numP1, p)) `M.mapKeys` transitionToPlaces p2
             }
 
 instance (Ord p, Ord t) => Monoid (PetriNetImpl p t) where
@@ -56,7 +56,7 @@ instance (Ord p, Ord t) => PetriNet (PetriNetImpl p t) where
     type Transition (PetriNetImpl p t) = t
 
     transition sources trans targets = Petri {
-        maxId = 0,
+        numTransitions = 1,
         places = S.fromList $ sources ++ targets,
         transitions = M.singleton 0 trans,
         placeToTransitions = M.fromListWith (+) [(pair, 1) | pair <- (,0) <$> sources],
