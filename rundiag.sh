@@ -1,1 +1,1 @@
-ghcid "--command=cabal repl" -T Math.Agate.PetriNetDiagram.test -W
+ghcid "--command=cabal repl" -T Math.Agate.PetriNetDiagram2.test -W

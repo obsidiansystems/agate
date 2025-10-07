@@ -74,6 +74,9 @@ common common
         diagrams-lib,
         diagrams-svg,
         filepath,
+        fgl,
+        graphviz,
+        lens,
         svg-builder,
         text,
 
@@ -88,6 +91,7 @@ library
         Math.Agate.ODESystem
         Math.Agate.PetriNet
         Math.Agate.PetriNetDiagram
+        Math.Agate.PetriNetDiagram2
 
     -- Modules included in this library but not exported.
     other-modules:
@@ -119,6 +123,8 @@ test-suite agate-test
 
     -- The entrypoint to the test suite.
     main-is:          Main.hs
+
+    other-modules:    Petri
 
     -- Test dependencies.
     build-depends:

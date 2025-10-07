@@ -84,4 +84,12 @@ newtype PetriLabelling p = PetriLabelling (M.Map p Int) deriving (Show)
 --     base = [(p', l M.! p') | p' <- S.toList ps]
 --     newLabelling = PetriLabelling $ M.fromListWith (+) (base ++ sourceDelta ++ targetDelta)
 
--- Example: 
+-- Example:
+madridNet :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
+madridNet =
+  mconcat
+    [ transition [s] 1 [t] <> transition [t] 1 [s]
+      | (s, t) <- (("C",) <$> outer) ++ (zip outer (tail $ cycle outer))
+      ]
+  where
+    outer = ["N", "E", "SE", "S", "W", "NW"]

@@ -10,6 +10,7 @@ import Math.Agate.Examples.ODE
 import Math.Agate.PetriNetDiagram
 import Test.Tasty
 import Test.Tasty.Golden
+import Petri (petriTests)
 
 main :: IO ()
 main = defaultMain tests
@@ -33,5 +34,6 @@ tests =
                 ]
             $ transpose
             $ map (\(s, i, r) -> [r, i, s])
-            $ runSolverSIR
+            $ runSolverSIR,
+          petriTests
         ]
