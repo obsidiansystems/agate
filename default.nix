@@ -5,6 +5,9 @@
   hsPkgs = pkgs.haskell.packages.ghc912.override {
     overrides = self: super: {
       HaskellForMaths = pkgs.haskell.lib.doJailbreak (super.HaskellForMaths.overrideAttrs (old: { meta.broken = false; }));
+      brick = pkgs.haskell.lib.doJailbreak (super.brick.overrideAttrs (old: { meta.broken = false; }));
+      diagrams-lib = pkgs.haskell.lib.doJailbreak (super.diagrams-lib.overrideAttrs (old: { meta.broken = false; }));
+      diagrams-svg = pkgs.haskell.lib.doJailbreak (super.diagrams-svg.overrideAttrs (old: { meta.broken = false; }));
     };
   };
 in (hsPkgs.developPackage {
