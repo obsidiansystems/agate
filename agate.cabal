@@ -86,12 +86,13 @@ library
 
     -- Modules exported by the library.
     exposed-modules:
-        Math.Agate
-        Math.Agate.Examples.ODE
-        Math.Agate.ODESystem
+        Diagrams.AreaChart
+        Math.Agate.Algol
+        Math.Agate.ODE
+        Math.Agate.ODE.Polynomial
+        Math.Agate.ODE.Polynomial.Solver
+        Math.Agate.Diagrams.PetriNet
         Math.Agate.PetriNet
-        Math.Agate.PetriNetDiagram
-        Math.Agate.PetriNetDiagram2
 
     -- Modules included in this library but not exported.
     other-modules:
@@ -124,7 +125,8 @@ test-suite agate-test
     -- The entrypoint to the test suite.
     main-is:          Main.hs
 
-    other-modules:    Petri
+    other-modules:    Tests.PetriNet,
+                      Tests.PetriNet.Chart
 
     -- Test dependencies.
     build-depends:

@@ -1,6 +1,5 @@
-module Math.Agate.PetriNetDiagram2 where
+module Math.Agate.Diagrams.PetriNet (layoutPetri, drawPetri) where
 
-import Data.ByteString.Lazy qualified as BS
 import Data.Graph.Inductive (Gr)
 import Data.GraphViz (AttributeNode)
 import Data.GraphViz.Commands
@@ -9,21 +8,20 @@ import Data.Set qualified as Set
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
 import Diagrams.TwoD.GraphViz
-import Graphics.Svg (renderBS)
-import Math.Agate.PetriNet (Petri (..), exampleSIR, madridNet)
+import Math.Agate.PetriNet (PetriNetImpl (..))
 
 data Vertex p t
     = Transition Int t
     | Place p
     deriving (Ord, Eq, Show)
 
-testPetri1 :: Petri String Double
-testPetri1 = exampleSIR id 0.1 0.1
+-- testPetri1 :: PetriNetImpl String Double
+-- testPetri1 = exampleSIR id 0.1 0.1
 
-testPetri :: Petri String Double
-testPetri = madridNet
+-- testPetri :: PetriNetImpl String Double
+-- testPetri = madridNet
 
-layoutPetri :: (Ord p, Ord t, Show p, Show t) => Petri p t -> GraphvizCommand -> IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
+layoutPetri :: (Ord p, Ord t, Show p, Show t) => PetriNetImpl p t -> GraphvizCommand -> IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
 layoutPetri petri command = layoutGraph command $ mkGraph vertices edges
   where
     vertices =
@@ -49,12 +47,12 @@ drawPetri graph =
             & arrowShaft .~ (unLoc . head $ pathTrails p)
             & headLength .~ local (5 * fromIntegral w)
 
-test = do
-    p <- layoutPetri testPetri Neato
-    writeDiag "out.svg" (drawPetri p)
+-- test = do
+--     p <- layoutPetri testPetri Neato
+--     writeDiag "out.svg" (drawPetri p)
 
-writeDiag fName d =
-    BS.writeFile fName
-        . renderBS
-        $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True) $
-            d
+-- writeDiag fName d =
+--     BS.writeFile fName
+--         . renderBS
+--         $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True) $
+--             d

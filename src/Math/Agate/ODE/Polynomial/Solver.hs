@@ -1,12 +1,10 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
 {-# OPTIONS_GHC -Wno-typed-holes #-}
 
-module Math.Agate.Examples.ODE where
+module Math.Agate.ODE.Polynomial.Solver where
 
-import Data.Map (Map)
 import Data.Map as Map
-import Math.Agate.ODESystem
-import Math.Agate.PetriNet
+import Math.Agate.ODE.Polynomial
 import Math.CommutativeAlgebra.Polynomial as Poly
 import Data.Maybe
 
@@ -46,7 +44,7 @@ sampleODE :: PolynomialODE Double String
 sampleODE =
   PolynomialODE $
     Map.fromList
-      [ ("x", x) 
+      [ ("x", x)
       ]
   where
     x = Poly.var "x"
@@ -55,19 +53,19 @@ sampleODE =
 -- catMaybes ((Map.lookup "x") <$> Prelude.take 10 (odeSolve sampleODE (ODEParams 0.1) (Map.fromList [("x", 1)])))
 
 runSolverExponential :: [Double]
-runSolverExponential = 
+runSolverExponential =
     catMaybes ((Map.lookup "x") <$> Prelude.take 10000 (odeSolve sampleODE (ODEParams 0.0001) (Map.fromList [("x", 1)])))
 
-runSolverSIR :: [(Double, Double, Double)]
-runSolverSIR = 
-    catMaybes (lookupSir <$> Prelude.take 100 (
-        odeSolve exampleSIRODE (ODEParams 0.1) (Map.fromList [("S", 0.95), ("I", 0.05), ("R", 0)]))
-        ) where
-            lookupSir m = do
-                s <- Map.lookup "S" m
-                i <- Map.lookup "I" m
-                r <- Map.lookup "R" m
-                return (s, i, r)
+-- runSolverSIR :: [(Double, Double, Double)]
+-- runSolverSIR =
+--     catMaybes (lookupSir <$> Prelude.take 100 (
+--         odeSolve exampleSIRODE (ODEParams 0.1) (Map.fromList [("S", 0.95), ("I", 0.05), ("R", 0)]))
+--         ) where
+--             lookupSir m = do
+--                 s <- Map.lookup "S" m
+--                 i <- Map.lookup "I" m
+--                 r <- Map.lookup "R" m
+--                 return (s, i, r)
 
 
 -- forM_ runSolverSIR $ \(s, i, r) -> putStrLn . unwords $ [show s, show i, show r]

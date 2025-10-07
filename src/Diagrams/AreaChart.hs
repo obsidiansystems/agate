@@ -1,4 +1,4 @@
-module Math.Agate.PetriNetDiagram where
+module Diagrams.AreaChart (areaChart, Variable (..)) where
 
 import Control.Applicative
 import Data.List
@@ -11,8 +11,8 @@ data Variable = Variable
     , values :: [Double]
     }
 
-sirDiagram :: Double -> [Variable] -> Diagram B
-sirDiagram overallWidth sirData =
+areaChartInner :: Double -> [Variable] -> Diagram B
+areaChartInner overallWidth sirData =
     mconcat
         $ map
             ( \((bottoms, tops), Variable{colour}) ->
@@ -37,11 +37,11 @@ sirDiagram overallWidth sirData =
     zipWithN :: (Traversable t) => (t a -> b) -> t [a] -> [b]
     zipWithN f xs = getZipList $ f <$> traverse ZipList xs
 
-sirDiagramDecorated :: Double -> [Variable] -> Diagram B
-sirDiagramDecorated w sirData =
+areaChart :: Double -> [Variable] -> Diagram B
+areaChart w sirData =
     hsep
         0.1
-        [ sirDiagram w sirData & centerY
+        [ areaChartInner w sirData & centerY
         , key & alignL & centerY
         ]
   where
