@@ -2,10 +2,7 @@
 {-# LANGUAGE InstanceSigs #-}
 
 module Math.Agate.Algol where
-import Math.Agate.ODESystem (PolynomialODE)
-import Math.Algebras.Commutative (GlexPoly)
 import Data.IORef
-import Control.Applicative (liftA2)
 
 -- import Data.Map (Map)
 -- import Data.Map qualified as Map
@@ -36,22 +33,22 @@ instance (Num v, Eq v) => Algol (AlgolIO v) where
     type Var (AlgolIO v) = IORef v
 
     assign :: IORef v -> IO v -> AlgolIO v
-    assign ref expr = AlgolIO $ do 
+    assign ref expr = AlgolIO $ do
         val <- expr
         writeIORef ref val
     var :: IORef v -> IO v
     var ref = readIORef ref
     ifThenElse :: IO v -> AlgolIO v -> AlgolIO v -> AlgolIO v
-    ifThenElse cond (AlgolIO thenBranch) (AlgolIO elseBranch) = 
+    ifThenElse cond (AlgolIO thenBranch) (AlgolIO elseBranch) =
         AlgolIO $ do
             c <- cond
             if c /= 0 then thenBranch else elseBranch
     while :: IO v -> AlgolIO v -> AlgolIO v
-    while cond (AlgolIO body) = 
+    while cond (AlgolIO body) =
         AlgolIO $ do
             c <- cond
             if c /= 0
-                then body >> runAlgolIO (while cond (AlgolIO body)) 
+                then body >> runAlgolIO (while cond (AlgolIO body))
                 else return ()
     new :: (IORef v -> AlgolIO v) -> AlgolIO v
     new cont =
@@ -62,7 +59,7 @@ instance (Num v, Eq v) => Algol (AlgolIO v) where
 sampleProgram :: forall system . Algol system => Var system -> system
 sampleProgram y =
     new $ \x ->
-        assign x 5 <> assign y 0 <> 
+        assign x 5 <> assign y 0 <>
             while (var @system x) (
                 ( assign x (var @system x - 1)) <>
                 ( assign y (var @system y  + 1))
@@ -89,4 +86,3 @@ runIt =
 -- change the kinds of 'system', their constraints? or a function type => type e.g. List
 -- so Algol becomes a Monad => Monad ...? instead of a Monoid => Monoid ...
 -- more implementations of Algol, other things you can do with it
-

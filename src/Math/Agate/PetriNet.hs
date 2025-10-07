@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 module Math.Agate.PetriNet where
 
-import Math.Agate.ODESystem
+import Math.Agate.ODE
 import qualified Data.Map.Lazy as M
 import qualified Data.Set as S
 
@@ -22,29 +22,18 @@ instance forall system. ODESystem system => PetriNet (AsODE system) where
        mconcat [i += (- rate) * product (map (var @system) inputs) | i <- inputs]
     <> mconcat [o += rate * product (map (var @system) inputs)     | o <- outputs]
 
-exampleSIR :: (Fractional (Transition net), PetriNet net) => (String -> Place net) -> Transition net -> Transition net -> net
-exampleSIR place recovery transmission =
-  mconcat
-    [ transition [place "I", place "S"] transmission [place "I", place "I"]
-    , transition [place "I"] recovery [place "R"]
-    ]
-
-exampleSIRODE :: PolynomialODE Double String
-exampleSIRODE = asODE $ exampleSIR id recovery transmission where
-  recovery = 0.03
-  transmission = 0.4
-
 -- PETRI NET DEFINITION
-data Petri p t = Petri
-  { maxId :: Int,
-    transitions :: M.Map Int t,
+type TransId  = Int
+data PetriNetImpl p t = Petri
+  { maxId :: TransId,
+    transitions :: M.Map TransId t,
     places :: S.Set p,
-    placeToTransitions :: M.Map (p, Int) Int,
-    transitionToPlaces :: M.Map (Int, p) Int
+    placeToTransitions :: M.Map (p, TransId) Int,
+    transitionToPlaces :: M.Map (TransId, p) Int
   }
   deriving (Show)
 
-instance (Ord p, Ord t) => Semigroup (Petri p t) where
+instance (Ord p, Ord t) => Semigroup (PetriNetImpl p t) where
     p1 <> p2 = Petri {
         maxId              = maxP1 + maxP2 + 1,
         transitions        = foldMap transitions        $ [p1', p2'],
@@ -59,12 +48,12 @@ instance (Ord p, Ord t) => Semigroup (Petri p t) where
                 transitionToPlaces = (\(id, p) -> (id + maxP1 + 1, p)) `M.mapKeys` transitionToPlaces p2
             }
 
-instance (Ord p, Ord t) => Monoid (Petri p t) where
+instance (Ord p, Ord t) => Monoid (PetriNetImpl p t) where
     mempty = Petri 0 M.empty S.empty M.empty M.empty
 
-instance (Ord p, Ord t) => PetriNet (Petri p t) where
-    type Place (Petri p t) = p
-    type Transition (Petri p t) = t
+instance (Ord p, Ord t) => PetriNet (PetriNetImpl p t) where
+    type Place (PetriNetImpl p t) = p
+    type Transition (PetriNetImpl p t) = t
 
     transition sources trans targets = Petri {
         maxId = 0,
@@ -76,7 +65,7 @@ instance (Ord p, Ord t) => PetriNet (Petri p t) where
 
 newtype PetriLabelling p = PetriLabelling (M.Map p Int) deriving (Show)
 
--- fireTransition :: (Ord p, Ord t) => t -> Petri p t a -> PetriLabelling p -> PetriLabelling p
+-- fireTransition :: (Ord p, Ord t) => t -> PetriNetImpl p t a -> PetriLabelling p -> PetriLabelling p
 -- fireTransition t (Petri _ _ ps p2t t2p) (PetriLabelling l) = newLabelling
 --   where
 --     sourceDelta = [(p', -1) | (p', t') <- S.toList p2t, t' == t]
@@ -85,11 +74,3 @@ newtype PetriLabelling p = PetriLabelling (M.Map p Int) deriving (Show)
 --     newLabelling = PetriLabelling $ M.fromListWith (+) (base ++ sourceDelta ++ targetDelta)
 
 -- Example:
-madridNet :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
-madridNet =
-  mconcat
-    [ transition [s] 1 [t] <> transition [t] 1 [s]
-      | (s, t) <- (("C",) <$> outer) ++ (zip outer (tail $ cycle outer))
-      ]
-  where
-    outer = ["N", "E", "SE", "S", "W", "NW"]
