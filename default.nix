@@ -1,5 +1,5 @@
 {
-  pkgs ? import <nixpkgs> {},
+  pkgs ? import ./dep/nixpkgs {},
   withHLS ? false,
 }: let
   hsPkgs = pkgs.haskell.packages.ghc912.override {
