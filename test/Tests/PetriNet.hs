@@ -6,6 +6,12 @@ import Math.Agate.PetriNet
 import Test.Tasty
 import Test.Tasty.HUnit
 import Math.Agate.ODE.Polynomial (PolynomialODE)
+import Test.Tasty.Golden
+import Math.Agate.Diagrams.PetriNet
+import Data.GraphViz
+import Graphics.Svg
+import Diagrams.Prelude
+import Diagrams.Backend.SVG
 
 petriTests :: TestTree
 petriTests =
@@ -16,6 +22,35 @@ petriTests =
             [ testCase "Transitions Correct" $
                 assert $
                     length (transitions exampleSIR) == 2
+            , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
+                p <- layoutPetri exampleSIR Neato
+                pure
+                    . renderBS
+                    . renderDia SVG
+                      ( SVGOptions
+                        (mkSizeSpec (V2 (Just 1000) Nothing))
+                        Nothing
+                        mempty
+                        []
+                        True
+                      )
+                    $ drawPetri p
+            ]
+        , testGroup
+            "Madrid"
+            [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
+                p <- layoutPetri madridNet Neato
+                pure
+                    . renderBS
+                    . renderDia SVG
+                      ( SVGOptions
+                        (mkSizeSpec (V2 (Just 1000) Nothing))
+                        Nothing
+                        mempty
+                        []
+                        True
+                      )
+                    $ drawPetri p
             ]
         ]
 
