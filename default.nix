@@ -10,6 +10,14 @@
 in (hsPkgs.developPackage {
   name = "agate";
   root = builtins.fetchGit ./.;
-}).overrideAttrs (old: {
-  buildInputs = (old.buildInputs or []) ++ pkgs.lib.optional withHLS hsPkgs.haskell-language-server;
-})
+}).overrideAttrs
+  (old: {
+    buildInputs =
+      (old.buildInputs or [ ])
+      ++ pkgs.lib.optional withHLS hsPkgs.haskell-language-server
+      ++ (with pkgs; [
+        cabal-install
+        graphviz
+        ghcid
+      ]);
+  })
