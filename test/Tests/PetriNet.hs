@@ -57,9 +57,9 @@ petriTests =
             assertBool "Expected transitions" $
                 length (transitions exampleSIR) == 2
         ]
-
-exampleSIR :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
-exampleSIR =  generalSIR
+    where
+      exampleSIR :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
+      exampleSIR =  generalSIR
 
 exampleSIRODE :: PolynomialODE Double String
 exampleSIRODE = asODE generalSIR
