@@ -1,4 +1,5 @@
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeOperators #-}
 module Tests.PetriNet where
 
 import qualified Data.Map.Lazy as M
@@ -12,6 +13,7 @@ import Data.GraphViz
 import Graphics.Svg
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
+import Data.List.NonEmpty qualified as NE
 
 petriTests :: TestTree
 petriTests =
@@ -52,6 +54,9 @@ petriTests =
                       )
                     $ drawPetri p
             ]
+        [ testCase "SIR Model" $
+            assertBool "Expected transitions" $
+                length (transitions exampleSIR) == 2
         ]
 
 exampleSIR :: PetriNetImpl String Double
@@ -77,14 +82,10 @@ madridNet :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
 madridNet =
   mconcat
     [ transition [s] 1 [t] <> transition [t] 1 [s]
-      | (s, t) <- (("C",) <$> outer) ++ (zip outer (tail $ cycle outer))
+      | (s, t) <- mconcat [
+         ("C",) <$> outer,
+         zip outer (NE.tail (NE.fromList (cycle outer)))
       ]
+    ]
   where
-    outer = ["N", "E", "SE", "S", "W", "NW"]
-
--- exampleSIR :: (Fractional (Transition net), PetriNet net) => (String -> Place net) -> Transition net -> Transition net -> net
--- exampleSIR place recovery transmission =
---   mconcat
---     [ transition [place "I", place "S"] transmission [place "I", place "I"]
---     , transition [place "I"] recovery [place "R"]
---     ]
+    outer =["N", "E", "SE", "S", "W", "NW"]
