@@ -1,11 +1,9 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Math.Agate.Algol where
 import Data.IORef
-
--- import Data.Map (Map)
--- import Data.Map qualified as Map
 
 class (Monoid system, Num (Exp system)) => Algol system where
     type Exp system

@@ -12,8 +12,6 @@ import Diagrams.AreaChart (Variable(..), areaChart)
 import qualified Data.Map.Lazy as Map
 import Data.Maybe (catMaybes)
 import Math.Agate.ODE.Polynomial.Solver
-import Math.Agate.PetriNet (asODE)
-import Math.Agate.ODE.Polynomial (PolynomialODE)
 import Tests.PetriNet (exampleSIRODE)
 
 petriChartTest :: TestTree

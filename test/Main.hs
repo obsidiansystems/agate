@@ -1,9 +1,11 @@
 module Main (main, mainAcceptAll) where
 
 import Test.Tasty
+import Test.Tasty.Golden.Manage (AcceptTests(AcceptTests))
+
 import Tests.PetriNet (petriTests)
 import Tests.PetriNet.Chart (petriChartTest)
-import Test.Tasty.Golden.Manage (AcceptTests(AcceptTests))
+import Tests.ODE.Solver (odeSolverTests)
 
 main :: IO ()
 main = defaultMain tests
@@ -16,6 +18,8 @@ tests :: TestTree
 tests =
     testGroup
         "Tests"
-        [ petriChartTest,
-          petriTests
+        [
+            odeSolverTests,
+            petriChartTest,
+            petriTests
         ]

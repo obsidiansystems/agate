@@ -76,6 +76,7 @@ common common
         filepath,
         fgl,
         graphviz,
+        HaskellForMaths >=0.4.9,
         lens,
         svg-builder,
         text,
@@ -102,7 +103,6 @@ library
 
     -- Other library packages from which modules are imported.
     build-depends:
-        HaskellForMaths >=0.4.9,
 
     -- Directories containing source files.
     hs-source-dirs:   src
@@ -125,8 +125,10 @@ test-suite agate-test
     -- The entrypoint to the test suite.
     main-is:          Main.hs
 
-    other-modules:    Tests.PetriNet,
-                      Tests.PetriNet.Chart
+    other-modules:
+        Tests.ODE.Solver,
+        Tests.PetriNet,
+        Tests.PetriNet.Chart
 
     -- Test dependencies.
     build-depends:

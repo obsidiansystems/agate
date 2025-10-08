@@ -1,9 +1,10 @@
 {-# LANGUAGE TupleSections #-}
-module Math.Agate.PetriNet where
+module Math.Agate.PetriNet (PetriNet (..), AsODE (..), PetriNetImpl (..)) where
 
 import Math.Agate.ODE
 import qualified Data.Map.Lazy as M
 import qualified Data.Set as S
+import Prelude hiding (id)
 
 class Monoid net => PetriNet net where
   type Place net
@@ -24,7 +25,7 @@ instance forall system. ODESystem system => PetriNet (AsODE system) where
 
 -- PETRI NET DEFINITION
 type TransId  = Int
-data PetriNetImpl p t = Petri
+data PetriNetImpl p t = PetriNetImpl
   { numTransitions :: Int,
     transitions :: M.Map TransId t,
     places :: S.Set p,
@@ -34,13 +35,13 @@ data PetriNetImpl p t = Petri
   deriving (Show)
 
 instance (Ord p, Ord t) => Semigroup (PetriNetImpl p t) where
-    p1 <> p2 = Petri {
+    p1 <> p2 = PetriNetImpl {
         numTransitions     = numP1 + numP2,
-        transitions        = foldMap transitions        $ [p1', p2'],
-        places             = foldMap places             $ [p1', p2'],
-        placeToTransitions = foldMap placeToTransitions $ [p1', p2'],
-        transitionToPlaces = foldMap transitionToPlaces $ [p1', p2']
-    } where [numP1, numP2] = map numTransitions [p1, p2]
+        transitions        = foldMap transitions         [p1', p2'],
+        places             = foldMap places              [p1', p2'],
+        placeToTransitions = foldMap placeToTransitions  [p1', p2'],
+        transitionToPlaces = foldMap transitionToPlaces  [p1', p2']
+    } where (numP1, numP2) = (numTransitions p1, numTransitions p2)
             p1' = p1
             p2' = p2 {
                 transitions = (numP1 +) `M.mapKeys` transitions p2,
@@ -49,28 +50,16 @@ instance (Ord p, Ord t) => Semigroup (PetriNetImpl p t) where
             }
 
 instance (Ord p, Ord t) => Monoid (PetriNetImpl p t) where
-    mempty = Petri 0 M.empty S.empty M.empty M.empty
+    mempty = PetriNetImpl 0 M.empty S.empty M.empty M.empty
 
 instance (Ord p, Ord t) => PetriNet (PetriNetImpl p t) where
     type Place (PetriNetImpl p t) = p
     type Transition (PetriNetImpl p t) = t
 
-    transition sources trans targets = Petri {
+    transition sources trans targets = PetriNetImpl {
         numTransitions = 1,
         places = S.fromList $ sources ++ targets,
         transitions = M.singleton 0 trans,
         placeToTransitions = M.fromListWith (+) [(pair, 1) | pair <- (,0) <$> sources],
         transitionToPlaces = M.fromListWith (+) [(pair, 1) | pair <- (0,) <$> targets]
     }
-
-newtype PetriLabelling p = PetriLabelling (M.Map p Int) deriving (Show)
-
--- fireTransition :: (Ord p, Ord t) => t -> PetriNetImpl p t a -> PetriLabelling p -> PetriLabelling p
--- fireTransition t (Petri _ _ ps p2t t2p) (PetriLabelling l) = newLabelling
---   where
---     sourceDelta = [(p', -1) | (p', t') <- S.toList p2t, t' == t]
---     targetDelta = [(p', 1) | (t', p') <- S.toList t2p, t' == t]
---     base = [(p', l M.! p') | p' <- S.toList ps]
---     newLabelling = PetriLabelling $ M.fromListWith (+) (base ++ sourceDelta ++ targetDelta)
-
--- Example:
