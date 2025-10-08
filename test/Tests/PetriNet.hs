@@ -2,7 +2,6 @@
 {-# LANGUAGE TypeOperators #-}
 module Tests.PetriNet where
 
-import qualified Data.Map.Lazy as M
 import Math.Agate.PetriNet
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -54,7 +53,7 @@ petriTests =
                       )
                     $ drawPetri p
             ]
-        [ testCase "SIR Model" $
+         , testCase "SIR Model" $
             assertBool "Expected transitions" $
                 length (transitions exampleSIR) == 2
         ]
