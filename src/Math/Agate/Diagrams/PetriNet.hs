@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
+
 module Math.Agate.Diagrams.PetriNet (layoutPetri, drawPetri) where
 
 import Data.Graph.Inductive (Gr)
@@ -17,7 +20,13 @@ data Vertex p t
     | Place p
     deriving (Ord, Eq, Show)
 
-layoutPetri :: (Ord p, Ord t, Show p, Show t) => PetriNetImpl p t -> GraphvizCommand -> IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
+class VertexShow a where
+  vShow :: a -> String
+
+instance {-# OVERLAPPING #-} VertexShow String where vShow s = s
+instance {-# OVERLAPPABLE #-} (Show a) => VertexShow a where vShow = show
+
+layoutPetri :: (Ord p, Ord t, VertexShow p, VertexShow t) => PetriNetImpl p t -> GraphvizCommand -> IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
 layoutPetri petri command = layoutGraph command $ mkGraph vertices edges
   where
     vertices =
@@ -28,11 +37,11 @@ layoutPetri petri command = layoutGraph command $ mkGraph vertices edges
         ++ [(Transition id (t M.! id), Place p, w) | ((id, p), w) <- M.toList $ transitionToPlaces petri]
     t = transitions petri
 
-drawPetri :: (Show p, Show t, Ord t, Ord p) => Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetri :: (VertexShow p, VertexShow t, Ord t, Ord p) => Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
 drawPetri = drawGraph
         ( \v -> place $ case v of
-            Place p -> fontSizeL 10 (fc black (text (show p))) <> fc white (circle 10)
-            Transition _ t -> fontSizeL 5 (fc white (text (show t))) <> fc black (square 10)
+            Place p -> fontSizeL 10 (fc black (text (vShow p))) <> fc white (circle 10)
+            Transition _ t -> fontSizeL 5 (fc white (text (vShow t))) <> fc black (square 10)
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
