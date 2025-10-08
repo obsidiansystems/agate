@@ -59,6 +59,7 @@ common common
         FlexibleContexts
         GeneralizedNewtypeDeriving
         ImportQualifiedPost
+        LambdaCase
         NamedFieldPuns
         ScopedTypeVariables
         TypeApplications
