@@ -10,7 +10,7 @@ import Test.Tasty.Golden
 import Math.Agate.Diagrams.PetriNet
 import Data.GraphViz
 import Graphics.Svg
-import Diagrams.Prelude
+import Diagrams.Prelude hiding (outer)
 import Diagrams.Backend.SVG
 import Data.List.NonEmpty qualified as NE
 
@@ -21,7 +21,7 @@ petriTests =
         [ testGroup
             "SIR Model"
             [ testCase "Transitions Correct" $
-                assert $
+                assertBool "2 Transitions present" $
                     length (transitions exampleSIR) == 2
             , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
                 p <- layoutPetri exampleSIR Neato
@@ -58,30 +58,27 @@ petriTests =
                 length (transitions exampleSIR) == 2
         ]
 
-exampleSIR :: (Place net ~ String, Fractional (Transition net), PetriNet net) => net
-exampleSIR =  generalSIR id recovery transmission where
-      recovery = 0.03
-      transmission = 0.4
-
-
-generalSIR :: (Fractional (Transition net), PetriNet net) => (String -> Place net) -> Transition net -> Transition net -> net
-generalSIR place recovery transmission =
-  mconcat
-    [ transition [place "I", place "S"] transmission [place "I", place "I"]
-    , transition [place "I"] recovery [place "R"]
-    ]
+exampleSIR :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
+exampleSIR =  generalSIR
 
 exampleSIRODE :: PolynomialODE Double String
-exampleSIRODE = asODE exampleSIR
+exampleSIRODE = asODE generalSIR
+
+generalSIR :: (Place net ~ String, Fractional (Transition net), PetriNet net) => net
+generalSIR =
+  mconcat
+    [ transition ["I", "S"] transmission ["I", "I"]
+    , transition ["I"] recovery ["R"]
+    ]
+    where
+      transmission = 0.4
+      recovery = 0.03
 
 madridNet :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
 madridNet =
   mconcat
     [ transition [s] 1 [t] <> transition [t] 1 [s]
-      | (s, t) <- mconcat [
-         ("C",) <$> outer,
-         zip outer (NE.tail (NE.fromList (cycle outer)))
-      ]
+      | (s, t) <- (("C",) <$> outer) ++ zip outer (NE.tail (NE.fromList (cycle outer)))
     ]
   where
     outer =["N", "E", "SE", "S", "W", "NW"]
