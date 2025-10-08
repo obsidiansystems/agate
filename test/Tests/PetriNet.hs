@@ -59,7 +59,7 @@ petriTests =
                 length (transitions exampleSIR) == 2
         ]
 
-exampleSIR :: PetriNetImpl String Double
+exampleSIR :: (Place net ~ String, Fractional (Transition net), PetriNet net) => net
 exampleSIR =  generalSIR id recovery transmission where
       recovery = 0.03
       transmission = 0.4
@@ -73,10 +73,7 @@ generalSIR place recovery transmission =
     ]
 
 exampleSIRODE :: PolynomialODE Double String
-exampleSIRODE = asODE $ generalSIR id recovery transmission where
-  recovery = 0.03
-  transmission = 0.4
-
+exampleSIRODE = asODE exampleSIR
 
 madridNet :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
 madridNet =
