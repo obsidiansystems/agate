@@ -14,8 +14,8 @@ data Variable = Variable
 areaChartInner :: Double -> [Variable] -> Diagram B
 areaChartInner overallWidth sirData =
     mconcat
-        $ map
-            ( \((bottoms, tops), Variable{colour}) ->
+        $ zipWith
+            ( \(bottoms, tops) Variable{colour} ->
                 fromVertices
                     (zipWith (curry p2) [0, w ..] bottoms <> reverse (zipWith (curry p2) [0, w ..] tops))
                     & closeLine
@@ -24,10 +24,9 @@ areaChartInner overallWidth sirData =
                     & fc colour
                     & lcA transparent
             )
-        $ zip
             -- accumulate y bounds from sums of preceding data points
-            (map unzip $ mapColumns (adjacentPairs . scanl (+) 0 . id) $ map (\Variable{values} -> values) sirData)
-        $ sirData
+            (map unzip $ mapColumns (adjacentPairs . scanl (+) 0) $ map (\Variable{values} -> values) sirData)
+            sirData
   where
     w = overallWidth / maximum (map (genericLength . \Variable{values} -> values) sirData)
     adjacentPairs :: [a] -> [(a, a)]
