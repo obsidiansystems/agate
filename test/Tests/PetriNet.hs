@@ -13,6 +13,7 @@ import Graphics.Svg
 import Diagrams.Prelude hiding (outer)
 import Diagrams.Backend.SVG
 import Data.List.NonEmpty qualified as NE
+import Data.Text.Lazy.Encoding (encodeUtf8)
 
 petriTests :: TestTree
 petriTests =
@@ -26,7 +27,8 @@ petriTests =
             , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
                 p <- layoutPetri exampleSIR Neato
                 pure
-                    . renderBS
+                    . encodeUtf8
+                    . prettyText
                     . renderDia SVG
                       ( SVGOptions
                         (mkSizeSpec (V2 (Just 1000) Nothing))
@@ -42,7 +44,8 @@ petriTests =
             [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
                 p <- layoutPetri madridNet Neato
                 pure
-                    . renderBS
+                    . encodeUtf8
+                    . prettyText
                     . renderDia SVG
                       ( SVGOptions
                         (mkSizeSpec (V2 (Just 1000) Nothing))

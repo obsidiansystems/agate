@@ -13,6 +13,7 @@ import qualified Data.Map.Lazy as Map
 import Data.Maybe
 import Math.Agate.ODE.Polynomial.Solver
 import Tests.PetriNet (exampleSIRODE)
+import Data.Text.Lazy.Encoding (encodeUtf8)
 
 petriChartTest :: TestTree
 petriChartTest = testGroup "Area Chart Tests" [
@@ -20,7 +21,8 @@ petriChartTest = testGroup "Area Chart Tests" [
                 "SIR SVG"
                 "test/outputs/sir.svg"
                 $ pure
-                $ renderBS
+                $ encodeUtf8
+                $ prettyText
                 $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True)
                 $ areaChart 3
                 $ zipWith
