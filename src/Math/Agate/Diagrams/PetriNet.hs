@@ -9,7 +9,7 @@ import Data.Map.Lazy qualified as M
 import Data.Set qualified as Set
 import Diagrams.Prelude hiding (p2)
 import Diagrams.TwoD.GraphViz
-import Diagrams.TwoD.Text qualified as DiagramsText
+import Diagrams.Backend.SVG
 import Math.Agate.PetriNet (PetriNetImpl (..))
 import Prelude hiding (id)
 import Data.Maybe (listToMaybe, fromMaybe)
@@ -41,30 +41,26 @@ layoutPetri petri command = layoutGraph command $ mkGraph vertices edges
     t = transitions petri
 
 drawPetri ::
-    ( V b ~ V2, N b ~ Double, Renderable (Path V2 Double) b, Renderable (DiagramsText.Text Double) b
-    , Ord p, Ord t, VertexShow p, VertexShow t
+    ( Ord p, Ord t, VertexShow p, VertexShow t
     ) =>
-    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram b
+    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
 drawPetri = drawPetri' vShow (const mempty)
 
 drawPetriDynamic ::
-    ( V b ~ V2, N b ~ Double, Renderable (Path V2 Double) b, Renderable (DiagramsText.Text Double) b
-    , Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p
+    ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p
     ) =>
-    (p -> Colour Double) -> Gr (AttributeNode (Vertex (p, Double) t)) (AttributeNode Int) -> Diagram b
-drawPetriDynamic col = drawPetri' (vShow . fst) \(p, n) -> fc (col p) . circle $ n * 10
+    (p -> Colour Double) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetriDynamic col = drawPetri' vShow \p -> fc (col p) . circle $ 10
 
 drawPetri' ::
-    ( V b ~ V2, N b ~ Double, Renderable (Path V2 Double) b, Renderable (DiagramsText.Text Double) b
-    , Ord p, Ord t, VertexShow t
-    ) =>
+    ( Ord p, Ord t, VertexShow t) =>
     (p -> String) ->
-    (p -> Diagram b) ->
+    (p -> Diagram B) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
-    Diagram b
+    Diagram B
 drawPetri' showPlace renderPlace = drawGraph
         ( \v -> place $ case v of
-            Place p -> fontSizeL 10 (fc black (text (showPlace p))) <> renderPlace p <> fc white (circle 10)
+            Place p -> fontSizeL 10 (fc black (text (showPlace p))) <> showPlace p `svgId` renderPlace p <> fc white (circle 10)
             Transition _ t -> fontSizeL 5 (fc white (text (vShow t))) <> fc black (square 10)
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)

@@ -143,9 +143,3 @@ test-suite agate-test
         tasty-quickcheck,
         tasty-golden,
         tasty-hunit,
-
-executable animate-petri
-    import: common
-    hs-source-dirs: exes/animate-petri
-    main-is: Main.hs
-    build-depends: agate
