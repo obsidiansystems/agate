@@ -20,11 +20,8 @@ main = runRasterificStuff generalSIR
 runRasterificStuff :: (forall net. (Place net ~ String, Fractional (Transition net), PetriNet net) => net) -> IO ()
 runRasterificStuff pn = do
     pl <- layoutPetri (pn :: PetriNetImpl String Double) Neato
-    animatedGif "/tmp/out.gif" (mkSizeSpec $ V2 Nothing $ Just 100) LoopingForever 50
-        . take 5
-        . map snd
-        . filter ((==(1::Integer)) . fst)
-        . zip (cycle [1..30])
+    animatedGif "/tmp/out.gif" (mkSizeSpec $ V2 Nothing $ Just 200) LoopingForever 10
+        . take 100
         $ odeResult pn <&> \m ->
             bg white . drawPetriDynamic sirColour $
                 first
