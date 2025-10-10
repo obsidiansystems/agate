@@ -95,6 +95,7 @@ library
         Math.Agate.ODE.Polynomial.Solver
         Math.Agate.Diagrams.PetriNet
         Math.Agate.PetriNet
+        Math.Agate.Olog.Olog
 
     -- Modules included in this library but not exported.
     other-modules:
