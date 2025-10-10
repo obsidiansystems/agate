@@ -8,7 +8,7 @@
       brick = pkgs.haskell.lib.doJailbreak super.brick;
       diagrams-lib = pkgs.haskell.lib.doJailbreak super.diagrams-lib;
       diagrams-rasterific = pkgs.haskell.lib.doJailbreak super.diagrams-rasterific;
-      diagrams-svg = pkgs.haskell.lib.doJailbreak super.diagrams-svg;
+      diagrams-svg = super.callCabal2nix "diagrams-svg" ./diagrams-svg {};
     };
   };
 in (hsPkgs.developPackage {
