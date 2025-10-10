@@ -129,7 +129,8 @@ test-suite agate-test
     other-modules:
         Tests.ODE.Solver,
         Tests.PetriNet,
-        Tests.PetriNet.Chart
+        Tests.PetriNet.Chart,
+        Tests.Olog.OlogSpec
 
     -- Test dependencies.
     build-depends:
