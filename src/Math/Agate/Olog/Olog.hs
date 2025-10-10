@@ -25,7 +25,6 @@ module Math.Agate.Olog.Olog
 where
 
 import Control.Monad
-import Data.Foldable (for_)
 import Data.List.NonEmpty (NonEmpty, nonEmpty)
 import qualified Data.List.NonEmpty as NE
 import Data.Map (Map)
@@ -50,7 +49,7 @@ data Relator = Relator
 data Olog dot = Olog
   { dots :: [dot],
     arcs :: [Arc dot],
-    identities :: [Relator]
+    relators :: [Relator]
   }
   deriving (Show, Eq)
 
@@ -61,19 +60,19 @@ makeOlogOld ::
   [(String, dot, dot)] ->
   [([String], [String])] ->
   Either (MakeOlogError dot) (Olog dot)
-makeOlogOld dots preArcs preIdentities =
+makeOlogOld dots preArcs preRelators =
   case errors of
     [] ->
       Right $
         Olog
           dots
           (map (\(name, src, tgt) -> Arc {name = name, source = src, target = tgt}) preArcs)
-          ( (\(path1, path2) -> Relator {lhs = path1, rhs = path2}) <$> preIdentities
+          ( (\(path1, path2) -> Relator {lhs = path1, rhs = path2}) <$> preRelators
           )
     err : _ -> Left err
   where
     errorUnless b e = if b then Nothing else Just e
-    errors :: [MakeOlogError dot] = arcErrors <> identityErrors
+    errors :: [MakeOlogError dot] = arcErrors <> relatorErrors
     arcErrors =
       concat . concat $
         map
@@ -84,9 +83,9 @@ makeOlogOld dots preArcs preIdentities =
             (\(_, _, tgt) -> tgt, UnknownTarget)
           ]
     knownArcNames = map (\(name, _, _) -> name) preArcs
-    identityErrors :: [MakeOlogError dot] =
-      identityKnownArcErrors <> identityLhsJoinErrors <> identityRhsJoinErrors <> identityMismatchErrors
-    identityKnownArcErrors =
+    relatorErrors :: [MakeOlogError dot] =
+      relatorKnownArcErrors <> relatorLhsJoinErrors <> relatorRhsJoinErrors <> relatorMismatchErrors
+    relatorKnownArcErrors =
       concat $
         map
           ( \(lhs, rhs) ->
@@ -98,22 +97,22 @@ makeOlogOld dots preArcs preIdentities =
                       $ lhs <> rhs
                   )
           )
-          preIdentities
+          preRelators
     namesToArcs :: Map String (dot, dot) = Map.fromList $ (\(s, src, tgt) -> (s, (src, tgt))) <$> preArcs
-    identityLhsJoinErrors = identityXhsJoinErrors NonJoiningExpressionLhs fst
-    identityRhsJoinErrors = identityXhsJoinErrors NonJoiningExpressionRhs snd
-    identityXhsJoinErrors ::
+    relatorLhsJoinErrors = relatorXhsJoinErrors NonJoiningExpressionLhs fst
+    relatorRhsJoinErrors = relatorXhsJoinErrors NonJoiningExpressionRhs snd
+    relatorXhsJoinErrors ::
       ([String] -> MakeOlogError dot) ->
       (([String], [String]) -> [String]) ->
       [MakeOlogError dot]
-    identityXhsJoinErrors errorFactory picker = catMaybes $ map (checkTerm errorFactory . picker) preIdentities
+    relatorXhsJoinErrors errorFactory picker = catMaybes $ map (checkTerm errorFactory . picker) preRelators
     checkTerm :: ([String] -> MakeOlogError dot) -> [String] -> Maybe (MakeOlogError dot)
     checkTerm errorFactory arcNames = errorUnless (targets == sources) $ errorFactory arcNames
       where
         arcs :: [(dot, dot)] = catMaybes $ flip Map.lookup namesToArcs <$> arcNames
         targets :: [dot] = tail $ snd <$> arcs
         sources :: [dot] = init $ fst <$> arcs
-    identityMismatchErrors = catMaybes $ checkMismatch <$> preIdentities
+    relatorMismatchErrors = catMaybes $ checkMismatch <$> preRelators
     checkMismatch :: ([String], [String]) -> Maybe (MakeOlogError dot)
     checkMismatch (lhs, rhs) = do
       nonEmptyLhsAndSig <- case nonEmpty lhs of
@@ -176,13 +175,13 @@ makeOlog ::
   [(String, dot, dot)] ->
   [([String], [String])] ->
   Either (MakeOlogError dot) (Olog dot)
-makeOlog dots preArcs preIdentities = do
+makeOlog dots preArcs preRelators = do
   arcs <- for preArcs \(name, source, target) -> do
     -- TODO reuse `namesToArcs`?
     unless (source `elem` dots) $ Left $ UnknownSource name source
     unless (target `elem` dots) $ Left $ UnknownTarget name target
     pure Arc{name, source, target}
-  identities <- for preIdentities \(lhs, rhs) -> do
+  relators <- for preRelators \(lhs, rhs) -> do
     lhs' :: [(String, (dot, dot))] <- for lhs \arcName -> case Map.lookup arcName namesToArcs of
       Nothing -> Left $ UnknownArc arcName
       Just srcAndTgt -> pure (arcName, srcAndTgt)
@@ -210,7 +209,7 @@ makeOlog dots preArcs preIdentities = do
             r' = combinedSrcTgt r
         errorWhen (l' /=  r') $ RelatorMismatch lhs rhs l' r'
     pure Relator {lhs, rhs}
-  pure Olog {dots, arcs, identities}
+  pure Olog {dots, arcs, relators}
   where
     checkTerm errorFactory arcs = do
       let

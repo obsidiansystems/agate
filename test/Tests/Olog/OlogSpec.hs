@@ -37,11 +37,11 @@ ologTests =
                     badOlog =
                         makeOlog [0] [] [([], [])]
                 in badOlog @?= Left ForbiddenTrivialRelator,
-            testCase "identities should only use known names" $
+            testCase "relators should only use known names" $
                 let badOlog :: MaybeOlog
                     badOlog =
-                        makeOlog [0] [] [(["identity"], [])]
-                in badOlog @?= Left (UnknownArc "identity"),
+                        makeOlog [0] [] [(["mysteryArc"], [])]
+                in badOlog @?= Left (UnknownArc "mysteryArc"),
             testCase "arcs in lhs of relators join up" $
                 let badOlog :: MaybeOlog
                     badOlog =
