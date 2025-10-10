@@ -56,9 +56,7 @@ drawPetriDynamic ::
     (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
 drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram $
         SVG.circle_
-            [ SVG.Cx_ SVG.<<- "0"
-            , SVG.Cy_ SVG.<<- "0"
-            , SVG.Stroke_width_ SVG.<<- "0"
+            [ SVG.Stroke_width_ SVG.<<- "0"
             , SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
             ]
             $ SVG.animate_
