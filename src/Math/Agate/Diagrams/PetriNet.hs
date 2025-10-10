@@ -16,7 +16,7 @@ import Prelude hiding (id)
 import Data.Maybe (listToMaybe, fromMaybe)
 import qualified Graphics.Svg as SVG
 import qualified Data.Text as T
-import Data.Fixed (showFixed, E6)
+import Data.Fixed (showFixed, E3)
 
 data Vertex p t
     = Transition Int t
@@ -64,7 +64,7 @@ drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram 
             $ SVG.animate_
                 [ SVG.AttributeName_ SVG.<<- "r"
                 , SVG.Values_ SVG.<<- T.intercalate ";"
-                    (map (T.pack . showFixed @E6 True . realToFrac . (* 10)) $ marking p)
+                    (map (T.pack . showFixed @E3 True . realToFrac . (* 10)) $ marking p)
                 , SVG.Dur_ SVG.<<- "15s"
                 , SVG.RepeatCount_ SVG.<<- "indefinite"
                 ]
