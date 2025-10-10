@@ -54,20 +54,17 @@ drawPetriDynamic ::
     ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p
     ) =>
     (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram $ TransformableElement \t ->
-    let V2 x y = transl t
-        V2 sx _sy = apply t 1 -- we'd better hope these are equal in magnitude...
-    in
+drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram $
         SVG.circle_
-            [ SVG.Cx_ SVG.<<- T.show x
-            , SVG.Cy_ SVG.<<- T.show y
+            [ SVG.Cx_ SVG.<<- "0"
+            , SVG.Cy_ SVG.<<- "0"
             , SVG.Stroke_width_ SVG.<<- "0"
             , SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
             ]
             $ SVG.animate_
                 [ SVG.AttributeName_ SVG.<<- "r"
                 , SVG.Values_ SVG.<<- T.intercalate ";"
-                    (map (T.pack . showFixed @E6 True . realToFrac . (* (sx * 10))) $ marking p)
+                    (map (T.pack . showFixed @E6 True . realToFrac . (* 10)) $ marking p)
                 , SVG.Dur_ SVG.<<- "15s"
                 , SVG.RepeatCount_ SVG.<<- "indefinite"
                 ]
