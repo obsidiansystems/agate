@@ -42,41 +42,40 @@ ologTests =
                     badOlog =
                         makeOlog [0] [] [(["identity"], [])]
                 in badOlog @?= Left (UnknownArc "identity"),
-            testCase "arcs in lhs of identities join up" $
+            testCase "arcs in lhs of relators join up" $
                 let badOlog :: MaybeOlog
                     badOlog =
                         makeOlog
                         [0, 1, 2]
                         [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
                         [(["0to1", "1to2"], ["0to2"])]
-                in badOlog @?= Left (NonJoiningExpressionLhs ["0to1", "1to2"])
+                in badOlog @?= Left (NonJoiningExpressionLhs ["0to1", "1to2"]),
+            testCase "arcs in rhs of relators join up" $
+                let badOlog :: MaybeOlog
+                    badOlog =
+                        makeOlog
+                        [0, 1, 2]
+                        [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
+                        [(["0to2"], ["0to1", "1to2"])]
+                in badOlog @?= Left (NonJoiningExpressionRhs ["0to1", "1to2"]),
+            testCase "lhs and rhs of relators have same source and target" $
+              let badOlog :: MaybeOlog
+                  badOlog =
+                    makeOlog
+                      [0, 1, 2]
+                      [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
+                      [(["1to0", "0to1"], ["1to2", "0to1"])]
+               in badOlog @?= Left (IdentityMismatch ["1to0", "0to1"] ["1to2", "0to1"] (0, 0) (0, 2)),
+            testCase "consistent joined-up relators are ok" $
+                let goodOlog :: MaybeOlog
+                    goodOlog =
+                        makeOlog
+                        [0, 1, 2]
+                        [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
+                        [(["1to2", "0to1"], ["0to2"])]
+                in 
+                    case goodOlog of
+                    Left err -> assertFailure $ show err
+                    Right _ -> pure ()
         ]
     ]
-    -- it "arcs in rhs of identities join up" $
-    --   let badOlog :: MaybeOlog
-    --       badOlog =
-    --         makeOlog
-    --           [0, 1, 2]
-    --           [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
-    --           [(["0to2"], ["0to1", "1to2"])]
-    --    in badOlog `shouldBe` Left (NonJoiningExpressionRhs ["0to1", "1to2"])
-    -- it "lhs and rhs of identities have same source and target" $
-    --   let badOlog :: MaybeOlog
-    --       badOlog =
-    --         makeOlog
-    --           [0, 1, 2]
-    --           [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
-    --           [(["1to0", "0to1"], ["1to2", "0to1"])]
-    --    in badOlog `shouldBe` Left (IdentityMismatch ["1to0", "0to1"] ["1to2", "0to1"] (0, 0) (0, 2))
-    -- it "consistent joined-up identities are ok" $
-    --   let goodOlog :: MaybeOlog
-    --       goodOlog =
-    --         makeOlog
-    --           [0, 1, 2]
-    --           [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
-    --           [(["1to2", "0to1"], ["0to2"])]
-    --    in 
-    --     case goodOlog of
-    --       Left err -> expectationFailure $ show err
-    --       Right _ -> pure ()
-        -- ]
