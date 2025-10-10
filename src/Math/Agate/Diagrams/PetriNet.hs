@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Math.Agate.Diagrams.PetriNet (layoutPetri, drawPetri, drawPetriDynamic) where
@@ -13,6 +14,9 @@ import Diagrams.Backend.SVG
 import Math.Agate.PetriNet (PetriNetImpl (..))
 import Prelude hiding (id)
 import Data.Maybe (listToMaybe, fromMaybe)
+import qualified Graphics.Svg as SVG
+import qualified Data.Text as T
+import Data.Fixed (showFixed, E6)
 
 data Vertex p t
     = Transition Int t
@@ -49,8 +53,23 @@ drawPetri = drawPetri' vShow (const mempty)
 drawPetriDynamic ::
     ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p
     ) =>
-    (p -> Colour Double) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetriDynamic col = drawPetri' vShow \p -> fc (col p) . circle $ 10
+    (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram $ TransformableElement \t ->
+    let V2 x y = transl t
+        V2 sx _sy = apply t 1 -- we'd better hope these are equal in magnitude...
+    in
+        SVG.circle_
+            [ SVG.Cx_ SVG.<<- T.show x
+            , SVG.Cy_ SVG.<<- T.show y
+            , SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
+            ]
+            $ SVG.animate_
+                [ SVG.AttributeName_ SVG.<<- "r"
+                , SVG.Values_ SVG.<<- T.intercalate ";"
+                    (map (T.pack . showFixed @E6 True . realToFrac . (* (sx * 10))) $ marking p)
+                , SVG.Dur_ SVG.<<- "15s"
+                , SVG.RepeatCount_ SVG.<<- "indefinite"
+                ]
 
 drawPetri' ::
     ( Ord p, Ord t, VertexShow t) =>
@@ -60,7 +79,7 @@ drawPetri' ::
     Diagram B
 drawPetri' showPlace renderPlace = drawGraph
         ( \v -> place $ case v of
-            Place p -> fontSizeL 10 (fc black (text (showPlace p))) <> showPlace p `svgId` renderPlace p <> fc white (circle 10)
+            Place p -> fontSizeL 10 (fc black (text (showPlace p))) <> renderPlace p <> fc white (circle 10)
             Transition _ t -> fontSizeL 5 (fc white (text (vShow t))) <> fc black (square 10)
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)

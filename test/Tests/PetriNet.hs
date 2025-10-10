@@ -19,8 +19,7 @@ import Data.Colour.RGBSpace.HSL
 import qualified Data.Map.Lazy as Map
 import Data.Maybe
 import Math.Agate.ODE.Polynomial.Solver
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
+import Data.Map (Map)
 
 
 petriTests :: TestTree
@@ -50,7 +49,6 @@ petriTests =
                 p <- layoutPetri exampleSIR Neato
                 pure
                     . encodeUtf8
-                    . animatePetri
                     . prettyText
                     . renderDia SVG
                       ( SVGOptions
@@ -60,7 +58,9 @@ petriTests =
                         []
                         True
                       )
-                    $ drawPetriDynamic sirColour p
+                    $ drawPetriDynamic sirColour
+                      (take 1000 . fromMaybe (error "variable not found") . (runSolverSIR Map.!?))
+                      p
             ]
         , testGroup
             "Madrid"
@@ -109,44 +109,11 @@ madridNet =
   where
     outer =["N", "E", "SE", "S", "W", "NW"]
 
-animatePetri :: Text -> Text
-animatePetri svg =
-  svg'
-  <> mconcat (zipWith cssFor ["S", "I", "R"] sirData)
-  <> T.pack "</svg>"
-  where
-    svg' :: Text
-    svg' = T.unlines . init . T.lines $ svg
-    sirData :: [[Double]]
-    sirData = (\(x, y, z) -> [x, y, z]) $ unzip3 $ take 1000 runSolverSIR
-
-cssFor :: String -> [Double] -> Text
-cssFor name vs = T.pack $ unlines
-  (["<style>",
-    "@keyframes " ++ name ++ "_data {"] ++ [
-    show p ++ "% {transform: scale(" ++ show v ++ ");}" | (v, p) <- zip vs ((\x -> x/(l-1) * 100) <$> [0..(l-1)]) ] ++ [
-    "}",
-    "#" ++ name ++ " {",
-    "animation: " ++ name ++ "_data 15s linear infinite;",
-    "transform-origin: 50% 50%;",
-    "transform-box: fill-box;",
-    "}",
-    "</style>"
-  ])
-  where
-    l :: Double
-    l = fromIntegral . length $ vs
-
-runSolverSIR :: [(Double, Double, Double)]
+runSolverSIR :: Map String [Double]
 runSolverSIR =
-    mapMaybe lookupSir $ odeSolve exampleSIRODE (ODEParams 0.1)
+        (\ls -> Map.fromList $ ["S", "I", "R"] <&> \v -> (v, map (Map.! v) ls))
+        $ odeSolve exampleSIRODE (ODEParams 0.1)
         $ Map.fromList [("S", 0.95), ("I", 0.05), ("R", 0)]
-    where
-        lookupSir m = do
-            s <- Map.lookup "S" m
-            i <- Map.lookup "I" m
-            r <- Map.lookup "R" m
-            return (s, i, r)
 
 sirColour :: String -> Colour Double
 sirColour = \case
