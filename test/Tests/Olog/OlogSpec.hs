@@ -6,7 +6,7 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import Tests.PetriNet (exampleSIRODE)
-import Math.Agate.Olog.Olog(Arc(..), Identity(..), Olog(..), makeOlog, MakeOlogError(..))
+import Math.Agate.Olog.Olog(Arc(..), Relator(..), Olog(..), makeOlog, MakeOlogError(..))
 import Data.Either (isRight)
 
 type MaybeOlog = Either (MakeOlogError Int) (Olog Int)
@@ -36,7 +36,7 @@ ologTests =
                 let badOlog :: MaybeOlog
                     badOlog =
                         makeOlog [0] [] [([], [])]
-                in badOlog @?= Left ForbiddenTrivialIdentity,
+                in badOlog @?= Left ForbiddenTrivialRelator,
             testCase "identities should only use known names" $
                 let badOlog :: MaybeOlog
                     badOlog =
@@ -65,7 +65,7 @@ ologTests =
                       [0, 1, 2]
                       [("0to1", 0, 1), ("1to2", 1, 2), ("0to2", 0, 2), ("1to0", 1, 0)]
                       [(["1to0", "0to1"], ["1to2", "0to1"])]
-               in badOlog @?= Left (IdentityMismatch ["1to0", "0to1"] ["1to2", "0to1"] (0, 0) (0, 2)),
+               in badOlog @?= Left (RelatorMismatch ["1to0", "0to1"] ["1to2", "0to1"] (0, 0) (0, 2)),
             testCase "consistent joined-up relators are ok" $
                 let goodOlog :: MaybeOlog
                     goodOlog =

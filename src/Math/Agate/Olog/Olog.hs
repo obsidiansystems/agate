@@ -17,7 +17,7 @@
 
 module Math.Agate.Olog.Olog 
   ( Arc,
-    Identity,
+    Relator,
     Olog,
     makeOlog,
     MakeOlogError (..),
@@ -41,7 +41,7 @@ data Arc dot = Arc
   }
   deriving (Show, Eq)
 
-data Identity = Identity
+data Relator = Relator
   { lhs :: [String],
     rhs :: [String]
   }
@@ -50,7 +50,7 @@ data Identity = Identity
 data Olog dot = Olog
   { dots :: [dot],
     arcs :: [Arc dot],
-    identities :: [Identity]
+    identities :: [Relator]
   }
   deriving (Show, Eq)
 
@@ -68,7 +68,7 @@ makeOlogOld dots preArcs preIdentities =
         Olog
           dots
           (map (\(name, src, tgt) -> Arc {name = name, source = src, target = tgt}) preArcs)
-          ( (\(path1, path2) -> Identity {lhs = path1, rhs = path2}) <$> preIdentities
+          ( (\(path1, path2) -> Relator {lhs = path1, rhs = path2}) <$> preIdentities
           )
     err : _ -> Left err
   where
@@ -91,7 +91,7 @@ makeOlogOld dots preArcs preIdentities =
         map
           ( \(lhs, rhs) ->
               -- TODO: don't need to check triviality here
-              (if null lhs && null rhs then [ForbiddenTrivialIdentity] else [])
+              (if null lhs && null rhs then [ForbiddenTrivialRelator] else [])
                 <> catMaybes
                   ( map
                       (\arcName -> errorUnless (arcName `elem` knownArcNames) $ UnknownArc arcName)
@@ -135,7 +135,7 @@ makeOlogOld dots preArcs preIdentities =
       case (nonEmptyLhsAndSig, nonEmptyRhsAndSig) of
         (Nothing, Nothing) ->
           -- both empty
-          Just ForbiddenTrivialIdentity
+          Just ForbiddenTrivialRelator
         (Just (src, tgt), Nothing) ->
           -- right empty
           errorUnless (src == tgt) $ NotALoop lhs
@@ -144,7 +144,7 @@ makeOlogOld dots preArcs preIdentities =
           errorUnless (src == tgt) $ NotALoop rhs
         (Just lSig, Just rSig) ->
           -- both non-empty
-          errorUnless (lSig == rSig) $ IdentityMismatch lhs rhs lSig rSig
+          errorUnless (lSig == rSig) $ RelatorMismatch lhs rhs lSig rSig
       where
         signature :: NonEmpty String -> Maybe (dot, dot)
         signature terms =
@@ -161,11 +161,11 @@ makeOlogOld dots preArcs preIdentities =
 data MakeOlogError dot
   = UnknownSource String dot
   | UnknownTarget String dot
-  | ForbiddenTrivialIdentity
+  | ForbiddenTrivialRelator
   | UnknownArc String
   | NonJoiningExpressionLhs [String]
   | NonJoiningExpressionRhs [String]
-  | IdentityMismatch [String] [String] (dot, dot) (dot, dot)
+  | RelatorMismatch [String] [String] (dot, dot) (dot, dot)
   | NotALoop [String]
   deriving (Show, Eq)
 
@@ -191,7 +191,7 @@ makeOlog dots preArcs preIdentities = do
       Just srcAndTgt -> pure (arcName, srcAndTgt)
     case (nonEmpty lhs', nonEmpty rhs') of
       (Nothing, Nothing) ->
-        Left ForbiddenTrivialIdentity
+        Left ForbiddenTrivialRelator
       (Just l, Nothing) -> do
         checkTerm NonJoiningExpressionLhs l
         let (_, (_, tgt)) = NE.head l
@@ -208,8 +208,8 @@ makeOlog dots preArcs preIdentities = do
         let combinedSrcTgt xhs = (fst $ snd $ NE.last xhs, snd $ snd $ NE.head xhs)
             l' = combinedSrcTgt l
             r' = combinedSrcTgt r
-        errorWhen (l' /=  r') $ IdentityMismatch lhs rhs l' r'
-    pure Identity {lhs, rhs}
+        errorWhen (l' /=  r') $ RelatorMismatch lhs rhs l' r'
+    pure Relator {lhs, rhs}
   pure Olog {dots, arcs, identities}
   where
     checkTerm errorFactory arcs = do
