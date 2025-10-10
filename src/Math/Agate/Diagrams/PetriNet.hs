@@ -61,6 +61,7 @@ drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram 
         SVG.circle_
             [ SVG.Cx_ SVG.<<- T.show x
             , SVG.Cy_ SVG.<<- T.show y
+            , SVG.Stroke_width_ SVG.<<- "0"
             , SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
             ]
             $ SVG.animate_
