@@ -13,6 +13,12 @@ ologTests =
             "basic identities"
             [ testCase "Transitions Correct" $
                 assertBool "2 Transitions present" $
-                    (1 :: Int) == ((1 + 1) :: Int)
+                    (2 :: Int) == ((1 + 1) :: Int)
+            ],
+            testGroup
+            "further basic identities"
+            [ testCase "Transitions Correct" $
+                assertBool "2 Transitions present" $
+                    (4 :: Int) == ((2 + 2) :: Int)
             ]
         ]
