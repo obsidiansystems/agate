@@ -42,7 +42,19 @@ olog2Tests =
             path.target @?= 1
             path.arrows @?= []
     ,
-    testCase "compound path" $ 
+    testCase "binary compound path" $ 
+        let arrow :: Arrow Int
+            arrow = 2 ~> 3
+            arrow2 :: Arrow Int
+            arrow2 = 1 ~> 2
+            path :: Path Int
+            path = arrow ~ arrow2
+        in do
+            path.source @?= 1
+            path.target @?= 3
+            path.arrows @?= [arrow, arrow2]
+    ,
+    testCase "multiple compound path" $ 
         let arrow :: Arrow Int
             arrow = 2 ~> 3
             arrow2 :: Arrow Int
