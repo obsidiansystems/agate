@@ -6,7 +6,7 @@
 module Tests.Olog.Olog2Spec where
 
 import Data.Either (isRight)
-import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), (~>), identityPath, toPath )
+import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), (~>), identityPath, toPath, (~) )
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
@@ -41,20 +41,20 @@ olog2Tests =
             path.source @?= 1
             path.target @?= 1
             path.arrows @?= []
-            
-    -- testCase "compound path" $ 
-    --     let arrow :: Arrow Int
-    --         arrow = 2 ~> 3
-    --         arrow2 :: Arrow Int
-    --         arrow2 = 1 ~> 2
-    --         arrow3 :: Arrow Int
-    --         arrow3 = 0 ~> 1
-    --         path :: Path Int
-    --         path = arrow o arrow2 o arrow3
-    --     in do
-    --         path.source @?= 0
-    --         path.target @?= 2
-    --         path.arrows @?= [arrow]
+    ,
+    testCase "compound path" $ 
+        let arrow :: Arrow Int
+            arrow = 2 ~> 3
+            arrow2 :: Arrow Int
+            arrow2 = 1 ~> 2
+            arrow3 :: Arrow Int
+            arrow3 = 0 ~> 1
+            path :: Path Int
+            path = arrow ~ arrow2 ~ arrow3
+        in do
+            path.source @?= 0
+            path.target @?= 3
+            path.arrows @?= [arrow, arrow2, arrow3]
 
     -- testCase "compound path" $ 
     --     let arrow :: Arrow Int

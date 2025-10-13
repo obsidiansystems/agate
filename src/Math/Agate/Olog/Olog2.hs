@@ -15,7 +15,7 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-module Math.Agate.Olog.Olog2(Arrow(..), Path (..),(~>), toPath, identityPath )
+module Math.Agate.Olog.Olog2(Arrow(..), Path (..),(~>), toPath, identityPath, (~) )
 where
 data Arrow dot = Arrow {
     source :: dot,
@@ -40,6 +40,21 @@ instance IsPath Arrow where
         target = arrow.target,
         arrows = [ arrow ]
     }
+
+(~) :: (IsPath p1, IsPath p2, Eq dot, Show (p1 dot), Show (p2 dot)) =>
+     p1 dot -> p2 dot -> Path dot
+p1 ~ p2 =
+    let
+        p1' = toPath p1
+        p2' = toPath p2 
+    in if p1'.source == p2'.target then
+        Path {
+            source = p2'.source,
+            target = p1'.target,
+            arrows = (toPath p1).arrows ++ (toPath p2).arrows
+        }
+    else
+        error $ "Can't compose paths with non-matching source and target: " ++ show p1 ++ " and " ++ show p2
 
 -- -- Simplify the specification of an olog as bunch of identities
 --    retraction a->b
