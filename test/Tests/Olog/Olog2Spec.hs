@@ -6,12 +6,16 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import Tests.PetriNet (exampleSIRODE)
-import Math.Agate.Olog.Olog(Arc(..), Relator(..), Olog(..), makeOlog, MakeOlogError(..))
+import Math.Agate.Olog.Olog2(Arrow(..), (~>))
 import Data.Either (isRight)
-
-type MaybeOlog = Either (MakeOlogError Int) (Olog Int)
 
 olog2Tests :: TestTree
 olog2Tests =
-    testCase "Olog2 basic properties" $
-        ((1 + 1) :: Int) @?= 2
+    testCase "Can create arrows" $ do
+        source arrow @?= 1
+        target arrow @?= 2
+        where
+            arrow :: Arrow Int
+            arrow = 1 ~> 2
+            -- arrow = Arrow @Int 1 2
+        -- ((1 + 1) :: Int) @?= 2

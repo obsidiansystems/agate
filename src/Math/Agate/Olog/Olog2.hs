@@ -11,14 +11,20 @@
 {-# HLINT ignore "Use mapMaybe" #-}
 {-# HLINT ignore "Use list comprehension" #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE NoFieldSelectors #-}
+-- {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-module Math.Agate.Olog.Olog2
+module Math.Agate.Olog.Olog2(Arrow(..), (~>))
 where
 
-data Arc2 dot = Arc {
+data (Eq dot) =>Arrow dot = Arrow {
     source :: dot,
     target :: dot
 }   deriving (Show, Eq)
+
+(~>) :: (Eq dot) => dot -> dot -> Arrow dot
+s ~> t = Arrow { source = s, target = t }
+
+-- data MagazineInfo = Magazine Int String [String]
+--                     deriving (Show)
