@@ -15,9 +15,10 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-module Math.Agate.Olog.Olog2(Arrow(..), Path (..),(~>), toPath, identityPath, (~) )
+module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, identityPath, (~) )
 where
 data Arrow dot = Arrow {
+    name :: String,
     source :: dot,
     target :: dot
 }   deriving (Show, Eq)
@@ -94,8 +95,6 @@ identityPath aDot = Path {
 -- source' (Arrow s t) = s
 -- target' (Arrow s t)  = t
 
-(~>) :: (Eq dot) => dot -> dot -> Arrow dot
-s ~> t = Arrow s t
 
 -- identityArrow :: (Eq dot) => dot -> dot -> Arrow dot
 -- s ~> t = Arrow s t
