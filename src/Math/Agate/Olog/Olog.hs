@@ -31,7 +31,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe
 import Data.Traversable
-import Debug.Trace
+
 
 data Arc dot = Arc
   { name :: String,
