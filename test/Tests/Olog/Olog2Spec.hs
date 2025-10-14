@@ -6,13 +6,14 @@
 module Tests.Olog.Olog2Spec where
 
 import Data.Either (isRight)
-import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath, (~) )
+import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath, (~), PathException(..))
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
 import GHC.Generics (Selector)
 import Control.Exception
 import System.Exit
+import Control.Monad.IO.Class (MonadIO(liftIO))
 
 olog2Tests :: TestTree
 olog2Tests =
@@ -74,31 +75,19 @@ olog2Tests =
             arrow = Arrow "arrow" 2 3
             arrow2 :: Arrow Int
             arrow2 = Arrow "arrow2" 0 1
-            tryPath :: Path Int
-            tryPath = arrow ~ arrow2
-            -- h = try (print (toPath tryPath))
-            x = 5 `div` 0
-            -- expectException :: forall e. Exception e => e -> IO ()
-            -- expectException ex = 
-            --     case ex of 
-            --         DivideByZero -> putStrLn "Caught expected DivideByZero"
-            --         _ -> putStrLn ("Caught unexpected exception: " ++ show ex)
-            -- q = handle handler (assertFailure "xxx")
+              -- IO (Either e path) has error inside
+
             assertion :: Assertion = True @?= False
             -- result2 = try x :: IO (Either SomeException ())
         in do
-            result :: Either SomeException () <- try (print (arrow ~ arrow2))
-            True @?= True
-            -- True @?= False
-            -- do
-            -- res <- result2
-            -- res @?= Left (toException DivideByZero)
-            -- try (tryPath) @?= Left
-            -- tryPath  "xx" `catch` (\e -> do
-            --     if e == ExitSuccess
-            --     then putStrLn "Yea"
-            --     else putStrLn "Nay"
-            --     throwIO e)
+            let x0 = (pure ()) :: (IO ())
+            -- let x1 = fmap (\_ -> arrow ~ arrow2) x0 :: (IO (Path Int))
+            let x1 = (evaluate $ arrow ~ arrow2) :: (IO (Path Int))
+            res :: Either PathException (Path Int) <- try x1
+            -- res :: Either PathException (Path Int) <- try (pure ((\_ -> arrow ~ arrow2) ()))
+            case res of
+                Left _ -> assertBool "" True
+                Right path -> assertFailure $ "expected exception, but succesfully got "  ++ show path
     ]
 
     -- testCase "compound path" $ 

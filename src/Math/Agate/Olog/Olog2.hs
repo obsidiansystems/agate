@@ -14,9 +14,11 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# LANGUAGE ExistentialQuantification #-}
 
-module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, identityPath, (~) )
+module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, identityPath, (~), PathException(..) )
 where
+import Control.Exception (throw, Exception)
 data Arrow dot = Arrow {
     name :: String,
     source :: dot,
@@ -42,12 +44,12 @@ instance IsPath Arrow where
         arrows = [ arrow ]
     }
 
-(~) :: (IsPath p1, IsPath p2, Eq dot, Show (p1 dot), Show (p2 dot)) =>
+(~) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
      p1 dot -> p2 dot -> Path dot
 p1 ~ p2 =
     let
         p1' = toPath p1
-        p2' = toPath p2 
+        p2' = toPath p2
     in if p1'.source == p2'.target then
         Path {
             source = p2'.source,
@@ -55,7 +57,15 @@ p1 ~ p2 =
             arrows = (toPath p1).arrows ++ (toPath p2).arrows
         }
     else
-        error $ "Can't compose paths with non-matching source and target: " ++ show p1 ++ " and " ++ show p2
+        throw $ CompositionException p1' p2'
+
+instance Show PathException  where
+    show (CompositionException p1 p2) = "Cannot compose paths: " ++ show p1 ++ " and " ++ show p2
+    show OtherException = "Other error"
+
+data PathException = forall a b . (Show a, Show b) => CompositionException (Path a) (Path b) | OtherException
+
+instance Exception PathException
 
 -- -- Simplify the specification of an olog as bunch of identities
 --    retraction a->b
