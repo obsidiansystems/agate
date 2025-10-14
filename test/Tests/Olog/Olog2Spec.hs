@@ -75,19 +75,13 @@ olog2Tests =
             arrow = Arrow "arrow" 2 3
             arrow2 :: Arrow Int
             arrow2 = Arrow "arrow2" 0 1
-              -- IO (Either e path) has error inside
-
-            assertion :: Assertion = True @?= False
-            -- result2 = try x :: IO (Either SomeException ())
         in do
-            let x0 = (pure ()) :: (IO ())
-            -- let x1 = fmap (\_ -> arrow ~ arrow2) x0 :: (IO (Path Int))
-            let x1 = (evaluate $ arrow ~ arrow2) :: (IO (Path Int))
-            res :: Either PathException (Path Int) <- try x1
-            -- res :: Either PathException (Path Int) <- try (pure ((\_ -> arrow ~ arrow2) ()))
+            res :: Either PathException (Path Int) <- 
+                try (evaluate $ arrow ~ arrow2)
             case res of
                 Left _ -> assertBool "" True
-                Right path -> assertFailure $ "expected exception, but succesfully got "  ++ show path
+                Right path -> assertFailure $ 
+                    "expected exception, but successfully got "  ++ show path
     ]
 
     -- testCase "compound path" $ 
