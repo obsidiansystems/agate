@@ -19,7 +19,8 @@
 module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, identityPath, (~), PathException(..) )
 where
 import Control.Exception (throw, Exception)
-import Control.Lens (Identity)
+import Data.Functor.Identity
+
 data Arrow dot = Arrow {
     name :: String,
     source :: dot,
@@ -45,18 +46,12 @@ instance IsPath Arrow where
         arrows = [ arrow ]
     }
 
--- class MyIdentity dot where
---     me :: dot
-
--- instance MyIdentity dot where 
---     me = undefined
-    
--- instance IsPath MyIdentity where
---     toPath (MyIdentity dot) = Path {
---         source = dot,
---         target = dot,
---         arrows = [ ]
---     }
+instance IsPath Identity where
+    toPath (Identity dot) = Path {
+        source = dot,
+        target = dot,
+        arrows = [ ]
+    }
 
 (~) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
      p1 dot -> p2 dot -> Path dot
@@ -81,49 +76,9 @@ data PathException = forall a b . (Show a, Show b) => CompositionException (Path
 
 instance Exception PathException
 
--- -- Simplify the specification of an olog as bunch of identities
---    retraction a->b
---    section b->a
--- >   r . s = IdentityPath b
-
--- arrowToPath :: forall dot . Arrow dot -> Path dot
--- arrowToPath arrow = Path {
---     source = arrow.source,
---     target = arrow.target,
---     arrows = [ arrow ]
--- }
-
 identityPath :: forall dot . dot -> Path dot
 identityPath aDot = Path {
     source = aDot,
     target = aDot,
     arrows = []
 }
-
-
--- Path dot
---     source
---     target
---     arrows :: [Arrow dot]
-
--- IdentityPath x -> x
--- SingleArrowPath a -> b
--- CompoundPath a -> b -> c -..... 
-
--- r: a -> b
--- s: b -> a
--- r . s = IdentityPath b
-
--- data Arrow' dot = Arrow' dot dot
-
--- source' (Arrow s t) = s
--- target' (Arrow s t)  = t
-
-
--- identityArrow :: (Eq dot) => dot -> dot -> Arrow dot
--- s ~> t = Arrow s t
-
--- Arrow { source = s, target = t }
-
--- data MagazineInfo = Magazine Int String [String]
---                     deriving (Show)

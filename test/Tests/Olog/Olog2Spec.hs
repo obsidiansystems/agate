@@ -14,6 +14,7 @@ import GHC.Generics (Selector)
 import Control.Exception
 import System.Exit
 import Control.Monad.IO.Class (MonadIO(liftIO))
+import Data.Functor.Identity
 
 olog2Tests :: TestTree
 olog2Tests =
@@ -76,11 +77,11 @@ olog2Tests =
             arrow2 :: Arrow Int
             arrow2 = Arrow "arrow2" 0 1
         in do
-            res :: Either PathException (Path Int) <- 
+            res :: Either PathException (Path Int) <-
                 try (evaluate $ arrow ~ arrow2)
             case res of
                 Left _ -> assertBool "" True
-                Right path -> assertFailure $ 
+                Right path -> assertFailure $
                     "expected exception, but successfully got "  ++ show path
     ,
     testCase "valid composition with an identity path" $
@@ -88,7 +89,7 @@ olog2Tests =
             arrow = Arrow "arrow" 2 3
             idPath :: Path Int
             idPath = identityPath 3
-            compoundPath = idPath ~ arrow 
+            compoundPath = idPath ~ arrow
         in do
             compoundPath.source @?= 2
             compoundPath.target @?= 3
@@ -101,42 +102,20 @@ olog2Tests =
             idPath = identityPath 0
             path = idPath ~ arrow
         in do
-            res :: Either PathException (Path Int) <- 
+            res :: Either PathException (Path Int) <-
                 try (evaluate path)
             case res of
                 Left _ -> assertBool "" True
-                Right compoundPath -> assertFailure $ 
+                Right compoundPath -> assertFailure $
                     "expected exception, but successfully got "  ++ show compoundPath
+    ,
+    testCase "valid composition with a differently specified identity path" $
+        let arrow :: Arrow Int
+            arrow = Arrow "arrow" 2 3
+            compoundPath = Identity 3 ~ arrow
+        in do
+            compoundPath.source @?= 2
+            compoundPath.target @?= 3
+            compoundPath.arrows @?= [arrow]
     ]
 
-    -- testCase "Can create an identity path" $ 
-    --     let path :: Arrow Int
-    --         path = identityPath 1
-    --     in do
-    --         path.source @?= 1
-    --         path.target @?= 1
-    --         path.arrows @?= []
-    -- ]
--- arrow = Arrow @Int 1 2
--- ((1 + 1) :: Int) @?= 2
-
--- testGroup "Basic properties of arrows" [
---     testCase "Can create arrows" $ do
---         arrow.source @?= 1
---         arrow.target @?= 2
---     where
---         arrow :: Arrow Int
---         arrow = 1 ~> 2
---         arrow2 :: Arrow Int
---         arrow2 = Arrow 1 2
---     -- testCase "Can create arrows" $ do
---     --     arrow.source @?= 1
---     --     arrow.target @?= 2
---     --     where
---     --         arrow :: Arrow Int
---     --         arrow = 1 ~> 2
---     --         arrow2 :: Arrow Int
---     --         arrow2 = Arrow 1 2
--- ]
---         -- arrow = Arrow @Int 1 2
---     -- ((1 + 1) :: Int) @?= 2
