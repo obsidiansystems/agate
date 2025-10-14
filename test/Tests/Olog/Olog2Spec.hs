@@ -82,21 +82,32 @@ olog2Tests =
                 Left _ -> assertBool "" True
                 Right path -> assertFailure $ 
                     "expected exception, but successfully got "  ++ show path
+    ,
+    testCase "valid composition with an identity path" $
+        let arrow :: Arrow Int
+            arrow = Arrow "arrow" 2 3
+            idPath :: Path Int
+            idPath = identityPath 3
+            compoundPath = idPath ~ arrow 
+        in do
+            compoundPath.source @?= 2
+            compoundPath.target @?= 3
+            compoundPath.arrows @?= [arrow]
+    ,
+    testCase "invalid composition with an identity path" $
+        let arrow :: Arrow Int
+            arrow = Arrow "arrow" 2 3
+            idPath :: Path Int
+            idPath = identityPath 0
+            path = idPath ~ arrow
+        in do
+            res :: Either PathException (Path Int) <- 
+                try (evaluate path)
+            case res of
+                Left _ -> assertBool "" True
+                Right compoundPath -> assertFailure $ 
+                    "expected exception, but successfully got "  ++ show compoundPath
     ]
-
-    -- testCase "compound path" $ 
-    --     let arrow :: Arrow Int
-    --         arrow = 2 ~> 3
-    --         arrow2 :: Arrow Int
-    --         arrow2 = 1 ~> 2
-    --         arrow3 :: Arrow Int
-    --         arrow3 = 0 ~> 1
-    --         path :: Path Int
-    --         path = arrow o arrow2 o arrow3
-    --     in do
-    --         path.source @?= 0
-    --         path.target @?= 2
-    --         path.arrows @?= [arrow]
 
     -- testCase "Can create an identity path" $ 
     --     let path :: Arrow Int

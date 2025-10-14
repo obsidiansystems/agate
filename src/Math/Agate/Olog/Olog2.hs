@@ -19,6 +19,7 @@
 module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, identityPath, (~), PathException(..) )
 where
 import Control.Exception (throw, Exception)
+import Control.Lens (Identity)
 data Arrow dot = Arrow {
     name :: String,
     source :: dot,
@@ -43,6 +44,19 @@ instance IsPath Arrow where
         target = arrow.target,
         arrows = [ arrow ]
     }
+
+-- class MyIdentity dot where
+--     me :: dot
+
+-- instance MyIdentity dot where 
+--     me = undefined
+    
+-- instance IsPath MyIdentity where
+--     toPath (MyIdentity dot) = Path {
+--         source = dot,
+--         target = dot,
+--         arrows = [ ]
+--     }
 
 (~) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
      p1 dot -> p2 dot -> Path dot
