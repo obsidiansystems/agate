@@ -1,5 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Tests.PetriNet where
 
 import Math.Agate.PetriNet
@@ -17,10 +18,12 @@ import Data.Text.Lazy.Encoding (encodeUtf8)
 import Data.Colour.RGBSpace
 import Data.Colour.RGBSpace.HSL
 import qualified Data.Map.Lazy as Map
-import Data.Maybe
 import Math.Agate.ODE.Polynomial.Solver
 import Data.Map (Map)
-
+import Diagrams.AreaChart
+import qualified Graphics.Svg as SVG
+import qualified Data.Text as T
+import Data.Maybe (fromJust)
 
 petriTests :: TestTree
 petriTests =
@@ -44,7 +47,7 @@ petriTests =
                         []
                         True
                       )
-                    $ drawPetri p
+                    $ drawPetri sirColour p
             , goldenVsString "animation" "test/outputs/petri-sir-animated.svg" do
                 p <- layoutPetri exampleSIR Neato
                 pure
@@ -58,14 +61,12 @@ petriTests =
                         []
                         True
                       )
-                    $ drawPetriDynamic sirColour
-                      (take 1000 . fromMaybe (error "variable not found") . (runSolverSIR Map.!?))
-                      p
-            ]
-        , testGroup
-            "Madrid"
-            [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
-                p <- layoutPetri madridNet Neato
+                    $ drawPetriDynamic
+                        sirColour
+                        (take 1000 . (runSolverSIR Map.!))
+                        p
+            , goldenVsString "animation with chart" "test/outputs/petri-sir-animated-overlayed.svg" do
+                p <- layoutPetri exampleSIR Neato
                 pure
                     . encodeUtf8
                     . prettyText
@@ -77,7 +78,30 @@ petriTests =
                         []
                         True
                       )
-                    $ drawPetri p
+                    $ vcat [
+                        scale 80 animatedAreaChart,
+                        drawPetriDynamic
+                          sirColour
+                          (take 1000 . (runSolverSIR Map.!))
+                          p
+                  ]
+            ]
+        , testGroup
+            "Madrid"
+            [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
+                p <- layoutPetri madridNet Neato
+                pure
+                    . encodeUtf8
+                    . prettyText
+                    . renderDia SVG
+                      ( SVGOptions
+                        (mkSizeSpec (V2 (Just 3000) Nothing))
+                        Nothing
+                        mempty
+                        []
+                        True
+                      )
+                    $ drawPetri (const white) p
             ]
          , testCase "SIR Model" $
             assertBool "Expected transitions" $
@@ -86,6 +110,43 @@ petriTests =
     where
       exampleSIR :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
       exampleSIR =  generalSIR
+
+
+animatedAreaChart :: QDiagram B V2 Double Any
+animatedAreaChart =  movingRect (chartInnerWidth * 245) <> chart
+  where
+    chartInnerWidth = width . fromJust . lookupName ("chartInner" :: String) $ chart
+    chart = areaChart 3 (zipWith
+                  (\(colour, name) values -> Variable{name, colour, values})
+                  [ (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
+                  , (uncurryRGB sRGB $ hsl 0 0.7 0.55, "infected")
+                  , (uncurryRGB sRGB $ hsl 120 0.7 0.32, "recovered")
+                  ]
+                  $ (\ls ->  ["S", "I", "R"] <&> take 1000 . (ls Map.!))
+                  runSolverSIR)
+    movingRect sz =
+      elementToDiagram
+        $ SVG.path_
+          [
+            SVG.bindAttr SVG.D_
+              $ T.pack
+              . unwords
+              . ("M":)
+              . (++["z"])
+              . map (\(x, y) -> show x ++ "," ++ show y)
+              $ [(0,-h), (0,h), (w,h), (w,-h)],
+            SVG.Stroke_ SVG.<<- "none",
+            SVG.Fill_ SVG.<<- "black"
+          ]
+        $ SVG.animateMotion_ [
+          SVG.Dur_         SVG.<<- "15s",
+          SVG.RepeatCount_ SVG.<<- "indefinite",
+          SVG.Path_        SVG.<<- "M 0,0 " <> T.pack (show sz) <> ",0"
+        ]
+    w :: Double
+    h :: Double
+    (w, h) = (0.01, 0.5)
+
 
 exampleSIRODE :: PolynomialODE Double String
 exampleSIRODE = asODE generalSIR

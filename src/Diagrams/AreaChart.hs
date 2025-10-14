@@ -43,7 +43,7 @@ areaChart :: Double -> [Variable] -> Diagram B
 areaChart w sirData =
     hsep
         0.1
-        [ areaChartInner w sirData & centerY
+        [ named "chartInner" $ areaChartInner w sirData & centerY
         , key & alignL & centerY
         ]
   where

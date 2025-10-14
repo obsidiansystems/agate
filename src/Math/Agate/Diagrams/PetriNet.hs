@@ -47,28 +47,28 @@ layoutPetri petri command = layoutGraph command $ mkGraph vertices edges
         ++ [(Transition id (t M.! id), Place p, w) | ((id, p), w) <- M.toList $ transitionToPlaces petri]
     t = transitions petri
 
-drawPetri ::
-    ( Ord p, Ord t, VertexShow p, VertexShow t
-    ) =>
-    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetri = drawPetri' vShow (const mempty)
 
-drawPetriDynamic ::
-    ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p
-    ) =>
-    (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram $
-        SVG.circle_
-            [ SVG.Stroke_width_ SVG.<<- "0"
-            , SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
-            ]
-            $ SVG.animate_
-                [ SVG.AttributeName_ SVG.<<- "r"
-                , SVG.Values_ SVG.<<- T.intercalate ";"
-                    (map (T.pack . showFixed @E3 True . realToFrac . (* 10)) $ marking p)
-                , SVG.Dur_ SVG.<<- "15s"
-                , SVG.RepeatCount_ SVG.<<- "indefinite"
-                ]
+drawPetri :: (VertexShow t, VertexShow p, Ord t, Ord p) => (p -> Colour Double) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetri vertexColour = drawPetri' vShow \p ->
+  fc (vertexColour p) $ circle 10
+
+drawPetriDynamic :: ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p ) =>
+  (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetriDynamic vertexColour marking = drawPetri' vShow \p ->
+  elementToDiagram
+    $ SVG.circle_
+      [ SVG.Stroke_width_ SVG.<<- "0",
+        SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
+      ]
+    $ SVG.animate_
+      [ SVG.AttributeName_ SVG.<<- "r",
+        SVG.Values_
+          SVG.<<- T.intercalate
+            ";"
+            (map (T.pack . showFixed @E3 True . realToFrac . (* 10)) $ marking p),
+        SVG.Dur_ SVG.<<- "15s",
+        SVG.RepeatCount_ SVG.<<- "indefinite"
+      ]
 
 drawPetri' ::
   (Ord p, Ord t, VertexShow t) =>
@@ -93,7 +93,7 @@ drawPetri' showPlace renderPlace =
     )
     (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
-    fname = "Latin Modern Math"
+    fname = "Helvetica" -- "Latin Modern Math"
     opts p w =
       with
         & gaps .~ local 15
