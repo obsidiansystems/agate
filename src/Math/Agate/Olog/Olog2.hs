@@ -16,7 +16,8 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, identityPath, (~), PathException(..) )
+module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, 
+    identityPath, (~), PathException(..), (===), Relator(..) )
 where
 import Control.Exception (throw, Exception)
 import Data.Functor.Identity
@@ -40,18 +41,17 @@ instance IsPath Path where
     toPath = id
 
 instance IsPath Arrow where
-    toPath arrow = Path {
+    toPath = arrowToPath
+
+arrowToPath :: Arrow dot -> Path dot
+arrowToPath arrow = Path {
         source = arrow.source,
         target = arrow.target,
         arrows = [ arrow ]
     }
 
 instance IsPath Identity where
-    toPath (Identity dot) = Path {
-        source = dot,
-        target = dot,
-        arrows = [ ]
-    }
+    toPath (Identity dot) = identityPath dot
 
 (~) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
      p1 dot -> p2 dot -> Path dot
@@ -82,3 +82,14 @@ identityPath aDot = Path {
     target = aDot,
     arrows = []
 }
+
+data Relator dot = Relator {
+    -- name :: String,
+    lhs :: Path dot,
+    rhs :: Path dot
+}   deriving (Show, Eq)
+
+(===) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
+     p1 dot -> p2 dot -> Relator dot
+p1 === p2 = Relator { lhs = toPath p1, rhs = toPath p2 }
+

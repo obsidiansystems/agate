@@ -6,7 +6,8 @@
 module Tests.Olog.Olog2Spec where
 
 import Data.Either (isRight)
-import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath, (~), PathException(..))
+import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath, 
+    (~), PathException(..), Relator(..), (===))
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
@@ -118,6 +119,16 @@ olog2Tests =
                 compoundPath.source @?= 2
                 compoundPath.target @?= 3
                 compoundPath.arrows @?= [arrow]
-        ]
+        ],
+    testGroup "Basic properties of relators" [
+        testCase "Can create relators" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 1 2
+                relator :: Relator Int
+                relator = arrow === arrow
+            in do
+                relator.lhs @?= toPath arrow
+                relator.rhs @?= toPath arrow
+    ]
   ]
 
