@@ -15,12 +15,11 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
 
 module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, identityPath, (~), PathException(..) )
 where
 import Control.Exception (throw, Exception)
+import Data.Functor.Identity
 
 data Arrow dot = Arrow {
     name :: String,
@@ -34,31 +33,28 @@ data Path dot = Path {
     arrows :: [Arrow dot]
 }   deriving (Show, Eq)
 
-class IsPath p dot where
-    toPath :: p -> Path dot
+class IsPath p where
+    toPath :: p dot -> Path dot
 
-instance IsPath (Path dot) dot where
-    toPath path = path
+instance IsPath Path where
+    toPath = id
 
-instance (IsPath dot dot) where
-    toPath = identityPath
-
-instance IsPath (Arrow dot) dot where
+instance IsPath Arrow where
     toPath arrow = Path {
         source = arrow.source,
         target = arrow.target,
         arrows = [ arrow ]
     }
 
--- instance IsPath Identity where
---     toPath (Identity dot) = Path {
---         source = dot,
---         target = dot,
---         arrows = [ ]
---     }
+instance IsPath Identity where
+    toPath (Identity dot) = Path {
+        source = dot,
+        target = dot,
+        arrows = [ ]
+    }
 
-(~) :: (IsPath p1 dot, IsPath p2 dot, Eq dot, Show dot) =>
-     p1 -> p2 -> Path dot
+(~) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
+     p1 dot -> p2 dot -> Path dot
 p1 ~ p2 =
     let
         p1' = toPath p1

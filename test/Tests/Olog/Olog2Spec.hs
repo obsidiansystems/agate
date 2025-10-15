@@ -14,6 +14,7 @@ import GHC.Generics (Selector)
 import Control.Exception
 import System.Exit
 import Control.Monad.IO.Class (MonadIO(liftIO))
+import Data.Functor.Identity
 
 olog2Tests :: TestTree
 olog2Tests =
@@ -64,8 +65,7 @@ olog2Tests =
             arrow3 :: Arrow Int
             arrow3 = Arrow "arrow3" 0 1
             path :: Path Int
-            path = (arrow ~ arrow2 :: Path Int) ~ arrow3
-            -- x = arrow ~ arrow2
+            path = arrow ~ arrow2 ~ arrow3
         in do
             path.source @?= 0
             path.target @?= 3
@@ -112,15 +112,10 @@ olog2Tests =
     testCase "valid composition with a differently specified identity path" $
         let arrow :: Arrow Int
             arrow = Arrow "arrow" 2 3
-            compoundPath = (3 :: Int) ~ arrow
-            compoundPath' :: Path Int
-            compoundPath' = (3 :: Int) ~ arrow
+            compoundPath = Identity 3 ~ arrow
         in do
             compoundPath.source @?= 2
             compoundPath.target @?= 3
             compoundPath.arrows @?= [arrow]
     ]
-
--- 3 `div` 2
---- 3 :: Num a
 
