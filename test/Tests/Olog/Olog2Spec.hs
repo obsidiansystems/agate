@@ -18,104 +18,106 @@ import Data.Functor.Identity
 
 olog2Tests :: TestTree
 olog2Tests =
-  testGroup "Basic properties of arrows" [
-    testCase "Can create arrows" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 1 2
-        in do
-            arrow.source @?= 1
-            arrow.target @?= 2
-    ,
-    testCase "an arrow is a path" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 1 2
-            path :: Path Int
-            path = toPath arrow
-        in do
-            path.source @?= 1
-            path.target @?= 2
-            path.arrows @?= [ arrow ]
-    ,
-    testCase "identity path" $
-        let
-            path :: Path Int
-            path = identityPath 1
-        in do
-            path.source @?= 1
-            path.target @?= 1
-            path.arrows @?= []
-    ,
-    testCase "binary compound path" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 2 3
-            arrow2 :: Arrow Int
-            arrow2 = Arrow "arrow2" 1 2
-            path :: Path Int
-            path = arrow ~ arrow2
-        in do
-            path.source @?= 1
-            path.target @?= 3
-            path.arrows @?= [arrow, arrow2]
-    ,
-    testCase "multiple compound path" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 2 3
-            arrow2 :: Arrow Int
-            arrow2 = Arrow "arrow2" 1 2
-            arrow3 :: Arrow Int
-            arrow3 = Arrow "arrow3" 0 1
-            path :: Path Int
-            path = arrow ~ arrow2 ~ arrow3
-        in do
-            path.source @?= 0
-            path.target @?= 3
-            path.arrows @?= [arrow, arrow2, arrow3]
-    ,
-    testCase "non-matching compound path fails" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 2 3
-            arrow2 :: Arrow Int
-            arrow2 = Arrow "arrow2" 0 1
-        in do
-            res :: Either PathException (Path Int) <-
-                try (evaluate $ arrow ~ arrow2)
-            case res of
-                Left _ -> assertBool "" True
-                Right path -> assertFailure $
-                    "expected exception, but successfully got "  ++ show path
-    ,
-    testCase "valid composition with an identity path" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 2 3
-            idPath :: Path Int
-            idPath = identityPath 3
-            compoundPath = idPath ~ arrow
-        in do
-            compoundPath.source @?= 2
-            compoundPath.target @?= 3
-            compoundPath.arrows @?= [arrow]
-    ,
-    testCase "invalid composition with an identity path" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 2 3
-            idPath :: Path Int
-            idPath = identityPath 0
-            path = idPath ~ arrow
-        in do
-            res :: Either PathException (Path Int) <-
-                try (evaluate path)
-            case res of
-                Left _ -> assertBool "" True
-                Right compoundPath -> assertFailure $
-                    "expected exception, but successfully got "  ++ show compoundPath
-    ,
-    testCase "valid composition with a differently specified identity path" $
-        let arrow :: Arrow Int
-            arrow = Arrow "arrow" 2 3
-            compoundPath = Identity 3 ~ arrow
-        in do
-            compoundPath.source @?= 2
-            compoundPath.target @?= 3
-            compoundPath.arrows @?= [arrow]
-    ]
+  testGroup "The Olog DSL" [
+    testGroup "Basic properties of arrows" [
+        testCase "Can create arrows" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 1 2
+            in do
+                arrow.source @?= 1
+                arrow.target @?= 2
+        ,
+        testCase "an arrow is a path" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 1 2
+                path :: Path Int
+                path = toPath arrow
+            in do
+                path.source @?= 1
+                path.target @?= 2
+                path.arrows @?= [ arrow ]
+        ,
+        testCase "identity path" $
+            let
+                path :: Path Int
+                path = identityPath 1
+            in do
+                path.source @?= 1
+                path.target @?= 1
+                path.arrows @?= []
+        ,
+        testCase "binary compound path" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 2 3
+                arrow2 :: Arrow Int
+                arrow2 = Arrow "arrow2" 1 2
+                path :: Path Int
+                path = arrow ~ arrow2
+            in do
+                path.source @?= 1
+                path.target @?= 3
+                path.arrows @?= [arrow, arrow2]
+        ,
+        testCase "multiple compound path" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 2 3
+                arrow2 :: Arrow Int
+                arrow2 = Arrow "arrow2" 1 2
+                arrow3 :: Arrow Int
+                arrow3 = Arrow "arrow3" 0 1
+                path :: Path Int
+                path = arrow ~ arrow2 ~ arrow3
+            in do
+                path.source @?= 0
+                path.target @?= 3
+                path.arrows @?= [arrow, arrow2, arrow3]
+        ,
+        testCase "non-matching compound path fails" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 2 3
+                arrow2 :: Arrow Int
+                arrow2 = Arrow "arrow2" 0 1
+            in do
+                res :: Either PathException (Path Int) <-
+                    try (evaluate $ arrow ~ arrow2)
+                case res of
+                    Left _ -> assertBool "" True
+                    Right path -> assertFailure $
+                        "expected exception, but successfully got "  ++ show path
+        ,
+        testCase "valid composition with an identity path" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 2 3
+                idPath :: Path Int
+                idPath = identityPath 3
+                compoundPath = idPath ~ arrow
+            in do
+                compoundPath.source @?= 2
+                compoundPath.target @?= 3
+                compoundPath.arrows @?= [arrow]
+        ,
+        testCase "invalid composition with an identity path" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 2 3
+                idPath :: Path Int
+                idPath = identityPath 0
+                path = idPath ~ arrow
+            in do
+                res :: Either PathException (Path Int) <-
+                    try (evaluate path)
+                case res of
+                    Left _ -> assertBool "" True
+                    Right compoundPath -> assertFailure $
+                        "expected exception, but successfully got "  ++ show compoundPath
+        ,
+        testCase "valid composition with a differently specified identity path" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 2 3
+                compoundPath = Identity 3 ~ arrow
+            in do
+                compoundPath.source @?= 2
+                compoundPath.target @?= 3
+                compoundPath.arrows @?= [arrow]
+        ]
+  ]
 
