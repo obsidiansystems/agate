@@ -97,6 +97,7 @@ library
         Math.Agate.PetriNet
         Math.Agate.Olog.Olog
         Math.Agate.Olog.Olog2
+        Math.Agate.Olog.OgPoset
 
     -- Modules included in this library but not exported.
     other-modules:
@@ -133,7 +134,8 @@ test-suite agate-test
         Tests.PetriNet,
         Tests.PetriNet.Chart,
         Tests.Olog.OlogSpec,
-        Tests.Olog.Olog2Spec
+        Tests.Olog.Olog2Spec,
+        Tests.Olog.OgPosetSpec
 
     -- Test dependencies.
     build-depends:

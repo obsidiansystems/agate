@@ -6,6 +6,7 @@ import Test.Tasty.Golden.Manage (AcceptTests(AcceptTests))
 import Tests.PetriNet (petriTests)
 import Tests.Olog.OlogSpec (ologTests)
 import Tests.Olog.Olog2Spec (olog2Tests)
+import Tests.Olog.OgPosetSpec (ogPosetTests)
 import Tests.PetriNet.Chart (petriChartTest)
 import Tests.ODE.Solver (odeSolverTests)
 import Test.Tasty.Ingredients.ConsoleReporter (UseColor(Always))
@@ -29,5 +30,6 @@ tests =
             petriChartTest,
             petriTests,
             ologTests,
-            olog2Tests
+            olog2Tests,
+            ogPosetTests
         ]
