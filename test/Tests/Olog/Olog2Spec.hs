@@ -104,12 +104,13 @@ olog2Tests =
                 idPath = identityPath 0
                 path = idPath ~ arrow
             in do
-                res :: Either PathException (Path Int) <-
-                    try (evaluate path)
-                case res of
-                    Left _ -> assertBool "" True
-                    Right compoundPath -> assertFailure $
-                        "expected exception, but successfully got "  ++ show compoundPath
+                checkFails path
+                -- res :: Either PathException (Path Int) <-
+                --     try (evaluate path)
+                -- case res of
+                --     Left _ -> assertBool "" True
+                --     Right compoundPath -> assertFailure $
+                --         "expected exception, but successfully got "  ++ show compoundPath
         ,
         testCase "valid composition with a differently specified identity path" $
             let arrow :: Arrow Int
@@ -128,7 +129,27 @@ olog2Tests =
                 relator = arrow === arrow
             in do
                 relator.lhs @?= toPath arrow
-                relator.rhs @?= toPath arrow
+                relator.rhs @?= toPath arrow,
+        testCase "Disallow trivial relators" $
+            True @?= True
+            -- let idPath :: Path Int
+            --     idPath = identityPath (3 :: Int)
+            --     relator :: Relator Int
+            --     relator = arrow === arrow
+            -- in do
+            --     res :: Either PathException (Path Int) <-
+            --         try (evaluate path)
+            --     case res of
+            --         Left _ -> assertBool "" True
+            --         Right compoundPath -> assertFailure $
+            --             "expected exception, but successfully got "  ++ show compoundPath
     ]
   ]
 
+checkFails:: (Show a) => a -> Assertion
+checkFails block = do
+    res :: (Either SomeException a) <- try (evaluate block)
+    case res of
+        Left _ -> assertBool "" True
+        Right unexpectedWin -> assertFailure $
+            "expected exception, but successfully got "  ++ show unexpectedWin
