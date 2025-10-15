@@ -124,7 +124,21 @@ olog2Tests =
             let idPath :: Path Int
                 idPath = identityPath (3 :: Int)
             in do
-                checkFails $ idPath === idPath
+                checkFails $ idPath === idPath,
+        testCase "Disallow relators with different source" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 0 2
+                arrow2 :: Arrow Int
+                arrow2 = Arrow "arrow2" 1 2
+            in do
+                checkFails $ arrow === arrow2,
+        testCase "Disallow relators with different target" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 0 1
+                arrow2 :: Arrow Int
+                arrow2 = Arrow "arrow2" 0 2
+            in do
+                checkFails $ arrow === arrow2
     ]
   ]
 
