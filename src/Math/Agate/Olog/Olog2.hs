@@ -17,7 +17,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
 module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, 
-    identityPath, (~), PathException(..), (===), Relator(..) )
+    identityPath, (~), PathException(..), (===), Relator(..),RelatorException(..) )
 where
 import Control.Exception (throw, Exception)
 import Data.Functor.Identity
@@ -100,12 +100,12 @@ p1 === p2
     where
         (p1', p2') = (toPath p1, toPath p2)
 
-data RelationException = 
+data RelatorException = 
     TrivialIdentityException
     | MismatchedSourceException
     | MismatchedTargetException
     | OtherIdentityException
-    deriving (Show)
+    deriving (Show, Eq)
      
-instance Exception RelationException 
+instance Exception RelatorException 
 

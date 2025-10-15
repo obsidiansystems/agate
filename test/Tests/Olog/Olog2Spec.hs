@@ -2,12 +2,14 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE NoFieldSelectors #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DataKinds #-}
 
 module Tests.Olog.Olog2Spec where
 
 import Data.Either (isRight)
 import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath, 
-    (~), PathException(..), Relator(..), (===))
+    (~), PathException(..), Relator(..), (===), RelatorException(..))
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
@@ -131,21 +133,27 @@ olog2Tests =
                 arrow2 :: Arrow Int
                 arrow2 = Arrow "arrow2" 1 2
             in do
-                checkFails $ arrow === arrow2,
+                checkFailsWith (== MismatchedSourceException) $ arrow === arrow2,
         testCase "Disallow relators with different target" $
             let arrow :: Arrow Int
                 arrow = Arrow "arrow" 0 1
                 arrow2 :: Arrow Int
                 arrow2 = Arrow "arrow2" 0 2
             in do
-                checkFails $ arrow === arrow2
+                checkFailsWith (== MismatchedTargetException) $ arrow === arrow2
     ]
   ]
 
 checkFails:: (Show a) => a -> Assertion
-checkFails block = do
-    res :: (Either SomeException a) <- try (evaluate block)
+checkFails = checkFailsWith @SomeException (const True) 
+
+-- checkFailsWith @MismatchedTargetException x === y
+checkFailsWith :: forall e a. (Show a, Exception e) => (e -> Bool) -> a -> Assertion
+checkFailsWith p block = do
+    res :: (Either e a) <- tryJust @e (\ex' -> if p ex' then Just ex' else Nothing) (evaluate block)
     case res of
         Left _ -> assertBool "" True
         Right unexpectedWin -> assertFailure $
             "expected exception, but successfully got "  ++ show unexpectedWin
+        
+
