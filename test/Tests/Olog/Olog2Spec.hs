@@ -168,20 +168,28 @@ olog2Tests =
                 olog.relators @?= fromList [ ]
                 olog.arrows @?= fromList [ arrow ]
                 olog.dots @?= fromList [0, 1, 2, 3]
-        -- ,
-        -- testCase "Can create a more elaborate olog, the Kuratowski monoid" $
-        --     let c :: Arrow Int
-        --         c = Arrow "c" 0 0
-        --         i :: Arrow Int
-        --         i = Arrow "i" 0 0
-        --         relator :: Relator Int
-        --         relator = retraction ~ section === Identity (1 :: Int)
-        --         olog :: Olog Int
-        --         olog = makeOlog [ ]
-        --     in do
-        --         olog.relators @?= fromList [ ]
-        --         olog.arrows @?= fromList [ arrow ]
-        --         olog.dots @?= fromList [0, 1, 2, 3]
+        ,
+        testCase "Can create a more elaborate olog, the Kuratowski monoid" $
+            let c :: Arrow Int
+                c = Arrow "c" 0 0
+                i :: Arrow Int
+                i = Arrow "i" 0 0
+                idempotentI :: Relator Int
+                idempotentI = i ~ i === i
+                involutionC :: Relator Int
+                involutionC = c ~ c === Identity (0 :: Int)
+                ci :: Path Int
+                ci = c ~ i
+                semiIdempotentCI :: Relator Int
+                semiIdempotentCI = (ci ~ ci ~ ci ~ ci) === (ci ~ ci)
+                relators :: [ Relator Int ]
+                relators = [ idempotentI, involutionC, semiIdempotentCI ]
+                olog :: Olog Int
+                olog = makeOlog relators
+            in do
+                olog.relators @?= fromList relators
+                olog.arrows @?= fromList [ c, i ]
+                olog.dots @?= fromList [ 0 ]
     ]
   ]
 
