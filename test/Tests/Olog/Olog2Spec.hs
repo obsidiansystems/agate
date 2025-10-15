@@ -9,7 +9,8 @@ module Tests.Olog.Olog2Spec where
 
 import Data.Either (isRight)
 import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath, 
-    (~), PathException(..), Relator(..), (===), RelatorException(..))
+    (~), PathException(..), Relator(..), (===), RelatorException(..),
+    Olog(..), makeOlog, makeOlogWithExtras )
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
@@ -18,6 +19,7 @@ import Control.Exception
 import System.Exit
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Data.Functor.Identity
+import Data.Set
 
 olog2Tests :: TestTree
 olog2Tests =
@@ -141,6 +143,45 @@ olog2Tests =
                 arrow2 = Arrow "arrow2" 0 2
             in do
                 checkFailsWith (== MismatchedTargetException) $ arrow === arrow2
+    ],
+    testGroup "Basic properties of ologs" [
+        testCase "Can create an olog" $
+            let retraction :: Arrow Int
+                retraction = Arrow "retraction" 0 1
+                section :: Arrow Int
+                section = Arrow "section" 1 0
+                relator :: Relator Int
+                relator = retraction ~ section === Identity (1 :: Int)
+                olog :: Olog Int
+                olog = makeOlog [ relator ]
+            in do
+                olog.relators @?= fromList [ relator ]
+                olog.arrows @?= fromList [ retraction, section ]
+                olog.dots @?= fromList [0, 1]
+        ,
+        testCase "Can create an olog with extra arrows and dots" $
+            let arrow :: Arrow Int
+                arrow = Arrow "arrow" 0 1
+                olog :: Olog Int
+                olog = makeOlogWithExtras [ ] [ arrow ] [ 2, 3 ]
+            in do
+                olog.relators @?= fromList [ ]
+                olog.arrows @?= fromList [ arrow ]
+                olog.dots @?= fromList [0, 1, 2, 3]
+        -- ,
+        -- testCase "Can create a more elaborate olog, the Kuratowski monoid" $
+        --     let c :: Arrow Int
+        --         c = Arrow "c" 0 0
+        --         i :: Arrow Int
+        --         i = Arrow "i" 0 0
+        --         relator :: Relator Int
+        --         relator = retraction ~ section === Identity (1 :: Int)
+        --         olog :: Olog Int
+        --         olog = makeOlog [ ]
+        --     in do
+        --         olog.relators @?= fromList [ ]
+        --         olog.arrows @?= fromList [ arrow ]
+        --         olog.dots @?= fromList [0, 1, 2, 3]
     ]
   ]
 

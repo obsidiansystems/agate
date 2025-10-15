@@ -17,22 +17,25 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
 module Math.Agate.Olog.Olog2(Arrow(..), Path (..), toPath, 
-    identityPath, (~), PathException(..), (===), Relator(..),RelatorException(..) )
+    identityPath, (~), PathException(..), (===), Relator(..),RelatorException(..),
+    Olog(..), makeOlog, makeOlogWithExtras  )
 where
 import Control.Exception (throw, Exception)
 import Data.Functor.Identity
+import Data.List
+import Data.Set
 
 data Arrow dot = Arrow {
     name :: String,
     source :: dot,
     target :: dot
-}   deriving (Show, Eq)
+}   deriving (Show, Eq, Ord)
 
 data Path dot = Path {
     source :: dot,
     target :: dot,
     arrows :: [Arrow dot]
-}   deriving (Show, Eq)
+}   deriving (Show, Eq, Ord)
 
 class IsPath p where
     toPath :: p dot -> Path dot
@@ -88,7 +91,7 @@ data Relator dot = Relator {
     -- name :: String,
     lhs :: Path dot,
     rhs :: Path dot
-}   deriving (Show, Eq)
+}   deriving (Show, Eq, Ord)
 
 (===) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
      p1 dot -> p2 dot -> Relator dot
@@ -109,3 +112,26 @@ data RelatorException =
      
 instance Exception RelatorException 
 
+data Olog dot = Olog {
+    relators :: Set (Relator dot),
+    arrows :: Set (Arrow dot),
+    dots :: Set dot
+}   deriving (Show, Eq)
+
+makeOlogWithExtras :: forall dot . (Show dot, Ord dot) =>
+    [Relator dot] -> [Arrow dot] -> [dot] -> Olog dot
+makeOlogWithExtras relators arrows dots = Olog {
+    relators = fromList relators,
+    arrows = fromList abridgedArrows,
+    dots = fromList abridgedDots
+} where
+    arrowsInRelators = concatMap (\r -> r.lhs.arrows ++ r.rhs.arrows) relators
+    abridgedArrows = nub $ arrows ++ arrowsInRelators
+    dotsInArrows = concatMap (\a -> [a.source, a.target]) abridgedArrows
+    abridgedDots = nub $ dots ++ dotsInArrows
+
+-- (concatMap arrows (relators >>= \r -> [r.lhs, r.rhs])),
+
+makeOlog :: forall dot . (Show dot, Ord dot) => [Relator dot] -> Olog dot
+makeOlog relators = 
+    makeOlogWithExtras relators [] []
