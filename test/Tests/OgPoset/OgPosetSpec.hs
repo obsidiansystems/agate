@@ -5,10 +5,10 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 
-module Tests.Olog.OgPosetSpec where
+module Tests.OgPoset.OgPosetSpec where
 
 import Data.Either (isRight)
-import Math.Agate.Olog.OgPoset
+import Math.Agate.OgPoset.OgPoset
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)

@@ -16,7 +16,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Math.Agate.Olog.OgPoset
+module Math.Agate.OgPoset.OgPoset
 where
 import Control.Exception (throw, Exception)
 import Data.Functor.Identity
