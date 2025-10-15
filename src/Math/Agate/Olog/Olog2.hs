@@ -72,7 +72,8 @@ instance Show PathException  where
     show (CompositionException p1 p2) = "Cannot compose paths: " ++ show p1 ++ " and " ++ show p2
     show OtherException = "Other error"
 
-data PathException = forall a b . (Show a, Show b) => CompositionException (Path a) (Path b) | OtherException
+data PathException = forall a b . (Show a, Show b) => 
+    CompositionException (Path a) (Path b) | OtherException
 
 instance Exception PathException
 
@@ -91,5 +92,16 @@ data Relator dot = Relator {
 
 (===) :: (IsPath p1, IsPath p2, Eq dot, Show dot) =>
      p1 dot -> p2 dot -> Relator dot
-p1 === p2 = Relator { lhs = toPath p1, rhs = toPath p2 }
+p1 === p2 
+    | p1' == p2' = throw TrivialIdentityException
+    | otherwise  = Relator { lhs = toPath p1, rhs = toPath p2 }
+    where
+        (p1', p2') = (toPath p1, toPath p2)
+
+data RelationException = 
+    TrivialIdentityException
+    | OtherIdentityException
+    deriving (Show)
+     
+instance Exception RelationException 
 

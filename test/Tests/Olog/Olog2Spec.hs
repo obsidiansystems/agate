@@ -79,12 +79,7 @@ olog2Tests =
                 arrow2 :: Arrow Int
                 arrow2 = Arrow "arrow2" 0 1
             in do
-                res :: Either PathException (Path Int) <-
-                    try (evaluate $ arrow ~ arrow2)
-                case res of
-                    Left _ -> assertBool "" True
-                    Right path -> assertFailure $
-                        "expected exception, but successfully got "  ++ show path
+                checkFails $ arrow ~ arrow2
         ,
         testCase "valid composition with an identity path" $
             let arrow :: Arrow Int
@@ -102,15 +97,8 @@ olog2Tests =
                 arrow = Arrow "arrow" 2 3
                 idPath :: Path Int
                 idPath = identityPath 0
-                path = idPath ~ arrow
             in do
-                checkFails path
-                -- res :: Either PathException (Path Int) <-
-                --     try (evaluate path)
-                -- case res of
-                --     Left _ -> assertBool "" True
-                --     Right compoundPath -> assertFailure $
-                --         "expected exception, but successfully got "  ++ show compoundPath
+                checkFails $ idPath ~ arrow
         ,
         testCase "valid composition with a differently specified identity path" $
             let arrow :: Arrow Int
@@ -125,24 +113,18 @@ olog2Tests =
         testCase "Can create relators" $
             let arrow :: Arrow Int
                 arrow = Arrow "arrow" 1 2
+                arrow2 :: Arrow Int
+                arrow2 = Arrow "arrow2" 1 2
                 relator :: Relator Int
-                relator = arrow === arrow
+                relator = arrow === arrow2
             in do
                 relator.lhs @?= toPath arrow
-                relator.rhs @?= toPath arrow,
+                relator.rhs @?= toPath arrow2,
         testCase "Disallow trivial relators" $
-            True @?= True
-            -- let idPath :: Path Int
-            --     idPath = identityPath (3 :: Int)
-            --     relator :: Relator Int
-            --     relator = arrow === arrow
-            -- in do
-            --     res :: Either PathException (Path Int) <-
-            --         try (evaluate path)
-            --     case res of
-            --         Left _ -> assertBool "" True
-            --         Right compoundPath -> assertFailure $
-            --             "expected exception, but successfully got "  ++ show compoundPath
+            let idPath :: Path Int
+                idPath = identityPath (3 :: Int)
+            in do
+                checkFails $ idPath === idPath
     ]
   ]
 
