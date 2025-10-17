@@ -18,14 +18,14 @@
 module Math.Agate.OgPoset.OgPoset where
 
 import Control.Exception (Exception, throw)
+import Control.Monad (foldM)
 import Data.Functor.Identity
+import Data.Graph.Inductive.Internal.Heap (build)
 import Data.List
 import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
-import Data.Graph.Inductive.Internal.Heap (build)
-import Control.Monad (foldM)
 
 class Graded p where
   grades :: p dot -> Map Int (Set dot)
@@ -88,7 +88,9 @@ instance OgPoset OgFaceTable where
       , _incofaces = Map.empty
       , _outcofaces = Map.empty
       }
-  addFace :: forall dot.(Ord dot) => 
+  addFace ::
+    forall dot.
+    (Ord dot) =>
     dot -> [dot] -> [dot] -> OgFaceTable dot -> Either (AddFaceException dot) (OgFaceTable dot)
   addFace newDot infaces outfaces ogPoset =
     let lookupGrade :: dot -> Either (AddFaceException dot) Int
@@ -125,49 +127,16 @@ instance OgPoset OgFaceTable where
                     outfaces
               }
 
-buildOgPoset :: (OgPoset og, Ord dot) =>
-  [(dot, [dot], [dot])] -> 
+buildOgPoset ::
+  (OgPoset og, Ord dot) =>
+  [(dot, [dot], [dot])] ->
   Either (AddFaceException dot) (og dot)
-buildOgPoset faceSpecs = 
-  -- foldM :: (Foldable t, Monad m) => (b -> a -> m b) -> b -> t a -> m b
-  -- Right empty
-  foldM doIt empty faceSpecs
-  where
-    doIt :: (OgPoset og, Ord dot) => 
-      og dot -> (dot, [dot], [dot]) -> 
-      Either (AddFaceException dot) (og dot)
-    doIt ogPoset (d, infs, outfs) =
-      addFace d infs outfs ogPoset
+buildOgPoset =
+  foldM
+    (\ogPoset (d, infs, outfs) ->
+        addFace d infs outfs ogPoset)
+    empty
 
-
-  -- foldl'
-  --   (\eitherOgPoset (d, infs, outfs) ->
-  --       eitherOgPoset >>= \ogPoset ->
-  --         -- addFace d infs outfs ogPoset
-  --         ogPoset
-  --   )
-  --   (Right empty)
-  --   faceSpecs
-
-  -- foldl'
-  --   (\eitherOgPoset (d, infs, outfs) ->
-  --       eitherOgPoset >>= \ogPoset ->
-  --         addFace d infs outfs ogPoset
-  --   )
-  --   (Right empty)
-  --   faceSpecs
-    
-  -- foldl'
-  --   (\eitherOgPoset (d, infs, outfs) ->
-  --       eitherOgPoset >>= \ogPoset ->
-  --         addFace d infs outfs ogPoset
-  --   )
-  --   (Right empty)
-  --   faceSpecs
-  --   >>= \result ->
-  --     case result of
-  --       Left err -> error $ "Error building OgPoset: " ++ show err
-  --       Right ogPoset -> pure ogPoset
 
 -- currentGrades = _grades ogft
 -- in
