@@ -9,10 +9,18 @@ import Math.Agate.ODE.Polynomial (PolynomialODE)
 import Test.Tasty.Golden
 import Math.Agate.Diagrams.PetriNet
 import Data.GraphViz
-import Graphics.Svg
+import Graphics.Svg (prettyText)
 import Diagrams.Prelude hiding (outer)
 import Diagrams.Backend.SVG
 import Data.List.NonEmpty qualified as NE
+import Data.Text.Lazy.Encoding (encodeUtf8)
+import Data.Colour.RGBSpace
+import Data.Colour.RGBSpace.HSL
+import qualified Data.Map.Lazy as Map
+import Data.Maybe
+import Math.Agate.ODE.Polynomial.Solver
+import Data.Map (Map)
+
 
 petriTests :: TestTree
 petriTests =
@@ -26,7 +34,8 @@ petriTests =
             , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
                 p <- layoutPetri exampleSIR Neato
                 pure
-                    . renderBS
+                    . encodeUtf8
+                    . prettyText
                     . renderDia SVG
                       ( SVGOptions
                         (mkSizeSpec (V2 (Just 1000) Nothing))
@@ -36,13 +45,30 @@ petriTests =
                         True
                       )
                     $ drawPetri p
+            , goldenVsString "animation" "test/outputs/petri-sir-animated.svg" do
+                p <- layoutPetri exampleSIR Neato
+                pure
+                    . encodeUtf8
+                    . prettyText
+                    . renderDia SVG
+                      ( SVGOptions
+                        (mkSizeSpec (V2 (Just 1000) Nothing))
+                        Nothing
+                        mempty
+                        []
+                        True
+                      )
+                    $ drawPetriDynamic sirColour
+                      (take 1000 . fromMaybe (error "variable not found") . (runSolverSIR Map.!?))
+                      p
             ]
         , testGroup
             "Madrid"
             [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
                 p <- layoutPetri madridNet Neato
                 pure
-                    . renderBS
+                    . encodeUtf8
+                    . prettyText
                     . renderDia SVG
                       ( SVGOptions
                         (mkSizeSpec (V2 (Just 1000) Nothing))
@@ -82,3 +108,16 @@ madridNet =
     ]
   where
     outer =["N", "E", "SE", "S", "W", "NW"]
+
+runSolverSIR :: Map String [Double]
+runSolverSIR =
+        (\ls -> Map.fromList $ ["S", "I", "R"] <&> \v -> (v, map (Map.! v) ls))
+        $ odeSolve exampleSIRODE (ODEParams 0.1)
+        $ Map.fromList [("S", 0.95), ("I", 0.05), ("R", 0)]
+
+sirColour :: String -> Colour Double
+sirColour = \case
+  "R" -> uncurryRGB sRGB $ hsl 120 0.7 0.32
+  "I" -> uncurryRGB sRGB $ hsl 0 0.7 0.55
+  "S" -> uncurryRGB sRGB $ hsl 240 0.7 0.4
+  _ -> black

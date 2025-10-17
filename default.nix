@@ -7,7 +7,8 @@
       HaskellForMaths = pkgs.haskell.lib.doJailbreak (super.HaskellForMaths.overrideAttrs (old: { meta.broken = false; }));
       brick = pkgs.haskell.lib.doJailbreak super.brick;
       diagrams-lib = pkgs.haskell.lib.doJailbreak super.diagrams-lib;
-      diagrams-svg = pkgs.haskell.lib.doJailbreak super.diagrams-svg;
+      diagrams-rasterific = pkgs.haskell.lib.doJailbreak super.diagrams-rasterific;
+      diagrams-svg = super.callCabal2nix "diagrams-svg" ./diagrams-svg {};
     };
   };
 in (hsPkgs.developPackage {
