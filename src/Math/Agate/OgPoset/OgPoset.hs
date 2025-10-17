@@ -24,6 +24,8 @@ import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
+import Data.Graph.Inductive.Internal.Heap (build)
+import Control.Monad (foldM)
 
 class Graded p where
   grades :: p dot -> Map Int (Set dot)
@@ -122,6 +124,50 @@ instance OgPoset OgFaceTable where
                     (_outcofaces ogPoset)
                     outfaces
               }
+
+buildOgPoset :: (OgPoset og, Ord dot) =>
+  [(dot, [dot], [dot])] -> 
+  Either (AddFaceException dot) (og dot)
+buildOgPoset faceSpecs = 
+  -- foldM :: (Foldable t, Monad m) => (b -> a -> m b) -> b -> t a -> m b
+  -- Right empty
+  foldM doIt empty faceSpecs
+  where
+    doIt :: (OgPoset og, Ord dot) => 
+      og dot -> (dot, [dot], [dot]) -> 
+      Either (AddFaceException dot) (og dot)
+    doIt ogPoset (d, infs, outfs) =
+      addFace d infs outfs ogPoset
+
+
+  -- foldl'
+  --   (\eitherOgPoset (d, infs, outfs) ->
+  --       eitherOgPoset >>= \ogPoset ->
+  --         -- addFace d infs outfs ogPoset
+  --         ogPoset
+  --   )
+  --   (Right empty)
+  --   faceSpecs
+
+  -- foldl'
+  --   (\eitherOgPoset (d, infs, outfs) ->
+  --       eitherOgPoset >>= \ogPoset ->
+  --         addFace d infs outfs ogPoset
+  --   )
+  --   (Right empty)
+  --   faceSpecs
+    
+  -- foldl'
+  --   (\eitherOgPoset (d, infs, outfs) ->
+  --       eitherOgPoset >>= \ogPoset ->
+  --         addFace d infs outfs ogPoset
+  --   )
+  --   (Right empty)
+  --   faceSpecs
+  --   >>= \result ->
+  --     case result of
+  --       Left err -> error $ "Error building OgPoset: " ++ show err
+  --       Right ogPoset -> pure ogPoset
 
 -- currentGrades = _grades ogft
 -- in
