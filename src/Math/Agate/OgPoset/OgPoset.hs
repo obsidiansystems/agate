@@ -78,11 +78,13 @@ instance HasCofaces OgFaceTable where
 data AddFaceException dot
   = UnknownFace dot
   | MismatchedGrades [Int]
+  deriving (Show, Eq)
 
 instance OgPoset OgFaceTable where
   empty =
     OgFaceTable
       { _grades = Map.empty
+      , _grade = Map.empty
       , _infaces = Map.empty
       , _outfaces = Map.empty
       , _incofaces = Map.empty
