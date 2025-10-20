@@ -21,7 +21,6 @@ import qualified Data.Map.Lazy as Map
 import Math.Agate.ODE.Polynomial.Solver
 import Data.Map (Map)
 import Diagrams.AreaChart
-import Data.Maybe (fromJust)
 
 petriTests :: TestTree
 petriTests =
@@ -111,9 +110,8 @@ petriTests =
 
 
 animatedAreaChart :: QDiagram B V2 Double Any
-animatedAreaChart =  movingRect (chartInnerWidth * 245) <> chart
+animatedAreaChart = movingRect <> chart
   where
-    chartInnerWidth = width . fromJust . lookupName ("chartInner" :: String) $ chart
     chart = areaChart 3 (zipWith
                   (\(colour, name) values -> Variable{name, colour, values})
                   [ (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
@@ -122,9 +120,9 @@ animatedAreaChart =  movingRect (chartInnerWidth * 245) <> chart
                   ]
                   $ (\ls ->  ["S", "I", "R"] <&> take 1000 . (ls Map.!))
                   runSolverSIR)
-    movingRect sz = animate t $ rect 0.005 1
+    movingRect = animate t $ rect 0.005 1
       where
-        t = TransformAnimation 15 Nothing $ TranslateAnimation [V2 0 0, V2 sz 0]
+        t = TransformAnimation 15 Nothing $ TranslateAnimation [V2 0 0, V2 3 0]
 
 exampleSIRODE :: PolynomialODE Double String
 exampleSIRODE = asODE generalSIR
