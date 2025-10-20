@@ -120,12 +120,12 @@ instance OgPoset OgFaceTable where
               , _incofaces =
                   foldl'
                     (\m f -> Map.insertWith Set.union f (Set.singleton newDot) m)
-                    (_incofaces ogPoset)
+                    (Map.insert newDot Set.empty (_incofaces ogPoset))
                     infaces
               , _outcofaces =
                   foldl'
                     (\m f -> Map.insertWith Set.union f (Set.singleton newDot) m)
-                    (_outcofaces ogPoset)
+                    (Map.insert newDot Set.empty (_outcofaces ogPoset))
                     outfaces
               }
 

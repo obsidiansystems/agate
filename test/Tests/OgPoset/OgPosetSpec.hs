@@ -23,12 +23,28 @@ import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
-import Math.Agate.OgPoset.OgPoset (Graded(..), HasFaces(..))
+import Math.Agate.OgPoset.OgPoset (Graded(..), HasFaces(..), HasCofaces(..))
 
 ogPosetTests :: TestTree
 ogPosetTests =
   testGroup "The OgPoset DSL" [
-    testGroup "Constructing an OgPoset" [
+    let
+      checkOneArcPoset :: Either (AddFaceException Int) (OgFaceTable Int) -> Assertion
+      checkOneArcPoset maybePoset = do
+        case maybePoset of
+          Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
+          Right poset -> do
+            grades poset @?= Map.fromList [(0, Set.fromList [0,1]), (1, Set.fromList [2])]
+            grade poset 0 @?= Just 0
+            grade poset 1 @?= Just 0
+            grade poset 2 @?= Just 1
+            infaces poset @?= Map.fromList [(0, Set.empty), (1, Set.empty), (2, Set.fromList [0])]
+            outfaces poset @?= Map.fromList [(0, Set.empty), (1, Set.empty), (2, Set.fromList [1])]
+            incofaces poset @?= Map.fromList [(0, Set.fromList [2]), (1, Set.empty), (2, Set.empty)]
+            outcofaces poset @?= Map.fromList [(0, Set.empty), (1, Set.fromList [2]), (2, Set.empty)]
+            True @?= True
+    in
+    testGroup "Constructing a one-arc OgPoset" [
         testCase "Can create an OgPoset" $
           let
             maybePoset :: (Either (AddFaceException Int) (OgFaceTable Int)) =
@@ -50,16 +66,4 @@ ogPosetTests =
     ]
   ]
 
-checkOneArcPoset :: Either (AddFaceException Int) (OgFaceTable Int) -> Assertion
-checkOneArcPoset maybePoset = do
-  case maybePoset of
-    Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
-    Right poset -> do
-      grades poset @?= Map.fromList [(0, Set.fromList [0,1]), (1, Set.fromList [2])]
-      grade poset 0 @?= Just 0
-      grade poset 1 @?= Just 0
-      grade poset 2 @?= Just 1
-      infaces poset @?= Map.fromList [(0, Set.empty), (1, Set.empty), (2, Set.fromList [0])]
-      outfaces poset @?= Map.fromList [(0, Set.empty), (1, Set.empty), (2, Set.fromList [1])]
-      True @?= True
 
