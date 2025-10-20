@@ -21,8 +21,6 @@ import qualified Data.Map.Lazy as Map
 import Math.Agate.ODE.Polynomial.Solver
 import Data.Map (Map)
 import Diagrams.AreaChart
-import qualified Graphics.Svg as SVG
-import qualified Data.Text as T
 import Data.Maybe (fromJust)
 
 petriTests :: TestTree
@@ -124,29 +122,9 @@ animatedAreaChart =  movingRect (chartInnerWidth * 245) <> chart
                   ]
                   $ (\ls ->  ["S", "I", "R"] <&> take 1000 . (ls Map.!))
                   runSolverSIR)
-    movingRect sz =
-      elementToDiagram
-        $ SVG.path_
-          [
-            SVG.bindAttr SVG.D_
-              $ T.pack
-              . unwords
-              . ("M":)
-              . (++["z"])
-              . map (\(x, y) -> show x ++ "," ++ show y)
-              $ [(0,-h), (0,h), (w,h), (w,-h)],
-            SVG.Stroke_ SVG.<<- "none",
-            SVG.Fill_ SVG.<<- "black"
-          ]
-        $ SVG.animateMotion_ [
-          SVG.Dur_         SVG.<<- "15s",
-          SVG.RepeatCount_ SVG.<<- "indefinite",
-          SVG.Path_        SVG.<<- "M 0,0 " <> T.pack (show sz) <> ",0"
-        ]
-    w :: Double
-    h :: Double
-    (w, h) = (0.01, 0.5)
-
+    movingRect sz = animate t $ rect 0.005 1
+      where
+        t = TransformAnimation 15 Nothing $ TranslateAnimation [V2 0 0, V2 sz 0]
 
 exampleSIRODE :: PolynomialODE Double String
 exampleSIRODE = asODE generalSIR

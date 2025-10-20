@@ -14,8 +14,6 @@ import Diagrams.Backend.SVG
 import Math.Agate.PetriNet (PetriNetImpl (..))
 import Prelude hiding (id)
 import Data.Maybe (listToMaybe, fromMaybe)
-import qualified Graphics.Svg as SVG
-import qualified Data.Text as T
 import Data.Fixed (showFixed, E3)
 
 data Vertex p t
@@ -55,20 +53,10 @@ drawPetri vertexColour = drawPetri' vShow \p ->
 drawPetriDynamic :: ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p ) =>
   (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
 drawPetriDynamic vertexColour marking = drawPetri' vShow \p ->
-  elementToDiagram
-    $ SVG.circle_
-      [ SVG.Stroke_width_ SVG.<<- "0",
-        SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
-      ]
-    $ SVG.animate_
-      [ SVG.AttributeName_ SVG.<<- "r",
-        SVG.Values_
-          SVG.<<- T.intercalate
-            ";"
-            (map (T.pack . showFixed @E3 True . realToFrac . (* 10)) $ marking p),
-        SVG.Dur_ SVG.<<- "15s",
-        SVG.RepeatCount_ SVG.<<- "indefinite"
-      ]
+    circle 10
+        & lw 0
+        & fc (vertexColour p)
+        & animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map (\c -> V2 c c) $ marking p)
 
 drawPetri' ::
   (Ord p, Ord t, VertexShow t) =>
