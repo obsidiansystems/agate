@@ -31,6 +31,9 @@ class VertexShow a where
   vShow :: a -> String
 
 instance {-# OVERLAPPING #-} VertexShow String where vShow s = s
+instance {-# OVERLAPPING #-} VertexShow Double where
+  vShow = showFixed @E3 True . realToFrac
+
 instance {-# OVERLAPPABLE #-} (Show a) => VertexShow a where vShow = show
 
 layoutPetri :: (Ord p, Ord t, VertexShow p, VertexShow t) => PetriNetImpl p t -> GraphvizCommand -> IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
@@ -44,43 +47,56 @@ layoutPetri petri command = layoutGraph command $ mkGraph vertices edges
         ++ [(Transition id (t M.! id), Place p, w) | ((id, p), w) <- M.toList $ transitionToPlaces petri]
     t = transitions petri
 
-drawPetri ::
-    ( Ord p, Ord t, VertexShow p, VertexShow t
-    ) =>
-    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetri = drawPetri' vShow (const mempty)
 
-drawPetriDynamic ::
-    ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p
-    ) =>
-    (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram $
-        SVG.circle_
-            [ SVG.Stroke_width_ SVG.<<- "0"
-            , SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
-            ]
-            $ SVG.animate_
-                [ SVG.AttributeName_ SVG.<<- "r"
-                , SVG.Values_ SVG.<<- T.intercalate ";"
-                    (map (T.pack . showFixed @E3 True . realToFrac . (* 10)) $ marking p)
-                , SVG.Dur_ SVG.<<- "15s"
-                , SVG.RepeatCount_ SVG.<<- "indefinite"
-                ]
+drawPetri :: (VertexShow t, VertexShow p, Ord t, Ord p) => (p -> Colour Double) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetri vertexColour = drawPetri' vShow \p ->
+  fc (vertexColour p) $ circle 10
+
+drawPetriDynamic :: ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p ) =>
+  (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetriDynamic vertexColour marking = drawPetri' vShow \p ->
+  elementToDiagram
+    $ SVG.circle_
+      [ SVG.Stroke_width_ SVG.<<- "0",
+        SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
+      ]
+    $ SVG.animate_
+      [ SVG.AttributeName_ SVG.<<- "r",
+        SVG.Values_
+          SVG.<<- T.intercalate
+            ";"
+            (map (T.pack . showFixed @E3 True . realToFrac . (* 10)) $ marking p),
+        SVG.Dur_ SVG.<<- "15s",
+        SVG.RepeatCount_ SVG.<<- "indefinite"
+      ]
 
 drawPetri' ::
-    ( Ord p, Ord t, VertexShow t) =>
-    (p -> String) ->
-    (p -> Diagram B) ->
-    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
-    Diagram B
-drawPetri' showPlace renderPlace = drawGraph
-        ( \v -> place $ case v of
-            Place p -> fontSizeL 10 (fc black (text (showPlace p))) <> renderPlace p <> fc white (circle 10)
-            Transition _ t -> fontSizeL 5 (fc white (text (vShow t))) <> fc black (square 10)
-        )
-        (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
+  (Ord p, Ord t, VertexShow t) =>
+  (p -> String) ->
+  (p -> Diagram B) ->
+  Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
+  Diagram B
+drawPetri' showPlace renderPlace =
+  drawGraph
+    ( \v -> place $ case v of
+        Place p ->
+          mconcat
+            [ text (showPlace p) & font fname & fontSizeL 10 & fc black,
+              renderPlace p,
+              circle 10 & fc white
+            ]
+        Transition _ t ->
+          mconcat
+            [ text (vShow t) & font fname & fontSizeL 5 & fc white,
+              square 15 & fc black
+            ]
+    )
+    (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
+    fname = "Helvetica" -- "Latin Modern Math"
     opts p w =
-        with & gaps .~ local 10
-            & arrowShaft .~ (unLoc . fromMaybe (error "arrow has no path") . listToMaybe $ pathTrails p)
-            & headLength .~ local (5 * fromIntegral w)
+      with
+        & gaps .~ local 15
+        & arrowShaft .~ (unLoc . fromMaybe (error "arrow has no path") . listToMaybe $ pathTrails p)
+        & headLength .~ local (5 * fromIntegral w)
+        & arrowHead .~ arrowheadThorn (150 @@ deg)
