@@ -25,6 +25,8 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
 
+type FancyInt = (Int, Int)
+
 ogPosetTests :: TestTree
 ogPosetTests =
   testGroup
@@ -44,18 +46,35 @@ ogPosetTests =
               incofaces poset @?= Map.fromList [(0, Set.fromList [2]), (1, Set.empty), (2, Set.empty)]
               outcofaces poset @?= Map.fromList [(0, Set.empty), (1, Set.fromList [2]), (2, Set.empty)]
               True @?= True
+        checkPastingDiagram :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
+        checkPastingDiagram maybePoset = do
+          case maybePoset of
+            Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
+            Right poset -> do
+              grades poset @?= Map.fromList [
+                (0, Set.fromList[(0, 0), (0, 1), (0, 2), (0, 3)]),
+                (1, Set.fromList[(1, 0), (1, 1), (1, 2), (1, 3)]),
+                (2, Set.fromList[(2, 0)])
+                ]
        in
         testGroup
-          "Constructing a one-arc OgPoset"
-          [ testCase "Can create an OgPoset" $
+          "Constructing OgPoset's"
+          [ testCase "Can create a one-arc OgPoset" $
               checkOneArcPoset do
                 let p :: OgFaceTable Int = empty
                 p1 <- addFace 0 [] [] p
                 p2 <- addFace 1 [] [] p1
                 p3 <- addFace 2 [0] [1] p2
                 return p3
-          , testCase "Can create an OgPoset more conveniently" $
+          , testCase "Can create a one-arc OgPoset more conveniently" $
               checkOneArcPoset $
                 buildOgPoset [(0, [], []), (1, [], []), (2, [0], [1])]
+          , testCase "Can create an entry level pasting diagram" $
+              checkPastingDiagram $
+                buildOgPoset [
+                  ((0, 0), [], []), ((0, 1), [], []), ((0, 2), [], []), ((0, 3), [], []),
+                  ((1, 0), [(0, 0)], [(0, 1)]), ((1, 1), [(0, 1)], [(0, 2)]), ((1, 2), [(0, 2)], [(0, 3)]), ((1, 3), [(0, 0)], [(0, 2)]),
+                  ((2, 0), [(1, 0), (1, 2)], [(1, 3)])
+                ]
           ]
     ]

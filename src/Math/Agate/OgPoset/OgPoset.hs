@@ -142,22 +142,3 @@ buildOgPoset =
     )
     empty
 
--- currentGrades = _grades ogft
--- in
---   Right OgFaceTable {
---     _grades = updatedGrades,
---     _infaces = updatedInfaces,
---     _outfaces = updatedOutfaces,
---     _incofaces = updatedIncofaces,
---     _outcofaces = updatedOutcofaces
---   }
-
--- data OgPoset dot = Arrow {
---     grades :: Map Int (Set dot),
-
--- }   deriving (Show, Eq, Ord)
-
--- data OgPoset dot = OgPoset {
---   faceTableRep :: OgFaceTable dot
---   ...
--- }
