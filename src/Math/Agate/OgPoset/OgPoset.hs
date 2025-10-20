@@ -15,6 +15,8 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
+{-# HLINT ignore "Use mapM" #-}
+
 module Math.Agate.OgPoset.OgPoset where
 
 import Control.Exception (Exception, throw)
@@ -135,10 +137,10 @@ buildOgPoset ::
   Either (AddFaceException dot) (og dot)
 buildOgPoset =
   foldM
-    (\ogPoset (d, infs, outfs) ->
-        addFace d infs outfs ogPoset)
+    ( \ogPoset (d, infs, outfs) ->
+        addFace d infs outfs ogPoset
+    )
     empty
-
 
 -- currentGrades = _grades ogft
 -- in
