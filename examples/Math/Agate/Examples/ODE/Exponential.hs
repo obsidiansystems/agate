@@ -1,17 +1,18 @@
 module Math.Agate.Examples.ODE.Exponential where
-import Math.Agate.ODE.Polynomial (PolynomialODE (..))
-import qualified Data.Map as Map
+
+import Data.Map qualified as Map
 import Data.Maybe (mapMaybe)
+import Math.Agate.ODE.Polynomial (PolynomialODE (..))
 import Math.Agate.ODE.Polynomial.Solver
-import qualified Math.CommutativeAlgebra.Polynomial as Poly
+import Math.CommutativeAlgebra.Polynomial qualified as Poly
 
 -- simple ODE example where x' = x
 exponentialODE :: PolynomialODE Double String
 exponentialODE =
-  PolynomialODE $
-    Map.fromList
-      [ ("x", x)
-      ]
+    PolynomialODE $
+        Map.fromList
+            [ ("x", x)
+            ]
   where
     x = Poly.var "x"
 

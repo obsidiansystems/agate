@@ -3,6 +3,7 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Math.Agate.Algol where
+
 import Data.IORef
 
 class (Monoid system, Num (Exp system)) => Algol system where
@@ -15,7 +16,7 @@ class (Monoid system, Num (Exp system)) => Algol system where
     while :: Exp system -> system -> system
     new :: (Var system -> system) -> system
 
-newtype AlgolIO v = AlgolIO { runAlgolIO :: IO () }
+newtype AlgolIO v = AlgolIO {runAlgolIO :: IO ()}
     deriving newtype (Semigroup, Monoid)
 
 instance (Num v) => Num (IO v) where
@@ -54,18 +55,20 @@ instance (Num v, Eq v) => Algol (AlgolIO v) where
             ref <- newIORef 0
             runAlgolIO (cont ref)
 
-sampleProgram :: forall system . Algol system => Var system -> system
+sampleProgram :: forall system. (Algol system) => Var system -> system
 sampleProgram y =
     new $ \x ->
-        assign x 5 <> assign y 0 <>
-            while (var @system x) (
-                ( assign x (var @system x - 1)) <>
-                ( assign y (var @system y  + 1))
-            )
+        assign x 5
+            <> assign y 0
+            <> while
+                (var @system x)
+                ( (assign x (var @system x - 1))
+                    <> (assign y (var @system y + 1))
+                )
 
 runIt :: IO ()
 runIt =
-     do
+    do
         y <- newIORef (0 :: Double)
         runAlgolIO (sampleProgram y)
         v <- readIORef y

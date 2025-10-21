@@ -9,9 +9,9 @@ import Math.Agate.PetriNet
 
 madridNet :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
 madridNet =
-  mconcat
-    [ transition [s] 1 [t] <> transition [t] 1 [s]
-      | (s, t) <- (("C",) <$> outer) ++ zip outer (NE.tail (NE.fromList (cycle outer)))
-    ]
+    mconcat
+        [ transition [s] 1 [t] <> transition [t] 1 [s]
+        | (s, t) <- (("C",) <$> outer) ++ zip outer (NE.tail (NE.fromList (cycle outer)))
+        ]
   where
-    outer =["N", "E", "SE", "S", "W", "NW"]
+    outer = ["N", "E", "SE", "S", "W", "NW"]
