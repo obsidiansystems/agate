@@ -53,13 +53,33 @@ ogPosetTests =
             Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
             Right poset -> do
               grades poset @?= Map.fromList [
-                (0, Set.fromList[(0, 0), (0, 1), (0, 2), (0, 3)]),
-                (1, Set.fromList[(1, 0), (1, 1), (1, 2), (1, 3)]),
-                (2, Set.fromList[(2, 0)])
+                (0, Set.fromList [(0, 0), (0, 1), (0, 2), (0, 3)]),
+                (1, Set.fromList [(1, 0), (1, 1), (1, 2), (1, 3)]),
+                (2, Set.fromList [(2, 0)])
                 ]
               for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
               for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
               grade poset (2, 0) @?= Just 2
+              -- let
+              --   the_infaces :: (Map FancyInt (Set FancyInt)) = infaces poset
+              --   verify_infaces :: FancyInt -> [FancyInt] -> Assertion
+              --   verify_infaces dot expectedFaces =
+              --     Map.lookup dot the_infaces @?= Just (Set.fromList expectedFaces)
+              -- in verify_infaces (0, 0) []
+              True @?= True
+              {-- Verify infaces - 
+              let
+                the_infaces :: (Map FancyInt (Set FancyInt)) = infaces poset
+                verify_infaces :: FancyInt -> [FancyInt] -> Assertion
+                verify_infaces dot expectedFaces =
+                  Map.lookup dot the_infaces @?= Just (Set.fromList expectedFaces)
+              in -- do
+                verify_infaces (0, 0) []
+                -- verify_infaces (0, 1) []
+                -- verify_infaces (0, 2) []
+                -- verify_infaces (0, 3) []
+                True @?= True
+              -}
        in
         testGroup
           "Constructing OgPoset's"
