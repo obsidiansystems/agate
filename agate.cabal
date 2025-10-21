@@ -113,6 +113,16 @@ library
     -- Directories containing source files.
     hs-source-dirs:   src
 
+library agate-examples
+    import: common
+    exposed-modules:
+        Math.Agate.Examples.PetriNet.Madrid
+        Math.Agate.Examples.PetriNet.SIR
+        Math.Agate.Examples.ODE.SIR
+        Math.Agate.Examples.ODE.Exponential
+    build-depends:    agate
+    hs-source-dirs:   examples
+
 test-suite agate-test
     import:           common
 
@@ -139,6 +149,7 @@ test-suite agate-test
     -- Test dependencies.
     build-depends:
         agate,
+        agate-examples,
         tasty,
         tasty-quickcheck,
         tasty-golden,
