@@ -37,9 +37,10 @@ instance {-# OVERLAPPABLE #-} (Show a) => VertexShow a where vShow = show
 layoutPetri ::
     (Ord p, Ord t, VertexShow p, VertexShow t) =>
     PetriNetImpl p t ->
+    Double ->
     GraphvizCommand ->
     IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
-layoutPetri petri command = layoutGraph' params command $ mkGraph vertices edges
+layoutPetri petri aspectRatio command = layoutGraph' params command $ mkGraph vertices edges
   where
     vertices =
         map (uncurry Transition) (M.toList t)
@@ -51,7 +52,7 @@ layoutPetri petri command = layoutGraph' params command $ mkGraph vertices edges
     params :: GraphvizParams Node (Vertex p t) Int () (Vertex p t)
     params =
         defaultParams
-            { globalAttributes = [GraphAttrs [Ratio $ AspectRatio (1 / 3)]]
+            { globalAttributes = [GraphAttrs [Ratio $ AspectRatio aspectRatio]]
             }
 
 drawPetri ::
