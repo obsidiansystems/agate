@@ -60,7 +60,7 @@ petriTests =
                             True
                         )
                     $ vcat
-                        [ scale 80 animatedAreaChart
+                        [ scale 160 animatedAreaChart
                         , drawPetriDynamic
                             sirColour
                             (take 1000 . (runSolverSIR Map.!))
