@@ -28,15 +28,6 @@ instance Bifunctor Vertex where
         Transition n t -> Transition n $ g t
         Place p -> Place $ f p
 
-class VertexShow a where
-    vShow :: a -> String
-
-instance {-# OVERLAPPING #-} VertexShow String where vShow s = s
-instance {-# OVERLAPPING #-} VertexShow Double where
-    vShow = showFixed @E3 True . realToFrac
-
-instance {-# OVERLAPPABLE #-} (Show a) => VertexShow a where vShow = show
-
 data LayoutOpts = LayoutOpts
     { aspectRatio :: Double
     , command :: GraphvizCommand
@@ -49,15 +40,22 @@ defaultLayoutOpts =
         , command = Neato
         }
 
-data DrawOpts = DrawOpts
+data DrawOpts p t = DrawOpts
     { placeSize :: Double
+    , showPlace :: p -> String
+    , showTransition :: t -> String
     }
 
-defaultDrawOpts :: DrawOpts
-defaultDrawOpts = DrawOpts{placeSize = 30}
+defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
+defaultDrawOpts =
+    DrawOpts
+        { placeSize = 30
+        , showPlace = show
+        , showTransition = showFixed @E3 True . realToFrac
+        }
 
 layoutPetri ::
-    (Ord p, Ord t, VertexShow p, VertexShow t) =>
+    (Ord p, Ord t, Show p, Show t) =>
     PetriNetImpl p t ->
     LayoutOpts ->
     IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
@@ -77,46 +75,45 @@ layoutPetri petri LayoutOpts{aspectRatio, command} = layoutGraph' params command
             }
 
 drawPetri ::
-    (VertexShow t, VertexShow p, Ord t, Ord p) =>
-    DrawOpts ->
+    (Show t, Show p, Ord t, Ord p) =>
+    DrawOpts p t ->
     (p -> Colour Double) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
-drawPetri drawOpts vertexColour = drawPetri' drawOpts vShow \p ->
+drawPetri drawOpts vertexColour = drawPetri' drawOpts \p ->
     fc (vertexColour p) $ circle drawOpts.placeSize
 
 drawPetriDynamic ::
-    (Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p) =>
-    DrawOpts ->
+    (Ord p, Ord t, Show p, Show t, Show t, Show p) =>
+    DrawOpts p t ->
     (p -> Colour Double) ->
     (p -> [Double]) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
-drawPetriDynamic drawOpts vertexColour marking = drawPetri' drawOpts vShow \p ->
+drawPetriDynamic drawOpts vertexColour marking = drawPetri' drawOpts \p ->
     circle drawOpts.placeSize
         & lw 0
         & fc (vertexColour p)
         & animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map (\c -> V2 c c) $ marking p)
 
 drawPetri' ::
-    (Ord p, Ord t, VertexShow t) =>
-    DrawOpts ->
-    (p -> String) ->
+    (Ord p, Show p, Ord t, Show t) =>
+    DrawOpts p t ->
     (p -> Diagram B) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
-drawPetri' drawOpts showPlace renderPlace =
+drawPetri' drawOpts renderPlace =
     drawGraph
         ( \v -> place $ case v of
             Place p ->
                 mconcat
-                    [ text (showPlace p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
+                    [ text (show p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
                     , renderPlace p
                     , circle drawOpts.placeSize & fc white
                     ]
             Transition _ t ->
                 mconcat
-                    [ text (vShow t) & font fname & fontSizeL (drawOpts.placeSize * (1 / 2)) & fc white
+                    [ text (drawOpts.showTransition t) & font fname & fontSizeL (drawOpts.placeSize * (1 / 2)) & fc white
                     , square (drawOpts.placeSize * 1.5) & fc black
                     ]
         )
