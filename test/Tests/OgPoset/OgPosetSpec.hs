@@ -24,6 +24,7 @@ import System.Exit
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
+import Data.Foldable
 
 type FancyInt = (Int, Int)
 
@@ -56,6 +57,9 @@ ogPosetTests =
                 (1, Set.fromList[(1, 0), (1, 1), (1, 2), (1, 3)]),
                 (2, Set.fromList[(2, 0)])
                 ]
+              for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
+              for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
+              grade poset (2, 0) @?= Just 2
        in
         testGroup
           "Constructing OgPoset's"
