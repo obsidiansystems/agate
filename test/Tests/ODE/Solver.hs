@@ -5,6 +5,7 @@ import Math.Agate.Examples.ODE.Exponential
 import Math.Agate.Examples.ODE.SIR (runSolverSIR)
 import Test.Tasty
 import Test.Tasty.HUnit
+import Math.Agate.Examples.PetriNet.SIR
 
 odeSolverTests :: TestTree
 odeSolverTests =
@@ -20,6 +21,6 @@ odeSolverTests =
   where
     eps = 1e-6
     solverResult = take 100 $ zip3 ss is rs
-    ss = runSolverSIR Map.! "S"
-    is = runSolverSIR Map.! "I"
-    rs = runSolverSIR Map.! "R"
+    ss = runSolverSIR Map.! S
+    is = runSolverSIR Map.! I
+    rs = runSolverSIR Map.! R

@@ -12,6 +12,7 @@ import Graphics.Svg
 import Math.Agate.Examples.ODE.SIR
 import Test.Tasty
 import Test.Tasty.Golden
+import Math.Agate.Examples.PetriNet.SIR
 
 petriChartTest :: TestTree
 petriChartTest =
@@ -34,5 +35,5 @@ petriChartTest =
             $ transpose
             $ map (\(s, i, r) -> [r, i, s])
             $ take 100
-            $ zip3 (runSolverSIR Map.! "S") (runSolverSIR Map.! "I") (runSolverSIR Map.! "R")
+            $ zip3 (runSolverSIR Map.! S) (runSolverSIR Map.! I) (runSolverSIR Map.! R)
         ]

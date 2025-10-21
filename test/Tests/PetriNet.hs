@@ -90,7 +90,7 @@ petriTests =
                 length (transitions exampleSIR) == 2
         ]
   where
-    exampleSIR :: (Place net ~ String, Transition net ~ Double, PetriNet net) => net
+    exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
     exampleSIR = generalSIR
 
 animatedAreaChart :: QDiagram B V2 Double Any
@@ -105,7 +105,7 @@ animatedAreaChart = movingRect <> chart
                 , (uncurryRGB sRGB $ hsl 0 0.7 0.55, "infected")
                 , (uncurryRGB sRGB $ hsl 120 0.7 0.32, "recovered")
                 ]
-                $ (\ls -> ["S", "I", "R"] <&> take 1000 . (ls Map.!))
+                $ (\ls -> [S, I, R] <&> take 1000 . (ls Map.!))
                     runSolverSIR
             )
     movingRect = animate t $ rect 0.005 1
