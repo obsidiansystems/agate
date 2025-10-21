@@ -1,7 +1,10 @@
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Math.Agate.Diagrams.PetriNet (layoutPetri, LayoutOpts (..), drawPetri, drawPetriDynamic) where
+{- HLINT ignore "Use newtype instead of data" -}
+
+module Math.Agate.Diagrams.PetriNet (layoutPetri, LayoutOpts (..), defaultLayoutOpts, DrawOpts (..), defaultDrawOpts, drawPetri, drawPetriDynamic) where
 
 import Data.Fixed (E3, showFixed)
 import Data.Graph.Inductive (Gr, Node)
@@ -39,6 +42,20 @@ data LayoutOpts = LayoutOpts
     , command :: GraphvizCommand
     }
 
+defaultLayoutOpts :: LayoutOpts
+defaultLayoutOpts =
+    LayoutOpts
+        { aspectRatio = 1
+        , command = Neato
+        }
+
+data DrawOpts = DrawOpts
+    { placeSize :: Double
+    }
+
+defaultDrawOpts :: DrawOpts
+defaultDrawOpts = DrawOpts{placeSize = 30}
+
 layoutPetri ::
     (Ord p, Ord t, VertexShow p, VertexShow t) =>
     PetriNetImpl p t ->
@@ -61,40 +78,46 @@ layoutPetri petri LayoutOpts{aspectRatio, command} = layoutGraph' params command
 
 drawPetri ::
     (VertexShow t, VertexShow p, Ord t, Ord p) =>
+    DrawOpts ->
     (p -> Colour Double) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
-drawPetri vertexColour = drawPetri' vShow \p ->
-    fc (vertexColour p) $ circle 30
+drawPetri drawOpts vertexColour = drawPetri' drawOpts vShow \p ->
+    fc (vertexColour p) $ circle drawOpts.placeSize
 
 drawPetriDynamic ::
     (Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p) =>
-    (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetriDynamic vertexColour marking = drawPetri' vShow \p ->
-    circle 30
+    DrawOpts ->
+    (p -> Colour Double) ->
+    (p -> [Double]) ->
+    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
+    Diagram B
+drawPetriDynamic drawOpts vertexColour marking = drawPetri' drawOpts vShow \p ->
+    circle drawOpts.placeSize
         & lw 0
         & fc (vertexColour p)
         & animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map (\c -> V2 c c) $ marking p)
 
 drawPetri' ::
     (Ord p, Ord t, VertexShow t) =>
+    DrawOpts ->
     (p -> String) ->
     (p -> Diagram B) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
-drawPetri' showPlace renderPlace =
+drawPetri' drawOpts showPlace renderPlace =
     drawGraph
         ( \v -> place $ case v of
             Place p ->
                 mconcat
-                    [ text (showPlace p) & font fname & fontSizeL 20 & fc black
+                    [ text (showPlace p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
                     , renderPlace p
-                    , circle 30 & fc white
+                    , circle drawOpts.placeSize & fc white
                     ]
             Transition _ t ->
                 mconcat
-                    [ text (vShow t) & font fname & fontSizeL 10 & fc white
-                    , square 45 & fc black
+                    [ text (vShow t) & font fname & fontSizeL (drawOpts.placeSize * (1 / 2)) & fc white
+                    , square (drawOpts.placeSize * 1.5) & fc black
                     ]
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
@@ -102,7 +125,7 @@ drawPetri' showPlace renderPlace =
     fname = "Helvetica" -- "Latin Modern Math"
     opts p w =
         with
-            & gaps .~ local 30
+            & gaps .~ local drawOpts.placeSize
             & arrowShaft .~ (unLoc . fromMaybe (error "arrow has no path") . listToMaybe $ pathTrails p)
-            & headLength .~ local (15 * fromIntegral w)
+            & headLength .~ local (0.5 * drawOpts.placeSize * fromIntegral w)
             & arrowHead .~ arrowheadThorn (150 @@ deg)

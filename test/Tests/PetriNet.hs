@@ -44,7 +44,7 @@ petriTests =
                             []
                             True
                         )
-                    $ drawPetri sirColour p
+                    $ drawPetri defaultDrawOpts sirColour p
             , goldenVsString "animation with chart" "test/outputs/petri-sir-animated-overlayed.svg" do
                 p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
                 pure
@@ -62,6 +62,7 @@ petriTests =
                     $ vcat
                         [ scale 160 animatedAreaChart
                         , drawPetriDynamic
+                            defaultDrawOpts
                             sirColour
                             (take 1000 . (runSolverSIR Map.!))
                             p
@@ -83,7 +84,7 @@ petriTests =
                             []
                             True
                         )
-                    $ drawPetri (const white) p
+                    $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
             ]
         , testCase "SIR Model" $
             assertBool "Expected transitions" $
