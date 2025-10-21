@@ -34,7 +34,11 @@ instance {-# OVERLAPPING #-} VertexShow Double where
 
 instance {-# OVERLAPPABLE #-} (Show a) => VertexShow a where vShow = show
 
-layoutPetri :: (Ord p, Ord t, VertexShow p, VertexShow t) => PetriNetImpl p t -> GraphvizCommand -> IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
+layoutPetri ::
+    (Ord p, Ord t, VertexShow p, VertexShow t) =>
+    PetriNetImpl p t ->
+    GraphvizCommand ->
+    IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
 layoutPetri petri command = layoutGraph' params command $ mkGraph vertices edges
   where
     vertices =
@@ -50,7 +54,11 @@ layoutPetri petri command = layoutGraph' params command $ mkGraph vertices edges
             { globalAttributes = [GraphAttrs [Ratio $ AspectRatio (1 / 3)]]
             }
 
-drawPetri :: (VertexShow t, VertexShow p, Ord t, Ord p) => (p -> Colour Double) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
+drawPetri ::
+    (VertexShow t, VertexShow p, Ord t, Ord p) =>
+    (p -> Colour Double) ->
+    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
+    Diagram B
 drawPetri vertexColour = drawPetri' vShow \p ->
     fc (vertexColour p) $ circle 30
 
