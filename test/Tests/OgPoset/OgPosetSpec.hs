@@ -47,8 +47,8 @@ ogPosetTests =
               incofaces poset @?= Map.fromList [(0, Set.fromList [2]), (1, Set.empty), (2, Set.empty)]
               outcofaces poset @?= Map.fromList [(0, Set.empty), (1, Set.fromList [2]), (2, Set.empty)]
               True @?= True
-        checkPastingDiagram :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
-        checkPastingDiagram maybePoset = do
+        checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
+        checkExample11 maybePoset = do
           case maybePoset of
             Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
             Right poset -> let
@@ -65,12 +65,13 @@ ogPosetTests =
               for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
               for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
               grade poset (2, 0) @?= Just 2
-              verify_infaces (0, 0) []
-              verify_infaces (0, 1) []
-              verify_infaces (0, 2) []
-              verify_infaces (0, 3) []
               for_ [0, 1, 2, 3] (\n -> 
                 verify_infaces (0, n) []  )
+              verify_infaces (1, 0) [(0, 0)]
+              verify_infaces (1, 1) [(0, 1)]
+              verify_infaces (1, 2) [(0, 2)]
+              verify_infaces (1, 3) [(0, 0)]
+              verify_infaces (2, 0) [(1, 0), (1, 1)]
        in
         testGroup
           "Constructing OgPoset's"
@@ -84,12 +85,12 @@ ogPosetTests =
           , testCase "Can create a one-arc OgPoset more conveniently" $
               checkOneArcPoset $
                 buildOgPoset [(0, [], []), (1, [], []), (2, [0], [1])]
-          , testCase "Can create an entry level pasting diagram" $
-              checkPastingDiagram $
+          , testCase "Can create an entry level pasting diagram, Amar's Example 11" $
+              checkExample11 $
                 buildOgPoset [
                   ((0, 0), [], []), ((0, 1), [], []), ((0, 2), [], []), ((0, 3), [], []),
                   ((1, 0), [(0, 0)], [(0, 1)]), ((1, 1), [(0, 1)], [(0, 2)]), ((1, 2), [(0, 2)], [(0, 3)]), ((1, 3), [(0, 0)], [(0, 2)]),
-                  ((2, 0), [(1, 0), (1, 2)], [(1, 3)])
+                  ((2, 0), [(1, 0), (1, 1)], [(1, 3)])
                 ]
           ]
     ]
