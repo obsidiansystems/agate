@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Math.Agate.Diagrams.PetriNet (layoutPetri, drawPetri, drawPetriDynamic) where
+module Math.Agate.Diagrams.PetriNet (layoutPetri, LayoutOpts (..), drawPetri, drawPetriDynamic) where
 
 import Data.Fixed (E3, showFixed)
 import Data.Graph.Inductive (Gr, Node)
@@ -34,13 +34,17 @@ instance {-# OVERLAPPING #-} VertexShow Double where
 
 instance {-# OVERLAPPABLE #-} (Show a) => VertexShow a where vShow = show
 
+data LayoutOpts = LayoutOpts
+    { aspectRatio :: Double
+    , command :: GraphvizCommand
+    }
+
 layoutPetri ::
     (Ord p, Ord t, VertexShow p, VertexShow t) =>
     PetriNetImpl p t ->
-    Double ->
-    GraphvizCommand ->
+    LayoutOpts ->
     IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
-layoutPetri petri aspectRatio command = layoutGraph' params command $ mkGraph vertices edges
+layoutPetri petri LayoutOpts{aspectRatio, command} = layoutGraph' params command $ mkGraph vertices edges
   where
     vertices =
         map (uncurry Transition) (M.toList t)

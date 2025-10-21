@@ -31,7 +31,7 @@ petriTests =
                 assertBool "2 Transitions present" $
                     length (transitions exampleSIR) == 2
             , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
-                p <- layoutPetri exampleSIR (1 / 3) Neato
+                p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
                 pure
                     . encodeUtf8
                     . prettyText
@@ -46,7 +46,7 @@ petriTests =
                         )
                     $ drawPetri sirColour p
             , goldenVsString "animation with chart" "test/outputs/petri-sir-animated-overlayed.svg" do
-                p <- layoutPetri exampleSIR (1 / 3) Neato
+                p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
                 pure
                     . encodeUtf8
                     . prettyText
@@ -70,7 +70,7 @@ petriTests =
         , testGroup
             "Madrid"
             [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
-                p <- layoutPetri madridNet 1 Neato
+                p <- layoutPetri madridNet $ LayoutOpts 1 Neato
                 pure
                     . encodeUtf8
                     . prettyText
