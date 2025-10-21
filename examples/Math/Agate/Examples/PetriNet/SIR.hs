@@ -7,9 +7,9 @@ import Math.Agate.ODE.Polynomial (PolynomialODE)
 import Math.Agate.PetriNet
 
 data SIRPlace
-    = I
+    = S
+    | I
     | R
-    | S
     deriving (Show, Eq, Ord)
 
 generalSIR :: (Place net ~ SIRPlace, Fractional (Transition net), PetriNet net) => net
