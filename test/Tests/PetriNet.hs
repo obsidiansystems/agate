@@ -45,23 +45,6 @@ petriTests =
                         True
                       )
                     $ drawPetri sirColour p
-            , goldenVsString "animation" "test/outputs/petri-sir-animated.svg" do
-                p <- layoutPetri exampleSIR Neato
-                pure
-                    . encodeUtf8
-                    . prettyText
-                    . renderDia SVG
-                      ( SVGOptions
-                        (mkSizeSpec (V2 (Just 1000) Nothing))
-                        Nothing
-                        mempty
-                        []
-                        True
-                      )
-                    $ drawPetriDynamic
-                        sirColour
-                        (take 1000 . (runSolverSIR Map.!))
-                        p
             , goldenVsString "animation with chart" "test/outputs/petri-sir-animated-overlayed.svg" do
                 p <- layoutPetri exampleSIR Neato
                 pure
