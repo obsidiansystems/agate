@@ -55,8 +55,8 @@ petriTests =
                     pure
                         . diagToSVGBS
                         $ vcat
-                            [ scale 160 $ chart True
-                            , petri
+                            [ scaleUToX 1 $ chart True
+                            , scaleUToX 1 petri
                             ]
                 ]
         , testGroup
