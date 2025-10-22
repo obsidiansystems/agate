@@ -1,22 +1,23 @@
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Math.Agate.Diagrams.PetriNet (layoutPetri, drawPetri, drawPetriDynamic) where
+{- HLINT ignore "Use newtype instead of data" -}
 
-import Data.Graph.Inductive (Gr)
-import Data.GraphViz (AttributeNode)
-import Data.GraphViz.Commands
+module Math.Agate.Diagrams.PetriNet (layoutPetri, LayoutOpts (..), defaultLayoutOpts, DrawOpts (..), defaultDrawOpts, drawPetri, drawPetriDynamic) where
+
+import Data.Fixed (E3, showFixed)
+import Data.Graph.Inductive (Gr, Node)
+import Data.GraphViz
+import Data.GraphViz.Attributes.Complete
 import Data.Map.Lazy qualified as M
+import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Set qualified as Set
+import Diagrams.Backend.SVG
 import Diagrams.Prelude hiding (p2)
 import Diagrams.TwoD.GraphViz
-import Diagrams.Backend.SVG
 import Math.Agate.PetriNet (PetriNetImpl (..))
 import Prelude hiding (id)
-import Data.Maybe (listToMaybe, fromMaybe)
-import qualified Graphics.Svg as SVG
-import qualified Data.Text as T
-import Data.Fixed (showFixed, E3)
 
 data Vertex p t
     = Transition Int t
@@ -27,60 +28,101 @@ instance Bifunctor Vertex where
         Transition n t -> Transition n $ g t
         Place p -> Place $ f p
 
-class VertexShow a where
-  vShow :: a -> String
+data LayoutOpts = LayoutOpts
+    { aspectRatio :: Double
+    , command :: GraphvizCommand
+    }
 
-instance {-# OVERLAPPING #-} VertexShow String where vShow s = s
-instance {-# OVERLAPPABLE #-} (Show a) => VertexShow a where vShow = show
+defaultLayoutOpts :: LayoutOpts
+defaultLayoutOpts =
+    LayoutOpts
+        { aspectRatio = 1
+        , command = Neato
+        }
 
-layoutPetri :: (Ord p, Ord t, VertexShow p, VertexShow t) => PetriNetImpl p t -> GraphvizCommand -> IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
-layoutPetri petri command = layoutGraph command $ mkGraph vertices edges
+data DrawOpts p t = DrawOpts
+    { placeSize :: Double
+    , showPlace :: p -> String
+    , showTransition :: t -> String
+    }
+
+defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
+defaultDrawOpts =
+    DrawOpts
+        { placeSize = 30
+        , showPlace = show
+        , showTransition = showFixed @E3 True . realToFrac
+        }
+
+layoutPetri ::
+    (Ord p, Ord t, Show p, Show t) =>
+    PetriNetImpl p t ->
+    LayoutOpts ->
+    IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
+layoutPetri petri LayoutOpts{aspectRatio, command} = layoutGraph' params command $ mkGraph vertices edges
   where
     vertices =
         map (uncurry Transition) (M.toList t)
             ++ map Place (Set.toList $ places petri)
     edges =
         [(Place p, Transition id (t M.! id), w) | ((p, id), w) <- M.toList $ placeToTransitions petri]
-        ++ [(Transition id (t M.! id), Place p, w) | ((id, p), w) <- M.toList $ transitionToPlaces petri]
+            ++ [(Transition id (t M.! id), Place p, w) | ((id, p), w) <- M.toList $ transitionToPlaces petri]
     t = transitions petri
+    params :: GraphvizParams Node (Vertex p t) Int () (Vertex p t)
+    params =
+        defaultParams
+            { globalAttributes = [GraphAttrs [Ratio $ AspectRatio aspectRatio]]
+            }
 
 drawPetri ::
-    ( Ord p, Ord t, VertexShow p, VertexShow t
-    ) =>
-    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetri = drawPetri' vShow (const mempty)
+    (Show t, Show p, Ord t, Ord p) =>
+    DrawOpts p t ->
+    (p -> Colour Double) ->
+    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
+    Diagram B
+drawPetri drawOpts vertexColour = drawPetri' drawOpts \p ->
+    fc (vertexColour p) $ circle drawOpts.placeSize
 
 drawPetriDynamic ::
-    ( Ord p, Ord t, VertexShow p, VertexShow t, Show t, Show p
-    ) =>
-    (p -> Colour Double) -> (p -> [Double]) -> Gr (AttributeNode (Vertex p t)) (AttributeNode Int) -> Diagram B
-drawPetriDynamic vertexColour marking = drawPetri' vShow \p -> elementToDiagram $
-        SVG.circle_
-            [ SVG.Stroke_width_ SVG.<<- "0"
-            , SVG.Fill_ SVG.<<- T.pack (sRGB24show $ vertexColour p)
-            ]
-            $ SVG.animate_
-                [ SVG.AttributeName_ SVG.<<- "r"
-                , SVG.Values_ SVG.<<- T.intercalate ";"
-                    (map (T.pack . showFixed @E3 True . realToFrac . (* 10)) $ marking p)
-                , SVG.Dur_ SVG.<<- "15s"
-                , SVG.RepeatCount_ SVG.<<- "indefinite"
-                ]
+    (Ord p, Ord t, Show p, Show t, Show t, Show p) =>
+    DrawOpts p t ->
+    (p -> Colour Double) ->
+    (p -> [Double]) ->
+    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
+    Diagram B
+drawPetriDynamic drawOpts vertexColour marking = drawPetri' drawOpts \p ->
+    circle drawOpts.placeSize
+        & lw 0
+        & fc (vertexColour p)
+        & animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map (\c -> V2 c c) $ marking p)
 
 drawPetri' ::
-    ( Ord p, Ord t, VertexShow t) =>
-    (p -> String) ->
+    (Ord p, Show p, Ord t, Show t) =>
+    DrawOpts p t ->
     (p -> Diagram B) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
-drawPetri' showPlace renderPlace = drawGraph
+drawPetri' drawOpts renderPlace =
+    drawGraph
         ( \v -> place $ case v of
-            Place p -> fontSizeL 10 (fc black (text (showPlace p))) <> renderPlace p <> fc white (circle 10)
-            Transition _ t -> fontSizeL 5 (fc white (text (vShow t))) <> fc black (square 10)
+            Place p ->
+                mconcat
+                    [ text (show p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
+                    , renderPlace p
+                    , circle drawOpts.placeSize & fc white
+                    ]
+            Transition _ t ->
+                mconcat
+                    [ text (drawOpts.showTransition t) & font fname & fontSizeL (drawOpts.placeSize * (1 / 2)) & fc white
+                    , square (drawOpts.placeSize * 1.5) & fc black
+                    ]
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
+    fname = "Helvetica" -- "Latin Modern Math"
     opts p w =
-        with & gaps .~ local 10
+        with
+            & gaps .~ local drawOpts.placeSize
             & arrowShaft .~ (unLoc . fromMaybe (error "arrow has no path") . listToMaybe $ pathTrails p)
-            & headLength .~ local (5 * fromIntegral w)
+            & headLength .~ local (0.5 * drawOpts.placeSize * fromIntegral w)
+            & arrowHead .~ arrowheadThorn (150 @@ deg)
