@@ -94,7 +94,7 @@ drawPetriDynamic drawOpts vertexColour marking = drawPetri' drawOpts \p ->
     circle drawOpts.placeSize
         & lw 0
         & fc (vertexColour p)
-        & animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map (\c -> V2 c c) $ marking p)
+        & animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map ((\c -> V2 c c) . sqrt) $ marking p)
 
 drawPetri' ::
     (Ord p, Show p, Ord t, Show t) =>
