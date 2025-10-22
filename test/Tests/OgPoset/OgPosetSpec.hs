@@ -7,6 +7,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Redundant return" #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
 module Tests.OgPoset.OgPosetSpec where
 
@@ -61,6 +62,22 @@ ogPosetTests =
                   where
                     the_xfaces :: (Map FancyInt (Set FancyInt)) = xfaces poset
 
+                otherVerifier ::
+                  (OgFaceTable FancyInt -> Map FancyInt (Set FancyInt)) ->
+                  [(FancyInt, [FancyInt])] -> Assertion
+                otherVerifier xfaces expectedValues =
+                  xfaces poset @?= expectedMap where
+                    expectedMap :: (Map FancyInt (Set FancyInt)) =
+                      Set.fromList <$> Map.fromList expectedValues
+                    -- thing :: [(FancyInt, Set (FancyInt, FancyInt))] = 
+                    --   map (Set.fromList <$>) expectedValues
+                    -- expectedMap :: (Map FancyInt (Set (FancyInt, FancyInt))) = 
+                    --   Map.fromList $ map (Set.fromList <$>) expectedValues
+                  -- \dot expectedFaces ->
+                  --   Map.lookup dot the_xfaces @?= Just (Set.fromList expectedFaces)
+                  -- where
+                  --   the_xfaces :: (Map FancyInt (Set FancyInt)) = xfaces poset
+
                 [verify_infaces, verify_outfaces, verify_incofaces, verify_outcofaces] =
                   map makeVerifier [infaces, outfaces, incofaces, outcofaces]
                in
@@ -74,22 +91,28 @@ ogPosetTests =
                   for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
                   for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
                   grade poset (2, 0) @?= Just 2
-                  for_
-                    [0, 1, 2, 3]
-                    ( \n -> do
-                        verify_infaces (0, n) []
-                        verify_outfaces (0, n) []
-                    )
-                  verify_infaces (1, 0) [(0, 0)]
-                  verify_infaces (1, 1) [(0, 1)]
-                  verify_infaces (1, 2) [(0, 2)]
-                  verify_infaces (1, 3) [(0, 0)]
-                  verify_infaces (2, 0) [(1, 0), (1, 1)]
-                  verify_outfaces (1, 0) [(0, 1)]
-                  verify_outfaces (1, 1) [(0, 2)]
-                  verify_outfaces (1, 2) [(0, 3)]
-                  verify_outfaces (1, 3) [(0, 2)]
-                  verify_outfaces (2, 0) [(1, 3)]
+                  otherVerifier infaces [
+                    ((0, 0), []), 
+                    ((0, 1), []), 
+                    ((0, 2), []),
+                    ((0, 3), []),
+                    ((1, 0), [(0, 0)]),
+                    ((1, 1), [(0, 1)]),
+                    ((1, 2), [(0, 2)]),
+                    ((1, 3), [(0, 0)]),
+                    ((2, 0), [(1, 0), (1, 1)])
+                    ]
+                  otherVerifier outfaces [
+                    ((0, 0), []), 
+                    ((0, 1), []), 
+                    ((0, 2), []),
+                    ((0, 3), []),
+                    ((1, 0), [(0, 1)]),
+                    ((1, 1), [(0, 2)]),
+                    ((1, 2), [(0, 3)]),
+                    ((1, 3), [(0, 2)]),
+                    ((2, 0), [(1, 3)])
+                    ]
                   verify_incofaces (0, 0) [(1, 0), (1, 3)]
                   verify_incofaces (0, 1) [(1, 1)]
                   verify_incofaces (0, 2) [(1, 2)]
