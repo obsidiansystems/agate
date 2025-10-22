@@ -3,9 +3,8 @@
 
 module Tests.PetriNet where
 
-import Data.Colour.RGBSpace
-import Data.Colour.RGBSpace.HSL
 import Data.GraphViz
+import Data.List.Extra
 import Data.Map.Lazy qualified as Map
 import Diagrams.AreaChart
 import Diagrams.Prelude hiding (outer)
@@ -29,20 +28,15 @@ petriTests =
                 exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
                 exampleSIR = generalSIR
                 layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
-                drawOpts = defaultDrawOpts{vertexColour = sirColour}
+                drawOpts = defaultDrawOpts
                 chart animated =
-                    areaChart
-                        animated
-                        3
-                        ( zipWith
-                            (\(colour, name) values -> Variable{name, colour, values})
-                            [ (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
-                            , (uncurryRGB sRGB $ hsl 0 0.7 0.55, "infected")
-                            , (uncurryRGB sRGB $ hsl 120 0.7 0.32, "recovered")
-                            ]
-                            $ (\ls -> [S, I, R] <&> take 1000 . (ls Map.!))
-                                runSolverSIR
-                        )
+                    areaChart animated 3 $
+                        enumerate <&> \p ->
+                            Variable
+                                { name = placeName p
+                                , colour = placeColour p
+                                , values = take 1000 $ runSolverSIR Map.! p
+                                }
              in
                 [ testGroup
                     "Implementation"

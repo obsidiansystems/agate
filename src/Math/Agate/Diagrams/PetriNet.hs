@@ -1,3 +1,4 @@
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -5,6 +6,7 @@
 {- HLINT ignore "Use newtype instead of data" -}
 
 module Math.Agate.Diagrams.PetriNet (
+    PetriPlace (..),
     layoutPetri,
     LayoutOpts (..),
     defaultLayoutOpts,
@@ -26,6 +28,17 @@ import Diagrams.Prelude hiding (p2)
 import Diagrams.TwoD.GraphViz
 import Math.Agate.PetriNet (PetriNetImpl (..))
 import Prelude
+
+class PetriPlace p where
+    placeSymbol :: p -> String
+    placeName :: p -> String
+    placeColour :: p -> Colour Double
+    default placeSymbol :: (Show p) => p -> String
+    placeSymbol = show
+    default placeName :: (Show p) => p -> String
+    placeName = show
+    default placeColour :: p -> Colour Double
+    placeColour = const white
 
 data Vertex p t
     = Transition Int t
@@ -52,7 +65,6 @@ data DrawOpts p t = DrawOpts
     { placeSize :: Double
     , showPlace :: p -> String
     , showTransition :: t -> String
-    , vertexColour :: p -> Colour Double
     , animation :: Maybe (p -> [Double])
     }
 
@@ -62,7 +74,6 @@ defaultDrawOpts =
         { placeSize = 30
         , showPlace = show
         , showTransition = showFixed @E3 True . realToFrac
-        , vertexColour = const white
         , animation = Nothing
         }
 
@@ -87,7 +98,7 @@ layoutPetri LayoutOpts{aspectRatio, command} petri = layoutGraph' params command
             }
 
 drawPetri ::
-    (Ord p, Show p, Ord t, Show t) =>
+    (Ord p, Show p, PetriPlace p, Ord t, Show t) =>
     DrawOpts p t ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
@@ -96,8 +107,8 @@ drawPetri drawOpts =
         ( \v -> place $ case v of
             Place p ->
                 mconcat
-                    [ text (show p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
-                    , circle drawOpts.placeSize & lw 0 & fc (drawOpts.vertexColour p) & case drawOpts.animation of
+                    [ text (placeSymbol p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
+                    , circle drawOpts.placeSize & lw 0 & fc (placeColour p) & case drawOpts.animation of
                         Just marking -> animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map ((\c -> V2 c c) . sqrt) $ marking p)
                         Nothing -> id
                     , circle drawOpts.placeSize & fc white
@@ -118,5 +129,10 @@ drawPetri drawOpts =
             & headLength .~ local (0.5 * drawOpts.placeSize * fromIntegral w)
             & arrowHead .~ arrowheadThorn (150 @@ deg)
 
-layoutAndDrawPetri :: (Ord p, Ord t, Show p, Show t) => LayoutOpts -> DrawOpts p t -> PetriNetImpl p t -> IO (Diagram B)
+layoutAndDrawPetri ::
+    (Ord p, Show p, PetriPlace p, Ord t, Show t) =>
+    LayoutOpts ->
+    DrawOpts p t ->
+    PetriNetImpl p t ->
+    IO (Diagram B)
 layoutAndDrawPetri layoutOpts drawOpts model = drawPetri drawOpts <$> layoutPetri layoutOpts model
