@@ -52,7 +52,7 @@ petriTests =
                     "Diagrams"
                     [ goldenVsString "Petri" "test/outputs/petri/sir/petri.svg" do
                         p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
-                        pure . diagToSVGBS $ drawPetri defaultDrawOpts sirColour p
+                        pure . diagToSVGBS $ drawPetri defaultDrawOpts{vertexColour = sirColour} p
                     , goldenVsString "Chart" "test/outputs/petri/sir/chart.svg" . pure . diagToSVGBS $ chart False
                     ]
                 , goldenVsString "Combined" "test/outputs/petri/sir/combined.svg" do
@@ -61,10 +61,11 @@ petriTests =
                         . diagToSVGBS
                         $ vcat
                             [ scale 160 $ chart True
-                            , drawPetriDynamic
+                            , drawPetri
                                 defaultDrawOpts
-                                sirColour
-                                (take 1000 . (runSolverSIR Map.!))
+                                    { vertexColour = sirColour
+                                    , animation = Just (take 1000 . (runSolverSIR Map.!))
+                                    }
                                 p
                             ]
                 ]
@@ -74,7 +75,7 @@ petriTests =
                 "Diagrams"
                 [ goldenVsString "Petri" "test/outputs/petri/madrid/petri.svg" do
                     p <- layoutPetri madridNet $ LayoutOpts 1 Neato
-                    pure . diagToSVGBS $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
+                    pure . diagToSVGBS $ drawPetri defaultDrawOpts{placeSize = 15} p
                 ]
             ]
         ]

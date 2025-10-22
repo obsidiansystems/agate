@@ -4,7 +4,7 @@
 
 {- HLINT ignore "Use newtype instead of data" -}
 
-module Math.Agate.Diagrams.PetriNet (layoutPetri, LayoutOpts (..), defaultLayoutOpts, DrawOpts (..), defaultDrawOpts, drawPetri, drawPetriDynamic) where
+module Math.Agate.Diagrams.PetriNet (layoutPetri, LayoutOpts (..), defaultLayoutOpts, DrawOpts (..), defaultDrawOpts, drawPetri) where
 
 import Data.Fixed (E3, showFixed)
 import Data.Graph.Inductive (Gr, Node)
@@ -17,7 +17,7 @@ import Diagrams.Backend.SVG
 import Diagrams.Prelude hiding (p2)
 import Diagrams.TwoD.GraphViz
 import Math.Agate.PetriNet (PetriNetImpl (..))
-import Prelude hiding (id)
+import Prelude
 
 data Vertex p t
     = Transition Int t
@@ -44,6 +44,8 @@ data DrawOpts p t = DrawOpts
     { placeSize :: Double
     , showPlace :: p -> String
     , showTransition :: t -> String
+    , vertexColour :: p -> Colour Double
+    , animation :: Maybe (p -> [Double])
     }
 
 defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
@@ -52,6 +54,8 @@ defaultDrawOpts =
         { placeSize = 30
         , showPlace = show
         , showTransition = showFixed @E3 True . realToFrac
+        , vertexColour = const white
+        , animation = Nothing
         }
 
 layoutPetri ::
@@ -65,8 +69,8 @@ layoutPetri petri LayoutOpts{aspectRatio, command} = layoutGraph' params command
         map (uncurry Transition) (M.toList t)
             ++ map Place (Set.toList $ places petri)
     edges =
-        [(Place p, Transition id (t M.! id), w) | ((p, id), w) <- M.toList $ placeToTransitions petri]
-            ++ [(Transition id (t M.! id), Place p, w) | ((id, p), w) <- M.toList $ transitionToPlaces petri]
+        [(Place p, Transition i (t M.! i), w) | ((p, i), w) <- M.toList $ placeToTransitions petri]
+            ++ [(Transition i (t M.! i), Place p, w) | ((i, p), w) <- M.toList $ transitionToPlaces petri]
     t = transitions petri
     params :: GraphvizParams Node (Vertex p t) Int () (Vertex p t)
     params =
@@ -75,40 +79,19 @@ layoutPetri petri LayoutOpts{aspectRatio, command} = layoutGraph' params command
             }
 
 drawPetri ::
-    (Show t, Show p, Ord t, Ord p) =>
-    DrawOpts p t ->
-    (p -> Colour Double) ->
-    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
-    Diagram B
-drawPetri drawOpts vertexColour = drawPetri' drawOpts \p ->
-    fc (vertexColour p) $ circle drawOpts.placeSize
-
-drawPetriDynamic ::
-    (Ord p, Ord t, Show p, Show t, Show t, Show p) =>
-    DrawOpts p t ->
-    (p -> Colour Double) ->
-    (p -> [Double]) ->
-    Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
-    Diagram B
-drawPetriDynamic drawOpts vertexColour marking = drawPetri' drawOpts \p ->
-    circle drawOpts.placeSize
-        & lw 0
-        & fc (vertexColour p)
-        & animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map ((\c -> V2 c c) . sqrt) $ marking p)
-
-drawPetri' ::
     (Ord p, Show p, Ord t, Show t) =>
     DrawOpts p t ->
-    (p -> Diagram B) ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
-drawPetri' drawOpts renderPlace =
+drawPetri drawOpts =
     drawGraph
         ( \v -> place $ case v of
             Place p ->
                 mconcat
                     [ text (show p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
-                    , renderPlace p
+                    , circle drawOpts.placeSize & lw 0 & fc (drawOpts.vertexColour p) & case drawOpts.animation of
+                        Just marking -> animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map ((\c -> V2 c c) . sqrt) $ marking p)
+                        Nothing -> id
                     , circle drawOpts.placeSize & fc white
                     ]
             Transition _ t ->
