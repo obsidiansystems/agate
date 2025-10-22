@@ -6,7 +6,6 @@ import Test.Tasty.Golden.Manage (AcceptTests (AcceptTests))
 import Test.Tasty.Ingredients.ConsoleReporter (UseColor (Always))
 import Tests.ODE.Solver (odeSolverTests)
 import Tests.PetriNet (petriTests)
-import Tests.PetriNet.Chart (petriChartTest)
 
 main :: IO ()
 main = defaultMain tests
@@ -25,6 +24,5 @@ tests =
     testGroup
         "Tests"
         [ odeSolverTests
-        , petriChartTest
         , petriTests
         ]

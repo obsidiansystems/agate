@@ -6,6 +6,7 @@ module Tests.PetriNet where
 import Data.Colour.RGBSpace
 import Data.Colour.RGBSpace.HSL
 import Data.GraphViz
+import Data.List
 import Data.Map.Lazy qualified as Map
 import Diagrams.AreaChart
 import Diagrams.Backend.SVG
@@ -23,16 +24,36 @@ import TestUtils
 petriTests :: TestTree
 petriTests =
     testGroup
-        "Petri Nets Implementation"
+        "Petri nets"
         [ testGroup
-            "SIR Model"
-            [ testCase "Transitions Correct" $
-                assertBool "2 Transitions present" $
-                    length (transitions exampleSIR) == 2
-            , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
-                p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
-                pure . diagToSVGBS $ drawPetri defaultDrawOpts sirColour p
-            , goldenVsString "animation with chart" "test/outputs/petri-sir-animated-overlayed.svg" do
+            "SIR"
+            [ testGroup
+                "Implementation"
+                [ testCase "Transitions correct" $
+                    assertBool "2 transitions present" $
+                        length (transitions exampleSIR) == 2
+                ]
+            , testGroup
+                "Diagrams"
+                [ goldenVsString "Petri" "test/outputs/petri/sir/petri.svg" do
+                    p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
+                    pure . diagToSVGBS $ drawPetri defaultDrawOpts sirColour p
+                , goldenVsString "Chart" "test/outputs/petri/sir/chart.svg"
+                    . pure
+                    . diagToSVGBS
+                    . areaChart 3
+                    . zipWith
+                        (\(colour, name) values -> Variable{name, colour, values})
+                        [ (uncurryRGB sRGB $ hsl 120 0.7 0.32, "recovered")
+                        , (uncurryRGB sRGB $ hsl 0 0.7 0.55, "infected")
+                        , (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
+                        ]
+                    . transpose
+                    . map (\(s, i, r) -> [r, i, s])
+                    . take 100
+                    $ zip3 (runSolverSIR Map.! S) (runSolverSIR Map.! I) (runSolverSIR Map.! R)
+                ]
+            , goldenVsString "Combined" "test/outputs/petri/sir/combined.svg" do
                 p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
                 pure
                     . diagToSVGBS
@@ -47,9 +68,12 @@ petriTests =
             ]
         , testGroup
             "Madrid"
-            [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
-                p <- layoutPetri madridNet $ LayoutOpts 1 Neato
-                pure . diagToSVGBS $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
+            [ testGroup
+                "Diagrams"
+                [ goldenVsString "Petri" "test/outputs/petri/madrid/petri.svg" do
+                    p <- layoutPetri madridNet $ LayoutOpts 1 Neato
+                    pure . diagToSVGBS $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
+                ]
             ]
         ]
   where
