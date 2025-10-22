@@ -13,7 +13,6 @@ import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath,
     Olog(..), makeOlog, makeOlogWithExtras )
 import Test.Tasty
 import Test.Tasty.HUnit
-import Tests.PetriNet (exampleSIRODE)
 import GHC.Generics (Selector)
 import Control.Exception
 import System.Exit

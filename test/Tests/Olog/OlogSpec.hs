@@ -5,7 +5,6 @@ module Tests.Olog.OlogSpec where
 import Test.Tasty
 import Test.Tasty.HUnit
 
-import Tests.PetriNet (exampleSIRODE)
 import Math.Agate.Olog.Olog(Arc(..), Relator(..), Olog(..), makeOlog, MakeOlogError(..))
 import Data.Either (isRight)
 

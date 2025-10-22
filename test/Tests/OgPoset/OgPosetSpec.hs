@@ -24,7 +24,6 @@ import Math.Agate.OgPoset.OgPoset (AddFaceException (..), Graded (..), HasCoface
 import System.Exit
 import Test.Tasty
 import Test.Tasty.HUnit
-import Tests.PetriNet (exampleSIRODE)
 
 type FancyInt = (Int, Int)
 
