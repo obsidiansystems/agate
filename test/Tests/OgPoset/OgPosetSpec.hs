@@ -52,8 +52,6 @@ ogPosetTests =
             Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
             Right poset ->
               let
-                makeVerify0 :: (OgFaceTable FancyInt) -> (Map FancyInt (Set FancyInt))
-                makeVerify0 = infaces
                 makeVerify :: 
                   ((OgFaceTable FancyInt) -> (Map FancyInt (Set FancyInt))) ->
                   (FancyInt -> [FancyInt] -> Assertion)
@@ -62,14 +60,9 @@ ogPosetTests =
                     Map.lookup dot the_xfaces @?= Just (Set.fromList expectedFaces)
                   where
                     the_xfaces :: (Map FancyInt (Set FancyInt)) = xfaces poset
-                verify_infaces :: FancyInt -> [FancyInt] -> Assertion
-                verify_infaces = makeVerify infaces
 
-                verify_outfaces :: FancyInt -> [FancyInt] -> Assertion
-                verify_outfaces = makeVerify outfaces
-
-                verify_incofaces :: FancyInt -> [FancyInt] -> Assertion
-                verify_incofaces = makeVerify incofaces
+                [verify_infaces, verify_outfaces, verify_incofaces, verify_outcofaces] =
+                  map makeVerify [infaces, outfaces, incofaces, outcofaces]
                in
                 do
                   grades poset
