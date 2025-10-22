@@ -79,6 +79,7 @@ common common
         diagrams-lib,
         diagrams-rasterific,
         diagrams-svg,
+        extra,
         filepath,
         fgl,
         graphviz,
