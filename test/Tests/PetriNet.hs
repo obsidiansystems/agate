@@ -7,11 +7,9 @@ import Data.Colour.RGBSpace
 import Data.Colour.RGBSpace.HSL
 import Data.GraphViz
 import Data.Map.Lazy qualified as Map
-import Data.Text.Lazy.Encoding (encodeUtf8)
 import Diagrams.AreaChart
 import Diagrams.Backend.SVG
 import Diagrams.Prelude hiding (outer)
-import Graphics.Svg (prettyText)
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.Examples.ODE.SIR
 import Math.Agate.Examples.PetriNet.Madrid
@@ -20,6 +18,7 @@ import Math.Agate.PetriNet
 import Test.Tasty
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
+import TestUtils
 
 petriTests :: TestTree
 petriTests =
@@ -32,33 +31,11 @@ petriTests =
                     length (transitions exampleSIR) == 2
             , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
                 p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
-                pure
-                    . encodeUtf8
-                    . prettyText
-                    . renderDia
-                        SVG
-                        ( SVGOptions
-                            (mkSizeSpec (V2 (Just 1000) Nothing))
-                            Nothing
-                            mempty
-                            []
-                            True
-                        )
-                    $ drawPetri defaultDrawOpts sirColour p
+                pure . diagToSVGBS $ drawPetri defaultDrawOpts sirColour p
             , goldenVsString "animation with chart" "test/outputs/petri-sir-animated-overlayed.svg" do
                 p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
                 pure
-                    . encodeUtf8
-                    . prettyText
-                    . renderDia
-                        SVG
-                        ( SVGOptions
-                            (mkSizeSpec (V2 (Just 1000) Nothing))
-                            Nothing
-                            mempty
-                            []
-                            True
-                        )
+                    . diagToSVGBS
                     $ vcat
                         [ scale 160 animatedAreaChart
                         , drawPetriDynamic
@@ -72,19 +49,7 @@ petriTests =
             "Madrid"
             [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
                 p <- layoutPetri madridNet $ LayoutOpts 1 Neato
-                pure
-                    . encodeUtf8
-                    . prettyText
-                    . renderDia
-                        SVG
-                        ( SVGOptions
-                            (mkSizeSpec (V2 (Just 1000) Nothing))
-                            Nothing
-                            mempty
-                            []
-                            True
-                        )
-                    $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
+                pure . diagToSVGBS $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
             ]
         , testCase "SIR Model" $
             assertBool "Expected transitions" $

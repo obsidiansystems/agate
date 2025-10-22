@@ -4,15 +4,13 @@ import Data.Colour.RGBSpace
 import Data.Colour.RGBSpace.HSL
 import Data.List
 import Data.Map.Lazy qualified as Map
-import Data.Text.Lazy.Encoding (encodeUtf8)
 import Diagrams.AreaChart (Variable (..), areaChart)
-import Diagrams.Backend.SVG
 import Diagrams.Prelude
-import Graphics.Svg
 import Math.Agate.Examples.ODE.SIR
+import Math.Agate.Examples.PetriNet.SIR
 import Test.Tasty
 import Test.Tasty.Golden
-import Math.Agate.Examples.PetriNet.SIR
+import TestUtils
 
 petriChartTest :: TestTree
 petriChartTest =
@@ -22,9 +20,7 @@ petriChartTest =
             "SIR SVG"
             "test/outputs/sir.svg"
             $ pure
-            $ encodeUtf8
-            $ prettyText
-            $ renderDia SVG (SVGOptions (mkSizeSpec (V2 (Just 1000) Nothing)) Nothing mempty [] True)
+            $ diagToSVGBS
             $ areaChart 3
             $ zipWith
                 (\(colour, name) values -> Variable{name, colour, values})
