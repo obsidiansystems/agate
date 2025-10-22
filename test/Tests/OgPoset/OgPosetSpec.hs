@@ -13,6 +13,7 @@ module Tests.OgPoset.OgPosetSpec where
 import Control.Exception
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Either (isRight)
+import Data.Foldable
 import Data.Functor.Identity
 import Data.Map (Map)
 import Data.Map qualified as Map
@@ -24,7 +25,6 @@ import System.Exit
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tests.PetriNet (exampleSIRODE)
-import Data.Foldable
 
 type FancyInt = (Int, Int)
 
@@ -51,27 +51,47 @@ ogPosetTests =
         checkExample11 maybePoset = do
           case maybePoset of
             Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
-            Right poset -> let
+            Right poset ->
+              let
                 the_infaces :: (Map FancyInt (Set FancyInt)) = infaces poset
                 verify_infaces :: FancyInt -> [FancyInt] -> Assertion
                 verify_infaces dot expectedFaces =
                   Map.lookup dot the_infaces @?= Just (Set.fromList expectedFaces)
-              in do
-              grades poset @?= Map.fromList [
-                (0, Set.fromList [(0, 0), (0, 1), (0, 2), (0, 3)]),
-                (1, Set.fromList [(1, 0), (1, 1), (1, 2), (1, 3)]),
-                (2, Set.fromList [(2, 0)])
-                ]
-              for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
-              for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
-              grade poset (2, 0) @?= Just 2
-              for_ [0, 1, 2, 3] (\n -> 
-                verify_infaces (0, n) []  )
-              verify_infaces (1, 0) [(0, 0)]
-              verify_infaces (1, 1) [(0, 1)]
-              verify_infaces (1, 2) [(0, 2)]
-              verify_infaces (1, 3) [(0, 0)]
-              verify_infaces (2, 0) [(1, 0), (1, 1)]
+                the_outfaces :: (Map FancyInt (Set FancyInt)) = outfaces poset
+                verify_outfaces :: FancyInt -> [FancyInt] -> Assertion
+                verify_outfaces dot expectedFaces =
+                  Map.lookup dot the_outfaces @?= Just (Set.fromList expectedFaces)
+               in
+                do
+                  grades poset
+                    @?= Map.fromList
+                      [ (0, Set.fromList [(0, 0), (0, 1), (0, 2), (0, 3)])
+                      , (1, Set.fromList [(1, 0), (1, 1), (1, 2), (1, 3)])
+                      , (2, Set.fromList [(2, 0)])
+                      ]
+                  for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
+                  for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
+                  grade poset (2, 0) @?= Just 2
+                  for_
+                    [0, 1, 2, 3]
+                    ( \n ->
+                        verify_infaces (0, n) []
+                    )
+                  verify_infaces (1, 0) [(0, 0)]
+                  verify_infaces (1, 1) [(0, 1)]
+                  verify_infaces (1, 2) [(0, 2)]
+                  verify_infaces (1, 3) [(0, 0)]
+                  verify_infaces (2, 0) [(1, 0), (1, 1)]
+                  verify_outfaces (1, 0) [(0, 1)]
+                  verify_outfaces (1, 1) [(0, 2)]
+                  verify_outfaces (1, 2) [(0, 3)]
+                  verify_outfaces (1, 3) [(0, 2)]
+                  verify_outfaces (2, 0) [(1, 3)]
+                  -- for outcofaces
+                  -- verify_outfaces (0, 0) [(0, 1)]
+                  -- verify_outfaces (0, 1) [(1, 1)]
+                  -- verify_outfaces (0, 2) [(1, 2)]
+                  -- verify_outfaces (2, 0) []
        in
         testGroup
           "Constructing OgPoset's"
@@ -87,10 +107,16 @@ ogPosetTests =
                 buildOgPoset [(0, [], []), (1, [], []), (2, [0], [1])]
           , testCase "Can create an entry level pasting diagram, Amar's Example 11" $
               checkExample11 $
-                buildOgPoset [
-                  ((0, 0), [], []), ((0, 1), [], []), ((0, 2), [], []), ((0, 3), [], []),
-                  ((1, 0), [(0, 0)], [(0, 1)]), ((1, 1), [(0, 1)], [(0, 2)]), ((1, 2), [(0, 2)], [(0, 3)]), ((1, 3), [(0, 0)], [(0, 2)]),
-                  ((2, 0), [(1, 0), (1, 1)], [(1, 3)])
-                ]
+                buildOgPoset
+                  [ ((0, 0), [], [])
+                  , ((0, 1), [], [])
+                  , ((0, 2), [], [])
+                  , ((0, 3), [], [])
+                  , ((1, 0), [(0, 0)], [(0, 1)])
+                  , ((1, 1), [(0, 1)], [(0, 2)])
+                  , ((1, 2), [(0, 2)], [(0, 3)])
+                  , ((1, 3), [(0, 0)], [(0, 2)])
+                  , ((2, 0), [(1, 0), (1, 1)], [(1, 3)])
+                  ]
           ]
     ]

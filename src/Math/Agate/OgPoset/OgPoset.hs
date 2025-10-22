@@ -141,4 +141,3 @@ buildOgPoset =
         addFace d infs outfs ogPoset
     )
     empty
-
