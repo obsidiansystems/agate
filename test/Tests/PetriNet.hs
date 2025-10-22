@@ -28,6 +28,8 @@ petriTests =
             let
                 exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
                 exampleSIR = generalSIR
+                layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
+                drawOpts = defaultDrawOpts{vertexColour = sirColour}
                 chart animated =
                     areaChart
                         animated
@@ -50,32 +52,29 @@ petriTests =
                     ]
                 , testGroup
                     "Diagrams"
-                    [ goldenVsString "Petri" "test/outputs/petri/sir/petri.svg" do
-                        p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
-                        pure . diagToSVGBS $ drawPetri defaultDrawOpts{vertexColour = sirColour} p
+                    [ goldenVsString "Petri" "test/outputs/petri/sir/petri.svg" $
+                        diagToSVGBS <$> layoutAndDrawPetri layoutOpts drawOpts exampleSIR
                     , goldenVsString "Chart" "test/outputs/petri/sir/chart.svg" . pure . diagToSVGBS $ chart False
                     ]
                 , goldenVsString "Combined" "test/outputs/petri/sir/combined.svg" do
-                    p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
+                    petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 1000 . (runSolverSIR Map.!))} exampleSIR
                     pure
                         . diagToSVGBS
                         $ vcat
                             [ scale 160 $ chart True
-                            , drawPetri
-                                defaultDrawOpts
-                                    { vertexColour = sirColour
-                                    , animation = Just (take 1000 . (runSolverSIR Map.!))
-                                    }
-                                p
+                            , petri
                             ]
                 ]
         , testGroup
             "Madrid"
             [ testGroup
                 "Diagrams"
-                [ goldenVsString "Petri" "test/outputs/petri/madrid/petri.svg" do
-                    p <- layoutPetri madridNet $ LayoutOpts 1 Neato
-                    pure . diagToSVGBS $ drawPetri defaultDrawOpts{placeSize = 15} p
+                [ goldenVsString "Petri" "test/outputs/petri/madrid/petri.svg" $
+                    diagToSVGBS
+                        <$> layoutAndDrawPetri
+                            LayoutOpts{command = Neato, aspectRatio = 1}
+                            defaultDrawOpts{placeSize = 15}
+                            madridNet
                 ]
             ]
         ]

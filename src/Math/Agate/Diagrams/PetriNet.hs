@@ -4,7 +4,15 @@
 
 {- HLINT ignore "Use newtype instead of data" -}
 
-module Math.Agate.Diagrams.PetriNet (layoutPetri, LayoutOpts (..), defaultLayoutOpts, DrawOpts (..), defaultDrawOpts, drawPetri) where
+module Math.Agate.Diagrams.PetriNet (
+    layoutPetri,
+    LayoutOpts (..),
+    defaultLayoutOpts,
+    drawPetri,
+    DrawOpts (..),
+    defaultDrawOpts,
+    layoutAndDrawPetri,
+) where
 
 import Data.Fixed (E3, showFixed)
 import Data.Graph.Inductive (Gr, Node)
@@ -60,10 +68,10 @@ defaultDrawOpts =
 
 layoutPetri ::
     (Ord p, Ord t, Show p, Show t) =>
-    PetriNetImpl p t ->
     LayoutOpts ->
+    PetriNetImpl p t ->
     IO (Gr (AttributeNode (Vertex p t)) (AttributeNode Int))
-layoutPetri petri LayoutOpts{aspectRatio, command} = layoutGraph' params command $ mkGraph vertices edges
+layoutPetri LayoutOpts{aspectRatio, command} petri = layoutGraph' params command $ mkGraph vertices edges
   where
     vertices =
         map (uncurry Transition) (M.toList t)
@@ -109,3 +117,6 @@ drawPetri drawOpts =
             & arrowShaft .~ (unLoc . fromMaybe (error "arrow has no path") . listToMaybe $ pathTrails p)
             & headLength .~ local (0.5 * drawOpts.placeSize * fromIntegral w)
             & arrowHead .~ arrowheadThorn (150 @@ deg)
+
+layoutAndDrawPetri :: (Ord p, Ord t, Show p, Show t) => LayoutOpts -> DrawOpts p t -> PetriNetImpl p t -> IO (Diagram B)
+layoutAndDrawPetri layoutOpts drawOpts model = drawPetri drawOpts <$> layoutPetri layoutOpts model
