@@ -27,6 +27,7 @@ petriTests =
             let
                 exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
                 exampleSIR = generalSIR
+                solverResult = Map.fromList $ enumerate <&> \v -> (v, map (Map.! v) runSolverSIR)
                 layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
                 drawOpts = defaultDrawOpts
                 chart animated =
@@ -35,7 +36,7 @@ petriTests =
                             Variable
                                 { name = placeName p
                                 , colour = placeColour p
-                                , values = take 1000 $ runSolverSIR Map.! p
+                                , values = take 1000 $ solverResult Map.! p
                                 }
              in
                 [ testGroup
@@ -51,7 +52,7 @@ petriTests =
                     , goldenVsString "Chart" "test/outputs/petri/sir/chart.svg" . pure . diagToSVGBS $ chart False
                     ]
                 , goldenVsString "Combined" "test/outputs/petri/sir/combined.svg" do
-                    petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 1000 . (runSolverSIR Map.!))} exampleSIR
+                    petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 1000 . (solverResult Map.!))} exampleSIR
                     pure
                         . diagToSVGBS
                         $ vcat

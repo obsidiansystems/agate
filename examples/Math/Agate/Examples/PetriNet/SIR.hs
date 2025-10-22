@@ -4,7 +4,6 @@ import Data.Colour.RGBSpace
 import Data.Colour.RGBSpace.HSL
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
-import Math.Agate.ODE.Polynomial (PolynomialODE)
 import Math.Agate.PetriNet
 
 data SIRPlace
@@ -31,6 +30,3 @@ generalSIR =
   where
     transmission = 0.4
     recovery = 0.03
-
-exampleSIRODE :: PolynomialODE Double SIRPlace
-exampleSIRODE = asODE generalSIR
