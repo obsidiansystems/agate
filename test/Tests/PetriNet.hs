@@ -78,7 +78,7 @@ petriTests =
                     . renderDia
                         SVG
                         ( SVGOptions
-                            (mkSizeSpec (V2 (Just 3000) Nothing))
+                            (mkSizeSpec (V2 (Just 1000) Nothing))
                             Nothing
                             mempty
                             []
