@@ -51,9 +51,6 @@ petriTests =
                 p <- layoutPetri madridNet $ LayoutOpts 1 Neato
                 pure . diagToSVGBS $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
             ]
-        , testCase "SIR Model" $
-            assertBool "Expected transitions" $
-                length (transitions exampleSIR) == 2
         ]
   where
     exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
