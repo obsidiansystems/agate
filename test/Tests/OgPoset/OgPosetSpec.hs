@@ -102,6 +102,11 @@ ogPosetTests =
                   verify_outcofaces (0, 0) []
                   verify_outcofaces (0, 1) [(1, 0)]
                   verify_outcofaces (0, 2) [(1, 1), (1, 3)]
+                  verify_outcofaces (0, 3) [(1, 2)]
+                  verify_outcofaces (1, 0) []
+                  verify_outcofaces (1, 1) []
+                  verify_outcofaces (1, 2) []
+                  verify_outcofaces (1, 3) [(2, 0)]
                   verify_outcofaces (2, 0) []
        in
         testGroup
