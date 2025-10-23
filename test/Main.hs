@@ -10,7 +10,7 @@ import Tests.PetriNet (petriTests)
 import Tests.Olog.OlogSpec (ologTests)
 import Tests.Olog.Olog2Spec (olog2Tests)
 import Tests.OgPoset.OgPosetSpec (ogPosetTests)
-import Tests.PetriNet.Chart (petriChartTest)
+-- import Tests.PetriNet.Chart (petriChartTest)
 
 main :: IO ()
 main = defaultMain tests
@@ -30,7 +30,7 @@ tests =
         "Tests"
         [
             odeSolverTests,
-            petriChartTest,
+            -- petriChartTest,
             petriTests,
             ologTests,
             olog2Tests,

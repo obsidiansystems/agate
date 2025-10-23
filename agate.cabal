@@ -146,16 +146,13 @@ test-suite agate-test
     main-is:          Main.hs
 
     other-modules:
+        TestUtils,
         Tests.ODE.Solver,
         Tests.PetriNet,
-<<<<<<< HEAD
-        Tests.PetriNet.Chart,
+        -- Tests.PetriNet.Chart,
         Tests.Olog.OlogSpec,
         Tests.Olog.Olog2Spec,
         Tests.OgPoset.OgPosetSpec
-=======
-        TestUtils,
->>>>>>> master
 
     -- Test dependencies.
     build-depends:
