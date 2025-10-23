@@ -29,9 +29,12 @@ import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 
-class Graded p where
+class GradedPoset p where
   grades :: p dot -> Map Int (Set dot)
-  grade :: (Ord dot) => p dot -> dot -> Maybe Int
+  grade :: (Ord dot) => 
+    p dot -> dot -> Maybe Int
+  predecessors :: (Ord dot) => 
+    p dot -> dot -> Set dot
 
 class HasFaces p where
   infaces :: p dot -> Map dot (Set dot)
@@ -41,7 +44,7 @@ class HasCofaces p where
   incofaces :: p dot -> Map dot (Set dot)
   outcofaces :: p dot -> Map dot (Set dot)
 
-class (Graded p, HasFaces p, HasCofaces p) => OgPoset p where
+class (GradedPoset p, HasFaces p, HasCofaces p) => OgPoset p where
   empty :: p dot
   addFace :: (Ord dot) => dot -> [dot] -> [dot] -> p dot -> Either (AddFaceException dot) (p dot)
   
@@ -57,10 +60,12 @@ data OgFaceTable dot = OgFaceTable
   }
   deriving (Show, Eq, Ord)
 
-instance Graded OgFaceTable where
+instance GradedPoset OgFaceTable where
   grades = _grades
   grade ogFaceTable d =
     Map.lookup d (_grade ogFaceTable)
+  predecessors ogFaceTable d =
+    Map.findWithDefault Set.empty d (_predecessors ogFaceTable)
 
 instance HasFaces OgFaceTable where
   infaces = _infaces

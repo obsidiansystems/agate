@@ -21,7 +21,7 @@ import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 import GHC.Generics (Selector)
-import Math.Agate.OgPoset.OgPoset (AddFaceException (..), Graded (..), HasCofaces (..), HasFaces (..), OgFaceTable (..), OgPoset (..), buildOgPoset)
+import Math.Agate.OgPoset.OgPoset (AddFaceException (..), GradedPoset (..), HasCofaces (..), HasFaces (..), OgFaceTable (..), OgPoset (..), buildOgPoset)
 import System.Exit
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -69,14 +69,6 @@ ogPosetTests =
                   xfaces poset @?= expectedMap where
                     expectedMap :: (Map FancyInt (Set FancyInt)) =
                       Set.fromList <$> Map.fromList expectedValues
-                    -- thing :: [(FancyInt, Set (FancyInt, FancyInt))] = 
-                    --   map (Set.fromList <$>) expectedValues
-                    -- expectedMap :: (Map FancyInt (Set (FancyInt, FancyInt))) = 
-                    --   Map.fromList $ map (Set.fromList <$>) expectedValues
-                  -- \dot expectedFaces ->
-                  --   Map.lookup dot the_xfaces @?= Just (Set.fromList expectedFaces)
-                  -- where
-                  --   the_xfaces :: (Map FancyInt (Set FancyInt)) = xfaces poset
 
                 [verify_infaces, verify_outfaces, verify_incofaces, verify_outcofaces] =
                   map makeVerifier [infaces, outfaces, incofaces, outcofaces]
