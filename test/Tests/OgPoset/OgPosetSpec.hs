@@ -53,25 +53,13 @@ ogPosetTests =
             Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
             Right poset ->
               let
-                makeVerifier ::
-                  (OgFaceTable FancyInt -> Map FancyInt (Set FancyInt)) ->
-                  (FancyInt -> [FancyInt] -> Assertion)
-                makeVerifier xfaces =
-                  \dot expectedFaces ->
-                    Map.lookup dot the_xfaces @?= Just (Set.fromList expectedFaces)
-                  where
-                    the_xfaces :: (Map FancyInt (Set FancyInt)) = xfaces poset
-
-                otherVerifier ::
+                verifyXFaces ::
                   (OgFaceTable FancyInt -> Map FancyInt (Set FancyInt)) ->
                   [(FancyInt, [FancyInt])] -> Assertion
-                otherVerifier xfaces expectedValues =
+                verifyXFaces xfaces expectedValues =
                   xfaces poset @?= expectedMap where
                     expectedMap :: (Map FancyInt (Set FancyInt)) =
                       Set.fromList <$> Map.fromList expectedValues
-
-                [verify_infaces, verify_outfaces, verify_incofaces, verify_outcofaces] =
-                  map makeVerifier [infaces, outfaces, incofaces, outcofaces]
                in
                 do
                   grades poset
@@ -83,7 +71,7 @@ ogPosetTests =
                   for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
                   for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
                   grade poset (2, 0) @?= Just 2
-                  otherVerifier infaces [
+                  verifyXFaces infaces [
                     ((0, 0), []), 
                     ((0, 1), []), 
                     ((0, 2), []),
@@ -94,7 +82,7 @@ ogPosetTests =
                     ((1, 3), [(0, 0)]),
                     ((2, 0), [(1, 0), (1, 1)])
                     ]
-                  otherVerifier outfaces [
+                  verifyXFaces outfaces [
                     ((0, 0), []), 
                     ((0, 1), []), 
                     ((0, 2), []),
@@ -105,24 +93,28 @@ ogPosetTests =
                     ((1, 3), [(0, 2)]),
                     ((2, 0), [(1, 3)])
                     ]
-                  verify_incofaces (0, 0) [(1, 0), (1, 3)]
-                  verify_incofaces (0, 1) [(1, 1)]
-                  verify_incofaces (0, 2) [(1, 2)]
-                  verify_incofaces (0, 3) []
-                  verify_incofaces (1, 0) [(2, 0)]
-                  verify_incofaces (1, 1) [(2, 0)]
-                  verify_incofaces (1, 2) []
-                  verify_incofaces (1, 3) []                  
-                  verify_incofaces (2, 0) []
-                  verify_outcofaces (0, 0) []
-                  verify_outcofaces (0, 1) [(1, 0)]
-                  verify_outcofaces (0, 2) [(1, 1), (1, 3)]
-                  verify_outcofaces (0, 3) [(1, 2)]
-                  verify_outcofaces (1, 0) []
-                  verify_outcofaces (1, 1) []
-                  verify_outcofaces (1, 2) []
-                  verify_outcofaces (1, 3) [(2, 0)]
-                  verify_outcofaces (2, 0) []
+                  verifyXFaces incofaces [
+                    ((0, 0), [(1, 0), (1, 3)]),
+                    ((0, 1), [(1, 1)]),
+                    ((0, 2), [(1, 2)]),
+                    ((0, 3), []),
+                    ((1, 0), [(2, 0)]),
+                    ((1, 1), [(2, 0)]),
+                    ((1, 2), []),
+                    ((1, 3), []),
+                    ((2, 0), [])
+                    ]
+                  verifyXFaces outcofaces [
+                    ((0, 0), []),
+                    ((0, 1), [(1, 0)]),
+                    ((0, 2), [(1, 1), (1, 3)]),
+                    ((0, 3), [(1, 2)]),
+                    ((1, 0), []),
+                    ((1, 1), []),
+                    ((1, 2), []),
+                    ((1, 3), [(2, 0)]),
+                    ((2, 0), [])
+                    ]
        in
         testGroup
           "Constructing OgPoset's"
