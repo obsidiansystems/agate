@@ -1,8 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE OverloadedRecordDot #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE NoFieldSelectors #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
@@ -11,20 +8,14 @@
 
 module Tests.OgPoset.OgPosetSpec where
 
-import Control.Exception
-import Control.Monad.IO.Class (MonadIO (liftIO))
-import Data.Either (isRight)
 import Data.Foldable
-import Data.Functor.Identity
 import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
-import GHC.Generics (Selector)
 import Math.Agate.OgPoset.OgPoset (
   AddFaceException (..), GradedPoset (..), HasCofaces (..), HasFaces (..), 
   OgFaceTable (..), OgPoset (..), buildOgPoset, predecessors)
-import System.Exit
 import Test.Tasty
 import Test.Tasty.HUnit
 
