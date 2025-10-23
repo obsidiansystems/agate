@@ -121,6 +121,17 @@ ogPosetTests =
                     ((1, 3), [(2, 0)]),
                     ((2, 0), [])
                     ]
+                  predecessors poset (0, 0) @?= Set.fromList [(0, 0)]
+                  predecessors poset (0, 1) @?= Set.fromList [(0, 1)]
+                  predecessors poset (0, 2) @?= Set.fromList [(0, 2)]
+                  predecessors poset (0, 3) @?= Set.fromList [(0, 3)]
+                  predecessors poset (1, 0) @?= Set.fromList [(0, 0), (0, 1), (1, 0)]
+                  predecessors poset (1, 1) @?= Set.fromList [(0, 1), (0, 2), (1, 1)]
+                  predecessors poset (1, 2) @?= Set.fromList [(0, 2), (0, 3), (1, 2)]
+                  predecessors poset (1, 3) @?= Set.fromList [(0, 0), (0, 2), (1, 3)]
+                  predecessors poset (2, 0) @?= Set.fromList [
+                    (0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 3), (2, 0)
+                    ]
        in
         testGroup
           "Constructing OgPoset's"
