@@ -1,5 +1,4 @@
 packages:
     ./
-    ./diagrams-svg
 
 write-ghc-environment-files: never
