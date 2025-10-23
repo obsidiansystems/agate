@@ -8,7 +8,12 @@
       brick = pkgs.haskell.lib.doJailbreak super.brick;
       diagrams-lib = pkgs.haskell.lib.doJailbreak super.diagrams-lib;
       diagrams-rasterific = pkgs.haskell.lib.doJailbreak super.diagrams-rasterific;
-      diagrams-svg = super.callCabal2nix "diagrams-svg" ./diagrams-svg {};
+      diagrams-svg = pkgs.haskell.lib.doJailbreak (super.callCabal2nix "diagrams-svg" (pkgs.fetchFromGitHub {
+        owner = "georgefst";
+        repo = "diagrams-svg";
+        rev = "animations";
+        hash = "sha256-AUwvzlriILQDgsWL+mlKYfP5+DSBEyXHYenUeJTdtPw=";
+      }) {});
     };
   };
 in (hsPkgs.developPackage {
