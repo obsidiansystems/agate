@@ -44,15 +44,7 @@ class HasCofaces p where
 class (Graded p, HasFaces p, HasCofaces p) => OgPoset p where
   empty :: p dot
   addFace :: (Ord dot) => dot -> [dot] -> [dot] -> p dot -> Either (AddFaceException dot) (p dot)
-
--- addCoface :: dot -> [dot] -> [dot] -> p dot -> p dot -> Either AddCofaceException (p dot)
-
--- data OgPosetException =
---     AddFaceException dot
---     | OtherIdentityException
---     deriving (Show, Eq)
-
--- instance Exception AddFaceException
+  
 
 data OgFaceTable dot = OgFaceTable
   { _grades :: Map Int (Set dot)
@@ -61,6 +53,7 @@ data OgFaceTable dot = OgFaceTable
   , _outfaces :: Map dot (Set dot)
   , _incofaces :: Map dot (Set dot)
   , _outcofaces :: Map dot (Set dot)
+  , _predecessors :: Map dot (Set dot)
   }
   deriving (Show, Eq, Ord)
 
@@ -91,6 +84,7 @@ instance OgPoset OgFaceTable where
       , _outfaces = Map.empty
       , _incofaces = Map.empty
       , _outcofaces = Map.empty
+      , _predecessors = Map.empty
       }
   addFace ::
     forall dot.
@@ -129,6 +123,8 @@ instance OgPoset OgFaceTable where
                     (\m f -> Map.insertWith Set.union f (Set.singleton newDot) m)
                     (Map.insert newDot Set.empty (_outcofaces ogPoset))
                     outfaces
+              , _predecessors = 
+                Map.insert newDot (Set.fromList infaces) (_predecessors ogPoset)
               }
 
 buildOgPoset ::
