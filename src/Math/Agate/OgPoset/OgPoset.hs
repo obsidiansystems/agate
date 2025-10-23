@@ -31,9 +31,9 @@ import Data.Set qualified as Set
 
 class GradedPoset p where
   grades :: p dot -> Map Int (Set dot)
-  grade :: (Ord dot) => 
+  grade :: (Ord dot) =>
     p dot -> dot -> Maybe Int
-  predecessors :: (Ord dot) => 
+  predecessors :: (Ord dot) =>
     p dot -> dot -> Set dot
 
 class HasFaces p where
@@ -47,7 +47,7 @@ class HasCofaces p where
 class (GradedPoset p, HasFaces p, HasCofaces p) => OgPoset p where
   empty :: p dot
   addFace :: (Ord dot) => dot -> [dot] -> [dot] -> p dot -> Either (AddFaceException dot) (p dot)
-  
+
 
 data OgFaceTable dot = OgFaceTable
   { _grades :: Map Int (Set dot)
@@ -129,7 +129,8 @@ instance OgPoset OgFaceTable where
                     (Map.insert newDot Set.empty (_outcofaces ogPoset))
                     outfaces
               , _predecessors = 
-                Map.insert newDot (Set.fromList infaces) (_predecessors ogPoset)
+                  Map.insert newDot (Set.insert newDot $ Set.unions (
+                    predecessors ogPoset <$> (infaces <> outfaces))) (_predecessors ogPoset)
               }
 
 buildOgPoset ::

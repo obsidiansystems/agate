@@ -21,10 +21,13 @@ import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 import GHC.Generics (Selector)
-import Math.Agate.OgPoset.OgPoset (AddFaceException (..), GradedPoset (..), HasCofaces (..), HasFaces (..), OgFaceTable (..), OgPoset (..), buildOgPoset)
+import Math.Agate.OgPoset.OgPoset (
+  AddFaceException (..), GradedPoset (..), HasCofaces (..), HasFaces (..), 
+  OgFaceTable (..), OgPoset (..), buildOgPoset, predecessors)
 import System.Exit
 import Test.Tasty
 import Test.Tasty.HUnit
+
 
 type FancyInt = (Int, Int)
 
@@ -46,6 +49,9 @@ ogPosetTests =
               outfaces poset @?= Map.fromList [(0, Set.empty), (1, Set.empty), (2, Set.fromList [1])]
               incofaces poset @?= Map.fromList [(0, Set.fromList [2]), (1, Set.empty), (2, Set.empty)]
               outcofaces poset @?= Map.fromList [(0, Set.empty), (1, Set.fromList [2]), (2, Set.empty)]
+              predecessors poset 0 @?= Set.fromList [0]
+              predecessors poset 1 @?= Set.fromList [1]
+              predecessors poset 2 @?= Set.fromList [0, 1, 2]
               True @?= True
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
