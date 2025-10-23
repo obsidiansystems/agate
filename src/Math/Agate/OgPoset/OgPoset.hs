@@ -19,11 +19,7 @@
 
 module Math.Agate.OgPoset.OgPoset where
 
-import Control.Exception (Exception, throw)
 import Control.Monad (foldM)
-import Data.Functor.Identity
-import Data.Graph.Inductive.Internal.Heap (build)
-import Data.List
 import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Set (Set)
@@ -47,7 +43,6 @@ class HasCofaces p where
 class (GradedPoset p, HasFaces p, HasCofaces p) => OgPoset p where
   empty :: p dot
   addFace :: (Ord dot) => dot -> [dot] -> [dot] -> p dot -> Either (AddFaceException dot) (p dot)
-
 
 data OgFaceTable dot = OgFaceTable
   { _grades :: Map Int (Set dot)
@@ -95,7 +90,7 @@ instance OgPoset OgFaceTable where
     forall dot.
     (Ord dot) =>
     dot -> [dot] -> [dot] -> OgFaceTable dot -> Either (AddFaceException dot) (OgFaceTable dot)
-  addFace newDot infaces outfaces ogPoset =
+  addFace newDot newInfaces newOutfaces ogPoset =
     let lookupGrade :: dot -> Either (AddFaceException dot) Int
         lookupGrade f =
           case grade ogPoset f of
@@ -104,7 +99,7 @@ instance OgPoset OgFaceTable where
      in -- Right ogPoset
         do
           gradedFaces :: [Int] <-
-            sequence $ lookupGrade <$> (infaces <> outfaces)
+            sequence $ lookupGrade <$> (newInfaces <> newOutfaces)
           newGrade :: Int <-
             case gradedFaces of
               [] -> pure 0
@@ -116,21 +111,21 @@ instance OgPoset OgFaceTable where
             OgFaceTable
               { _grades = Map.insertWith Set.union newGrade (Set.singleton newDot) (_grades ogPoset)
               , _grade = Map.insert newDot newGrade (_grade ogPoset)
-              , _infaces = Map.insert newDot (Set.fromList infaces) (_infaces ogPoset)
-              , _outfaces = Map.insert newDot (Set.fromList outfaces) (_outfaces ogPoset)
+              , _infaces = Map.insert newDot (Set.fromList newInfaces) (_infaces ogPoset)
+              , _outfaces = Map.insert newDot (Set.fromList newOutfaces) (_outfaces ogPoset)
               , _incofaces =
                   foldl'
                     (\m f -> Map.insertWith Set.union f (Set.singleton newDot) m)
                     (Map.insert newDot Set.empty (_incofaces ogPoset))
-                    infaces
+                    newInfaces
               , _outcofaces =
                   foldl'
                     (\m f -> Map.insertWith Set.union f (Set.singleton newDot) m)
                     (Map.insert newDot Set.empty (_outcofaces ogPoset))
-                    outfaces
+                    newOutfaces
               , _predecessors = 
                   Map.insert newDot (Set.insert newDot $ Set.unions (
-                    predecessors ogPoset <$> (infaces <> outfaces))) (_predecessors ogPoset)
+                    predecessors ogPoset <$> (newInfaces <> newOutfaces))) (_predecessors ogPoset)
               }
 
 buildOgPoset ::
