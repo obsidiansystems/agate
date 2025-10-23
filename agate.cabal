@@ -79,6 +79,7 @@ common common
         diagrams-lib,
         diagrams-rasterific,
         diagrams-svg,
+        extra,
         filepath,
         fgl,
         graphviz,
@@ -147,10 +148,14 @@ test-suite agate-test
     other-modules:
         Tests.ODE.Solver,
         Tests.PetriNet,
+<<<<<<< HEAD
         Tests.PetriNet.Chart,
         Tests.Olog.OlogSpec,
         Tests.Olog.Olog2Spec,
         Tests.OgPoset.OgPosetSpec
+=======
+        TestUtils,
+>>>>>>> master
 
     -- Test dependencies.
     build-depends:

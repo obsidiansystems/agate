@@ -3,15 +3,11 @@
 
 module Tests.PetriNet where
 
-import Data.Colour.RGBSpace
-import Data.Colour.RGBSpace.HSL
 import Data.GraphViz
+import Data.List.Extra
 import Data.Map.Lazy qualified as Map
-import Data.Text.Lazy.Encoding (encodeUtf8)
 import Diagrams.AreaChart
-import Diagrams.Backend.SVG
 import Diagrams.Prelude hiding (outer)
-import Graphics.Svg (prettyText)
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.Examples.ODE.SIR
 import Math.Agate.Examples.PetriNet.Madrid
@@ -20,95 +16,60 @@ import Math.Agate.PetriNet
 import Test.Tasty
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
+import TestUtils
 
 petriTests :: TestTree
 petriTests =
     testGroup
-        "Petri Nets Implementation"
+        "Petri nets"
         [ testGroup
-            "SIR Model"
-            [ testCase "Transitions Correct" $
-                assertBool "2 Transitions present" $
-                    length (transitions exampleSIR) == 2
-            , goldenVsString "diagram" "test/outputs/petri-sir.svg" do
-                p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
-                pure
-                    . encodeUtf8
-                    . prettyText
-                    . renderDia
-                        SVG
-                        ( SVGOptions
-                            (mkSizeSpec (V2 (Just 1000) Nothing))
-                            Nothing
-                            mempty
-                            []
-                            True
-                        )
-                    $ drawPetri defaultDrawOpts sirColour p
-            , goldenVsString "animation with chart" "test/outputs/petri-sir-animated-overlayed.svg" do
-                p <- layoutPetri exampleSIR $ LayoutOpts (1 / 3) Neato
-                pure
-                    . encodeUtf8
-                    . prettyText
-                    . renderDia
-                        SVG
-                        ( SVGOptions
-                            (mkSizeSpec (V2 (Just 1000) Nothing))
-                            Nothing
-                            mempty
-                            []
-                            True
-                        )
-                    $ vcat
-                        [ scale 160 animatedAreaChart
-                        , drawPetriDynamic
-                            defaultDrawOpts
-                            sirColour
-                            (take 1000 . (runSolverSIR Map.!))
-                            p
-                        ]
-            ]
+            "SIR"
+            let
+                exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
+                exampleSIR = generalSIR
+                solverResult = Map.fromList $ enumerate <&> \v -> (v, map (Map.! v) runSolverSIR)
+                layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
+                drawOpts = defaultDrawOpts
+                chart animated =
+                    areaChart animated 3 $
+                        enumerate <&> \p ->
+                            Variable
+                                { name = placeName p
+                                , colour = placeColour p
+                                , values = take 1000 $ solverResult Map.! p
+                                }
+             in
+                [ testGroup
+                    "Implementation"
+                    [ testCase "Transitions correct" $
+                        assertBool "2 transitions present" $
+                            length (transitions exampleSIR) == 2
+                    ]
+                , testGroup
+                    "Diagrams"
+                    [ goldenVsString "Petri" "test/outputs/petri/sir/petri.svg" $
+                        diagToSVGBS <$> layoutAndDrawPetri layoutOpts drawOpts exampleSIR
+                    , goldenVsString "Chart" "test/outputs/petri/sir/chart.svg" . pure . diagToSVGBS $ chart False
+                    ]
+                , goldenVsString "Combined" "test/outputs/petri/sir/combined.svg" do
+                    petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 1000 . (solverResult Map.!))} exampleSIR
+                    pure
+                        . diagToSVGBS
+                        $ vcat
+                            [ scaleUToX 1 $ chart True
+                            , scaleUToX 1 petri
+                            ]
+                ]
         , testGroup
             "Madrid"
-            [ goldenVsString "diagram" "test/outputs/petri-madrid.svg" do
-                p <- layoutPetri madridNet $ LayoutOpts 1 Neato
-                pure
-                    . encodeUtf8
-                    . prettyText
-                    . renderDia
-                        SVG
-                        ( SVGOptions
-                            (mkSizeSpec (V2 (Just 3000) Nothing))
-                            Nothing
-                            mempty
-                            []
-                            True
-                        )
-                    $ drawPetri defaultDrawOpts{placeSize = 15} (const white) p
-            ]
-        , testCase "SIR Model" $
-            assertBool "Expected transitions" $
-                length (transitions exampleSIR) == 2
-        ]
-  where
-    exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
-    exampleSIR = generalSIR
-
-animatedAreaChart :: QDiagram B V2 Double Any
-animatedAreaChart = movingRect <> chart
-  where
-    chart =
-        areaChart
-            3
-            ( zipWith
-                (\(colour, name) values -> Variable{name, colour, values})
-                [ (uncurryRGB sRGB $ hsl 240 0.7 0.4, "susceptible")
-                , (uncurryRGB sRGB $ hsl 0 0.7 0.55, "infected")
-                , (uncurryRGB sRGB $ hsl 120 0.7 0.32, "recovered")
+            [ testGroup
+                "Diagrams"
+                [ goldenVsString "Petri" "test/outputs/petri/madrid/petri.svg" $
+                    diagToSVGBS
+                        <$> layoutAndDrawPetri
+                            LayoutOpts{command = Neato, aspectRatio = 1}
+                            defaultDrawOpts{placeSize = 15}
+                            madridNet
                 ]
-                $ (\ls -> [S, I, R] <&> take 1000 . (ls Map.!))
-                    runSolverSIR
-            )
-    movingRect = animate t $ rect 0.005 1
-      where
-        t = TransformAnimation 15 Nothing $ TranslateAnimation [V2 0 0, V2 3 0]
+            ]
+        ]

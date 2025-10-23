@@ -6,6 +6,7 @@ import Test.Tasty.Golden.Manage (AcceptTests (AcceptTests))
 import Test.Tasty.Ingredients.ConsoleReporter (UseColor (Always))
 import Tests.ODE.Solver (odeSolverTests)
 import Tests.PetriNet (petriTests)
+
 import Tests.Olog.OlogSpec (ologTests)
 import Tests.Olog.Olog2Spec (olog2Tests)
 import Tests.OgPoset.OgPosetSpec (ogPosetTests)
