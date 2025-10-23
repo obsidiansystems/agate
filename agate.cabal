@@ -119,7 +119,9 @@ library agate-examples
     exposed-modules:
         Math.Agate.Examples.PetriNet.Madrid
         Math.Agate.Examples.PetriNet.SIR
+        Math.Agate.Examples.PetriNet.SIRD
         Math.Agate.Examples.ODE.SIR
+        Math.Agate.Examples.ODE.SIRD
         Math.Agate.Examples.ODE.Exponential
     build-depends:    agate
     hs-source-dirs:   examples
