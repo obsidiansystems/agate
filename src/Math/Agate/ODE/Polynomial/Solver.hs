@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
 {-# OPTIONS_GHC -Wno-typed-holes #-}
+{- HLINT ignore "Use newtype instead of data" -}
 
 module Math.Agate.ODE.Polynomial.Solver (odeSolve, ODEParams (..), solvePetri) where
 
