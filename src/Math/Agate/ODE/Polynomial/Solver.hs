@@ -23,9 +23,9 @@ odeSolve s@(PolynomialODE p) params x0 =
     varList = [(Poly.var vv, value) | (vv, value) <- Map.toList x0]
     newValues :: Map v k
     newValues =
-        (flip Map.mapWithKey) p $ \v e ->
+        flip Map.mapWithKey p $ \v e ->
             case Map.lookup v x0 of
-                Just e' -> e' + (stepSize params) * (Poly.eval e varList)
+                Just e' -> e' + stepSize params * Poly.eval e varList
                 Nothing -> error "key not found"
 
 solvePetri ::

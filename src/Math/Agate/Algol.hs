@@ -4,6 +4,7 @@
 
 module Math.Agate.Algol where
 
+import Control.Monad
 import Data.IORef
 
 class (Monoid system, Num (Exp system)) => Algol system where
@@ -36,7 +37,7 @@ instance (Num v, Eq v) => Algol (AlgolIO v) where
         val <- expr
         writeIORef ref val
     var :: IORef v -> IO v
-    var ref = readIORef ref
+    var = readIORef
     ifThenElse :: IO v -> AlgolIO v -> AlgolIO v -> AlgolIO v
     ifThenElse cond (AlgolIO thenBranch) (AlgolIO elseBranch) =
         AlgolIO $ do
@@ -46,9 +47,7 @@ instance (Num v, Eq v) => Algol (AlgolIO v) where
     while cond (AlgolIO body) =
         AlgolIO $ do
             c <- cond
-            if c /= 0
-                then body >> runAlgolIO (while cond (AlgolIO body))
-                else return ()
+            when (c /= 0) $ body >> runAlgolIO (while cond (AlgolIO body))
     new :: (IORef v -> AlgolIO v) -> AlgolIO v
     new cont =
         AlgolIO $ do
@@ -62,8 +61,8 @@ sampleProgram y =
             <> assign y 0
             <> while
                 (var @system x)
-                ( (assign x (var @system x - 1))
-                    <> (assign y (var @system y + 1))
+                ( assign x (var @system x - 1)
+                    <> assign y (var @system y + 1)
                 )
 
 runIt :: IO ()
