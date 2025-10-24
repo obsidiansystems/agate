@@ -1,10 +1,9 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NoFieldSelectors #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
 {-# HLINT ignore "Redundant return" #-}
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Tests.OgPoset.OgPosetSpec where
 
@@ -14,11 +13,18 @@ import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 import Math.Agate.OgPoset.OgPoset (
-  AddFaceException (..), GradedPoset (..), HasCofaces (..), HasFaces (..), 
-  OgFaceTable (..), OgPoset (..), buildOgPoset, predecessors)
+  AddFaceException (..),
+  GradedPoset (..),
+  HasCofaces (..),
+  HasFaces (..),
+  OgFaceTable (..),
+  OgPoset (..),
+  buildOgPoset,
+  closure,
+  predecessors,
+ )
 import Test.Tasty
 import Test.Tasty.HUnit
-
 
 type FancyInt = (Int, Int)
 
@@ -43,7 +49,11 @@ ogPosetTests =
               predecessors poset 0 @?= Set.fromList [0]
               predecessors poset 1 @?= Set.fromList [1]
               predecessors poset 2 @?= Set.fromList [0, 1, 2]
-              True @?= True
+              closure poset Set.empty @?= Set.empty
+              closure poset (Set.fromList [0]) @?= Set.fromList [0]
+              closure poset (Set.fromList [1]) @?= Set.fromList [1]
+              closure poset (Set.fromList [0, 1]) @?= Set.fromList [0, 1]
+              closure poset (Set.fromList [2]) @?= Set.fromList [0, 1, 2]
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
           case maybePoset of
@@ -58,49 +68,53 @@ ogPosetTests =
               for_ [0, 1, 2, 3] (\n -> grade poset (0, n) @?= Just 0)
               for_ [0, 1, 2, 3] (\n -> grade poset (1, n) @?= Just 1)
               grade poset (2, 0) @?= Just 2
-              verifyXFaces (infaces poset) [
-                ((0, 0), []), 
-                ((0, 1), []), 
-                ((0, 2), []),
-                ((0, 3), []),
-                ((1, 0), [(0, 0)]),
-                ((1, 1), [(0, 1)]),
-                ((1, 2), [(0, 2)]),
-                ((1, 3), [(0, 0)]),
-                ((2, 0), [(1, 0), (1, 1)])
+              verifyXFaces
+                (infaces poset)
+                [ ((0, 0), [])
+                , ((0, 1), [])
+                , ((0, 2), [])
+                , ((0, 3), [])
+                , ((1, 0), [(0, 0)])
+                , ((1, 1), [(0, 1)])
+                , ((1, 2), [(0, 2)])
+                , ((1, 3), [(0, 0)])
+                , ((2, 0), [(1, 0), (1, 1)])
                 ]
-              verifyXFaces (outfaces poset) [
-                ((0, 0), []), 
-                ((0, 1), []), 
-                ((0, 2), []),
-                ((0, 3), []),
-                ((1, 0), [(0, 1)]),
-                ((1, 1), [(0, 2)]),
-                ((1, 2), [(0, 3)]),
-                ((1, 3), [(0, 2)]),
-                ((2, 0), [(1, 3)])
+              verifyXFaces
+                (outfaces poset)
+                [ ((0, 0), [])
+                , ((0, 1), [])
+                , ((0, 2), [])
+                , ((0, 3), [])
+                , ((1, 0), [(0, 1)])
+                , ((1, 1), [(0, 2)])
+                , ((1, 2), [(0, 3)])
+                , ((1, 3), [(0, 2)])
+                , ((2, 0), [(1, 3)])
                 ]
-              verifyXFaces (incofaces poset) [
-                ((0, 0), [(1, 0), (1, 3)]),
-                ((0, 1), [(1, 1)]),
-                ((0, 2), [(1, 2)]),
-                ((0, 3), []),
-                ((1, 0), [(2, 0)]),
-                ((1, 1), [(2, 0)]),
-                ((1, 2), []),
-                ((1, 3), []),
-                ((2, 0), [])
+              verifyXFaces
+                (incofaces poset)
+                [ ((0, 0), [(1, 0), (1, 3)])
+                , ((0, 1), [(1, 1)])
+                , ((0, 2), [(1, 2)])
+                , ((0, 3), [])
+                , ((1, 0), [(2, 0)])
+                , ((1, 1), [(2, 0)])
+                , ((1, 2), [])
+                , ((1, 3), [])
+                , ((2, 0), [])
                 ]
-              verifyXFaces (outcofaces poset) [
-                ((0, 0), []),
-                ((0, 1), [(1, 0)]),
-                ((0, 2), [(1, 1), (1, 3)]),
-                ((0, 3), [(1, 2)]),
-                ((1, 0), []),
-                ((1, 1), []),
-                ((1, 2), []),
-                ((1, 3), [(2, 0)]),
-                ((2, 0), [])
+              verifyXFaces
+                (outcofaces poset)
+                [ ((0, 0), [])
+                , ((0, 1), [(1, 0)])
+                , ((0, 2), [(1, 1), (1, 3)])
+                , ((0, 3), [(1, 2)])
+                , ((1, 0), [])
+                , ((1, 1), [])
+                , ((1, 2), [])
+                , ((1, 3), [(2, 0)])
+                , ((2, 0), [])
                 ]
               predecessors poset (0, 0) @?= Set.fromList [(0, 0)]
               predecessors poset (0, 1) @?= Set.fromList [(0, 1)]
@@ -110,9 +124,20 @@ ogPosetTests =
               predecessors poset (1, 1) @?= Set.fromList [(0, 1), (0, 2), (1, 1)]
               predecessors poset (1, 2) @?= Set.fromList [(0, 2), (0, 3), (1, 2)]
               predecessors poset (1, 3) @?= Set.fromList [(0, 0), (0, 2), (1, 3)]
-              predecessors poset (2, 0) @?= Set.fromList [
-                (0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 3), (2, 0)
-                ]
+              predecessors poset (2, 0)
+                @?= Set.fromList
+                  [ (0, 0)
+                  , (0, 1)
+                  , (0, 2)
+                  , (1, 0)
+                  , (1, 1)
+                  , (1, 3)
+                  , (2, 0)
+                  ]
+              closure poset Set.empty @?= Set.empty
+              closure poset (Set.fromList [(1, 0)]) @?= Set.fromList [(0, 0), (0, 1), (1, 0)]
+              closure poset (Set.fromList [(1, 0), (1, 1)])
+                @?= Set.fromList [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1)]
        in
         testGroup
           "Constructing OgPoset's"
@@ -144,8 +169,10 @@ ogPosetTests =
 
 verifyXFaces ::
   Map FancyInt (Set FancyInt) ->
-  [(FancyInt, [FancyInt])] -> Assertion
+  [(FancyInt, [FancyInt])] ->
+  Assertion
 verifyXFaces xfaces expectedValues =
-  xfaces @?= expectedMap where
-    expectedMap :: (Map FancyInt (Set FancyInt)) =
-      Set.fromList <$> Map.fromList expectedValues
+  xfaces @?= expectedMap
+ where
+  expectedMap :: (Map FancyInt (Set FancyInt)) =
+    Set.fromList <$> Map.fromList expectedValues
