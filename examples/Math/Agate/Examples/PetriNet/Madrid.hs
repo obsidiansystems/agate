@@ -1,7 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeOperators #-}
-
 module Math.Agate.Examples.PetriNet.Madrid (madridNet) where
 
 import Data.List.NonEmpty qualified as NE

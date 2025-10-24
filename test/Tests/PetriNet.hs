@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -Wno-type-defaults #-}
 
 module Tests.PetriNet where

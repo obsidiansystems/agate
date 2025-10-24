@@ -13,6 +13,8 @@ common common
     default-language: Haskell2010
     default-extensions:
         BlockArguments
+        DefaultSignatures
+        DeriveAnyClass
         DeriveFunctor
         DerivingStrategies
         FlexibleContexts
@@ -23,6 +25,7 @@ common common
         NamedFieldPuns
         RankNTypes
         ScopedTypeVariables
+        TupleSections
         TypeApplications
         TypeFamilies
         TypeOperators

@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Math.Agate.PetriNet (PetriNet (..), AsODE (..), PetriNetImpl (..)) where
 
 import Data.Map.Lazy qualified as M
