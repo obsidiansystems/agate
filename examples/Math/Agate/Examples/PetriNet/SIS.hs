@@ -1,35 +1,28 @@
-module Math.Agate.Examples.PetriNet.SIRD where
+module Math.Agate.Examples.PetriNet.SIS where
 
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.PetriNet
 import qualified Math.Agate.Examples.PetriNet.Colours as Colours
 
-data SIRDPlace
+
+data SISPlace
     = S
     | I
-    | R
-    | D
     deriving (Show, Eq, Ord, Enum, Bounded)
-instance PetriPlace SIRDPlace where
+instance PetriPlace SISPlace where
     placeColour = \case
         S -> Colours.susceptible
         I -> Colours.infected
-        R -> Colours.recovered
-        D -> Colours.deceased
     placeName = \case
         S -> "susceptible"
         I -> "infected"
-        R -> "recovered"
-        D -> "deceased"
 
-sird :: (Place net ~ SIRDPlace, Fractional (Transition net), PetriNet net) => net
-sird =
+sis :: (Place net ~ SISPlace, Fractional (Transition net), PetriNet net) => net
+sis =
     mconcat
         [ transition [I, S] transmission [I, I]
-        , transition [I] recovery [R]
-        , transition [I] mortality [D]
+        , transition [I] recovery [S]
         ]
   where
     transmission = 0.4
     recovery = 0.03
-    mortality = 0.01

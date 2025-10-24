@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
+{-# OPTIONS_GHC -Wno-type-defaults #-}
 
 module Tests.PetriNet where
 
@@ -19,6 +20,12 @@ import Test.Tasty
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import TestUtils
+import Math.Agate.Examples.PetriNet.SIS
+import Math.Agate.Examples.ODE.SIS
+import Math.Agate.Examples.PetriNet.Malthusian
+import Math.Agate.Examples.ODE.Malthusian
+import Math.Agate.Examples.PetriNet.SEIR
+import Math.Agate.Examples.ODE.SEIR
 
 petriTests :: TestTree
 petriTests =
@@ -26,24 +33,27 @@ petriTests =
         "Petri nets"
         [ testGroup
             "SIR"
-            let
-                exampleSIR :: (Place net ~ SIRPlace, Transition net ~ Double, PetriNet net) => net
-                exampleSIR = generalSIR
-             in
+            [
                 testGroup
                     "Implementation"
                     [ testCase "Transitions correct" $
                         assertBool "2 transitions present" $
-                            length (transitions exampleSIR) == 2
+                            length (transitions sir) == 2
                     ]
-                    : allDiagramTests "sir" exampleSIR runSolverSIR
+                , allDiagramTests "sir" sir runSolverSIR
+            ]
         , testGroup
             "SIRD"
-            let
-                exampleSIRD :: (Place net ~ SIRDPlace, Transition net ~ Double, PetriNet net) => net
-                exampleSIRD = generalSIRD
-             in
-                allDiagramTests "sird" exampleSIRD runSolverSIRD
+                [allDiagramTests "sird" sird runSolverSIRD]
+        , testGroup
+            "SIS"
+                [allDiagramTests "sis" sis runSolverSIS]
+        , testGroup
+            "Malthusian"
+                [allDiagramTests "malthusian" malthusian runSolverMalthusian]
+        , testGroup
+            "SEIR"
+                [allDiagramTests "seir" seir runSolverSEIR]
         , testGroup
             "Madrid"
             [ testGroup
@@ -58,15 +68,14 @@ petriTests =
             ]
         ]
 
-allDiagramTests :: (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) => FilePath -> PetriNetImpl p t -> [Map.Map p Double] -> [TestTree]
+allDiagramTests :: (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) => FilePath -> PetriNetImpl p t -> [Map.Map p Double] -> TestTree
 allDiagramTests name net solution =
-    [ testGroup
+    testGroup
         "Diagrams"
         [ petriTest
         , chartTest
+        , combinedTest
         ]
-    , combinedTest
-    ]
   where
     solverResult = Map.fromList $ enumerate <&> \v -> (v, map (Map.! v) solution)
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}

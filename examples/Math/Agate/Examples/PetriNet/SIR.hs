@@ -1,10 +1,8 @@
 module Math.Agate.Examples.PetriNet.SIR where
 
-import Data.Colour.RGBSpace
-import Data.Colour.RGBSpace.HSL
-import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.PetriNet
+import qualified Math.Agate.Examples.PetriNet.Colours as Colours
 
 data SIRPlace
     = S
@@ -13,16 +11,16 @@ data SIRPlace
     deriving (Show, Eq, Ord, Enum, Bounded)
 instance PetriPlace SIRPlace where
     placeColour = \case
-        S -> uncurryRGB sRGB $ hsl 240 0.7 0.4
-        I -> uncurryRGB sRGB $ hsl 0 0.7 0.55
-        R -> uncurryRGB sRGB $ hsl 120 0.7 0.32
+        S -> Colours.susceptible
+        I -> Colours.infected
+        R -> Colours.recovered
     placeName = \case
         S -> "susceptible"
         I -> "infected"
         R -> "recovered"
 
-generalSIR :: (Place net ~ SIRPlace, Fractional (Transition net), PetriNet net) => net
-generalSIR =
+sir :: (Place net ~ SIRPlace, Fractional (Transition net), PetriNet net) => net
+sir =
     mconcat
         [ transition [I, S] transmission [I, I]
         , transition [I] recovery [R]
