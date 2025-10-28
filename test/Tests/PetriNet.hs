@@ -9,22 +9,22 @@ import Data.Map.Lazy qualified as Map
 import Diagrams.AreaChart
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
+import Math.Agate.Examples.ODE.Malthusian
+import Math.Agate.Examples.ODE.SEIR
 import Math.Agate.Examples.ODE.SIR
 import Math.Agate.Examples.ODE.SIRD
+import Math.Agate.Examples.ODE.SIS
 import Math.Agate.Examples.PetriNet.Madrid
+import Math.Agate.Examples.PetriNet.Malthusian
+import Math.Agate.Examples.PetriNet.SEIR
 import Math.Agate.Examples.PetriNet.SIR
 import Math.Agate.Examples.PetriNet.SIRD
+import Math.Agate.Examples.PetriNet.SIS
 import Math.Agate.PetriNet
 import Test.Tasty
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import TestUtils
-import Math.Agate.Examples.PetriNet.SIS
-import Math.Agate.Examples.ODE.SIS
-import Math.Agate.Examples.PetriNet.Malthusian
-import Math.Agate.Examples.ODE.Malthusian
-import Math.Agate.Examples.PetriNet.SEIR
-import Math.Agate.Examples.ODE.SEIR
 
 petriTests :: TestTree
 petriTests =
@@ -32,27 +32,26 @@ petriTests =
         "Petri nets"
         [ testGroup
             "SIR"
-            [
-                testGroup
-                    "Implementation"
-                    [ testCase "Transitions correct" $
-                        assertBool "2 transitions present" $
-                            length (transitions sir) == 2
-                    ]
-                , allDiagramTests "sir" sir runSolverSIR
+            [ testGroup
+                "Implementation"
+                [ testCase "Transitions correct" $
+                    assertBool "2 transitions present" $
+                        length (transitions sir) == 2
+                ]
+            , allDiagramTests "sir" sir runSolverSIR
             ]
         , testGroup
             "SIRD"
-                [allDiagramTests "sird" sird runSolverSIRD]
+            [allDiagramTests "sird" sird runSolverSIRD]
         , testGroup
             "SIS"
-                [allDiagramTests "sis" sis runSolverSIS]
+            [allDiagramTests "sis" sis runSolverSIS]
         , testGroup
             "Malthusian"
-                [allDiagramTests "malthusian" malthusian runSolverMalthusian]
+            [allDiagramTests "malthusian" malthusian runSolverMalthusian]
         , testGroup
             "SEIR"
-                [allDiagramTests "seir" seir runSolverSEIR]
+            [allDiagramTests "seir" seir runSolverSEIR]
         , testGroup
             "Madrid"
             [ testGroup
