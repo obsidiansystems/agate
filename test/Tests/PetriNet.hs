@@ -38,20 +38,20 @@ petriTests =
                     assertBool "2 transitions present" $
                         length (transitions sir) == 2
                 ]
-            , allDiagramTests "sir" sir runSolverSIR
+            , allDiagramTests defaultDrawOpts{maxTotal = Just 1} "sir" sir runSolverSIR
             ]
         , testGroup
             "SIRD"
-            [allDiagramTests "sird" sird runSolverSIRD]
+            [allDiagramTests defaultDrawOpts{maxTotal = Just 1} "sird" sird runSolverSIRD]
         , testGroup
             "SIS"
-            [allDiagramTests "sis" sis runSolverSIS]
+            [allDiagramTests defaultDrawOpts{maxTotal = Just 1} "sis" sis runSolverSIS]
         , testGroup
             "Malthusian"
-            [allDiagramTests "malthusian" malthusian runSolverMalthusian]
+            [allDiagramTests defaultDrawOpts "malthusian" malthusian runSolverMalthusian]
         , testGroup
             "SEIR"
-            [allDiagramTests "seir" seir runSolverSEIR]
+            [allDiagramTests defaultDrawOpts{maxTotal = Just 1} "seir" seir runSolverSEIR]
         , testGroup
             "Madrid"
             [ testGroup
@@ -68,11 +68,12 @@ petriTests =
 
 allDiagramTests ::
     (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) =>
+    DrawOpts p t ->
     FilePath ->
     PetriNetImpl p t ->
     [Map.Map p Double] ->
     TestTree
-allDiagramTests name net solution =
+allDiagramTests drawOpts name net solution =
     testGroup
         "Diagrams"
         [ petriTest
@@ -82,7 +83,6 @@ allDiagramTests name net solution =
   where
     solverResult = Map.fromList $ enumerate <&> \v -> (v, map (Map.! v) solution)
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
-    drawOpts = defaultDrawOpts
     chart animated =
         areaChart animated 3 $
             enumerate <&> \p ->

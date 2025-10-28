@@ -65,6 +65,14 @@ data DrawOpts p t = DrawOpts
     , showPlace :: p -> String
     , showTransition :: t -> String
     , animation :: Maybe (p -> [Double])
+    , maxTotal :: Maybe Double
+    {- ^
+    If specified, circles will be rendered such that the areas are in proportion to the population,
+    and a circle is full iff all others are empty. Otherwise, the maximum marking is taken on a
+    place-by-place basis, which still ensures that circles don't overfill, but means that in the
+    common case that the marking comes from an arbitrary prefix of an infinite list, the rendering
+    of a given frame is dependent on the length of the prefix, which can be odd.
+    -}
     }
 
 defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
@@ -74,6 +82,7 @@ defaultDrawOpts =
         , showPlace = show
         , showTransition = showFixed @E3 True . realToFrac
         , animation = Nothing
+        , maxTotal = Nothing
         }
 
 layoutPetri ::
@@ -108,7 +117,14 @@ drawPetri drawOpts =
                 mconcat
                     [ text (placeSymbol p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
                     , circle drawOpts.placeSize & lw 0 & fc (placeColour p) & case drawOpts.animation of
-                        Just marking -> animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map ((\c -> V2 c c) . sqrt) $ marking p)
+                        Just marking ->
+                            animate . TransformAnimation 15 Nothing . ScaleAnimation
+                                $ map
+                                    ( pure @V2 . case drawOpts.maxTotal of
+                                        Nothing -> (/ maximum (marking p))
+                                        Just m -> sqrt . (/ m)
+                                    )
+                                $ marking p
                         Nothing -> id
                     , circle drawOpts.placeSize & fc white
                     ]
