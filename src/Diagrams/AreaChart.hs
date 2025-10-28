@@ -15,7 +15,7 @@ data Variable = Variable
 
 areaChartInner :: Double -> [Variable] -> Diagram B
 areaChartInner overallWidth sirData =
-    scaleY (1 / maximum (snd $ last ys)) . mconcat $
+    scaleToY 1 . mconcat $
         zipWith
             ( \(bottoms, tops) Variable{colour} ->
                 fromVertices
