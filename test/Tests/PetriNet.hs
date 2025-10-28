@@ -66,7 +66,12 @@ petriTests =
             ]
         ]
 
-allDiagramTests :: (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) => FilePath -> PetriNetImpl p t -> [Map.Map p Double] -> TestTree
+allDiagramTests ::
+    (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) =>
+    FilePath ->
+    PetriNetImpl p t ->
+    [Map.Map p Double] ->
+    TestTree
 allDiagramTests name net solution =
     testGroup
         "Diagrams"
