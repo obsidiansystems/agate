@@ -1,4 +1,10 @@
-module Math.Agate.Examples.PetriNet.Colours (susceptible, infected, deceased, recovered, exposed) where
+module Math.Agate.Examples.PetriNet.Colours (
+    susceptible,
+    infected,
+    deceased,
+    recovered,
+    exposed,
+) where
 
 import Data.Colour.RGBSpace (uncurryRGB)
 import Data.Colour.RGBSpace.HSL (hsl)
