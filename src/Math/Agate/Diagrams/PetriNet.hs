@@ -136,7 +136,7 @@ drawPetri drawOpts =
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
-    fname = "Helvetica" -- "Latin Modern Math"
+    fname = "Helvetica"
     opts p w =
         with
             & gaps .~ local drawOpts.placeSize

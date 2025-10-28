@@ -15,7 +15,7 @@ data ODEParams k = ODEParams
     { stepSize :: k
     }
 
-odeSolve :: forall v k. (Num k, Ord v, Show v, Eq k) => PolynomialODE k v -> ODEParams k -> Map v k -> [Map v k] -- Map v [k]
+odeSolve :: forall v k. (Num k, Ord v, Show v, Eq k) => PolynomialODE k v -> ODEParams k -> Map v k -> [Map v k]
 odeSolve s@(PolynomialODE p) params x0 =
     newValues : odeSolve s params newValues
   where
