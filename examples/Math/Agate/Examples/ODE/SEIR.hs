@@ -7,6 +7,6 @@ import Math.Agate.ODE.Polynomial.Solver
 runSolverSEIR :: [Map SEIRPlace Double]
 runSolverSEIR = solvePetri seir \case
     S -> 0.95
-    E -> 0
-    I -> 0.05
+    E -> 0.05
+    I -> 0
     R -> 0
