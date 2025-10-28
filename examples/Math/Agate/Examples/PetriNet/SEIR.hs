@@ -3,6 +3,7 @@ module Math.Agate.Examples.PetriNet.SEIR where
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.PetriNet
 import qualified Math.Agate.Examples.PetriNet.Colours as Colours
+import Data.List.Extra (enumerate)
 
 data SEIRPlace
     = S
@@ -26,12 +27,7 @@ seir :: (Place net ~ SEIRPlace, Fractional (Transition net), PetriNet net) => ne
 seir = 
   let
     births = transition [] birth [S]
-    deaths = mconcat 
-      [ transition [S] mortality []
-        , transition [E] mortality []
-        , transition [I] mortality []
-        , transition [R] mortality []
-      ]
+    deaths = mconcat [ transition [place] mortality [] | place <- enumerate ]
     in
     mconcat
         [ births 
