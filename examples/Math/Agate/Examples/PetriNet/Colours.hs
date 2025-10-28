@@ -1,7 +1,8 @@
 module Math.Agate.Examples.PetriNet.Colours (susceptible, infected, deceased, recovered, exposed) where
-import Diagrams.Prelude (sRGB, Colour, yellow)
+
 import Data.Colour.RGBSpace (uncurryRGB)
 import Data.Colour.RGBSpace.HSL (hsl)
+import Diagrams.Prelude (Colour, sRGB, yellow)
 
 susceptible :: Colour Double
 susceptible = uncurryRGB sRGB $ hsl 240 0.7 0.4
@@ -17,4 +18,3 @@ recovered = uncurryRGB sRGB $ hsl 120 0.7 0.32
 
 deceased :: Colour Double
 deceased = uncurryRGB sRGB $ hsl 0 0 0.3
-
