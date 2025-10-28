@@ -68,11 +68,13 @@ library agate-examples
         Math.Agate.Examples.PetriNet.Madrid
         Math.Agate.Examples.PetriNet.Malthusian
         Math.Agate.Examples.PetriNet.SEIR
+        Math.Agate.Examples.PetriNet.SEAIR
         Math.Agate.Examples.PetriNet.SIR
         Math.Agate.Examples.PetriNet.SIRD
         Math.Agate.Examples.PetriNet.SIS
         Math.Agate.Examples.ODE.Malthusian
         Math.Agate.Examples.ODE.SEIR
+        Math.Agate.Examples.ODE.SEAIR
         Math.Agate.Examples.ODE.SIR
         Math.Agate.Examples.ODE.SIRD
         Math.Agate.Examples.ODE.SIS

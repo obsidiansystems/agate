@@ -25,6 +25,14 @@ import Test.Tasty
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import TestUtils
+import Math.Agate.Examples.PetriNet.SIS
+import Math.Agate.Examples.ODE.SIS
+import Math.Agate.Examples.PetriNet.Malthusian
+import Math.Agate.Examples.ODE.Malthusian
+import Math.Agate.Examples.PetriNet.SEIR
+import Math.Agate.Examples.ODE.SEIR
+import Math.Agate.Examples.ODE.SEAIR
+import Math.Agate.Examples.PetriNet.SEAIR
 
 petriTests :: TestTree
 petriTests =
@@ -52,6 +60,9 @@ petriTests =
         , testGroup
             "SEIR"
             [allDiagramTests "seir" seir runSolverSEIR]
+        , testGroup
+            "SEAIR"
+            [allDiagramTests "seair" seair runSolverSEAIR]
         , testGroup
             "Madrid"
             [ testGroup
