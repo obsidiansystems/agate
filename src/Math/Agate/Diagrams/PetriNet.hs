@@ -19,6 +19,7 @@ import Data.Fixed (E3, showFixed)
 import Data.Graph.Inductive (Gr, Node)
 import Data.GraphViz
 import Data.GraphViz.Attributes.Complete
+import Data.List.Extra (enumerate, transpose)
 import Data.Map.Lazy qualified as M
 import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Set qualified as Set
@@ -65,14 +66,6 @@ data DrawOpts p t = DrawOpts
     , showPlace :: p -> String
     , showTransition :: t -> String
     , animation :: Maybe (p -> [Double])
-    , maxTotal :: Maybe Double
-    {- ^
-    If specified, circles will be rendered such that the areas are in proportion to the population,
-    and a circle is full iff all others are empty. Otherwise, the maximum marking is taken on a
-    place-by-place basis, which still ensures that circles don't overfill, but means that in the
-    common case that the marking comes from an arbitrary prefix of an infinite list, the rendering
-    of a given frame is dependent on the length of the prefix, which can be odd.
-    -}
     }
 
 defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
@@ -82,9 +75,7 @@ defaultDrawOpts =
         , showPlace = show
         , showTransition = showFixed @E3 True . realToFrac
         , animation = Nothing
-        , maxTotal = Nothing
         }
-
 layoutPetri ::
     (Ord p, Ord t, Show p, Show t) =>
     LayoutOpts ->
@@ -106,7 +97,7 @@ layoutPetri LayoutOpts{aspectRatio, command} petri = layoutGraph' params command
             }
 
 drawPetri ::
-    (Ord p, Show p, PetriPlace p, Ord t, Show t) =>
+    (Bounded p, Enum p, Ord p, Show p, PetriPlace p, Ord t, Show t) =>
     DrawOpts p t ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
@@ -119,12 +110,8 @@ drawPetri drawOpts =
                     , circle drawOpts.placeSize & lw 0 & fc (placeColour p) & case drawOpts.animation of
                         Just marking ->
                             animate . TransformAnimation 15 Nothing . ScaleAnimation
-                                $ map
-                                    ( pure @V2 . case drawOpts.maxTotal of
-                                        Nothing -> (/ maximum (marking p))
-                                        Just m -> sqrt . (/ m)
-                                    )
-                                $ marking p
+                                $ map (pure @V2 . sqrt)
+                                $ normalise marking p
                         Nothing -> id
                     , circle drawOpts.placeSize & fc white
                     ]
@@ -143,9 +130,11 @@ drawPetri drawOpts =
             & arrowShaft .~ (unLoc . fromMaybe (error "arrow has no path") . listToMaybe $ pathTrails p)
             & headLength .~ local (0.5 * drawOpts.placeSize * fromIntegral w)
             & arrowHead .~ arrowheadThorn (150 @@ deg)
+    normalise :: (Enum p, Bounded p) => (p -> [Double]) -> p -> [Double]
+    normalise marking p = zipWith (/) (marking p) (map sum . transpose . fmap marking $ enumerate)
 
 layoutAndDrawPetri ::
-    (Ord p, Show p, PetriPlace p, Ord t, Show t) =>
+    (Bounded p, Enum p, Ord p, Show p, PetriPlace p, Ord t, Show t) =>
     LayoutOpts ->
     DrawOpts p t ->
     PetriNetImpl p t ->
