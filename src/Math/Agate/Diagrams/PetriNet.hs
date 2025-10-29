@@ -19,7 +19,7 @@ import Data.Fixed (E3, showFixed)
 import Data.Graph.Inductive (Gr, Node)
 import Data.GraphViz
 import Data.GraphViz.Attributes.Complete
-import Data.List.Extra (chunksOf, enumerate, transpose)
+import Data.List.Extra (enumerate, transpose)
 import Data.Map.Lazy qualified as M
 import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Set qualified as Set
@@ -111,12 +111,7 @@ drawPetri drawOpts =
                         Just marking ->
                             animate . TransformAnimation 15 Nothing . ScaleAnimation $
                                 map (pure @V2 . sqrt) $
-                                    normalise
-                                        ( map (fromMaybe (error "empty chunk in Petri data") . listToMaybe)
-                                            . chunksOf 10
-                                            . marking
-                                        )
-                                        p
+                                    normalise marking p
                         Nothing -> id
                     , circle drawOpts.placeSize & fc white
                     ]

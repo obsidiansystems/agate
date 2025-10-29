@@ -6,6 +6,7 @@ module Tests.PetriNet where
 import Data.GraphViz
 import Data.List.Extra
 import Data.Map.Lazy qualified as Map
+import Data.Maybe
 import Diagrams.AreaChart
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
@@ -80,7 +81,13 @@ allDiagramTests name net solution =
         , combinedTest
         ]
   where
-    solverResult = Map.fromList $ enumerate <&> \v -> (v, map (Map.! v) solution)
+    solverResult =
+        fmap
+            ( map (fromMaybe (error "empty chunk in diagram solver data") . listToMaybe)
+                . chunksOf 10
+            )
+            . Map.fromList
+            $ enumerate <&> \v -> (v, map (Map.! v) solution)
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
     drawOpts = defaultDrawOpts
     chart animated =
@@ -89,14 +96,14 @@ allDiagramTests name net solution =
                 Variable
                     { name = placeName p
                     , colour = placeColour p
-                    , values = take 1000 $ solverResult Map.! p
+                    , values = take 100 $ solverResult Map.! p
                     }
     petriTest =
         goldenVsString "Petri" ("test/outputs/petri/" <> name <> "/petri.svg") $
             diagToSVGBS <$> layoutAndDrawPetri layoutOpts drawOpts net
     chartTest = goldenVsString "Chart" ("test/outputs/petri/" <> name <> "/chart.svg") . pure . diagToSVGBS $ chart False
     combinedTest = goldenVsString "Combined" ("test/outputs/petri/" <> name <> "/combined.svg") do
-        petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 1000 . (solverResult Map.!))} net
+        petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 100 . (solverResult Map.!))} net
         pure
             . diagToSVGBS
             $ vcat
