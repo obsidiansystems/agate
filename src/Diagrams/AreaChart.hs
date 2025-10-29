@@ -16,7 +16,7 @@ data Variable = Variable
 
 areaChartInner :: Double -> [Variable] -> Diagram B
 areaChartInner overallWidth sirData =
-    scaleToY 1 . mconcat $
+    scaleToX overallWidth . scaleToY 1 . mconcat $
         zipWith
             ( \(bottom, top) Variable{colour} ->
                 (bottom `catLocTrails` reverseLocLine top)
@@ -29,7 +29,7 @@ areaChartInner overallWidth sirData =
             sirData
   where
     boundaries =
-        map (fromVertices . zipWith (curry p2) [0, w ..])
+        map (fromVertices . zipWith (curry p2) [0 ..])
             . mapColumns (scanl (+) 0)
             . map
                 ( \Variable{values} ->
@@ -37,7 +37,6 @@ areaChartInner overallWidth sirData =
                         chunksOf 10 values
                 )
             $ sirData
-    w = 10 * overallWidth / maximum (map (genericLength . \Variable{values} -> values) sirData)
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs = \case
         [] -> []
