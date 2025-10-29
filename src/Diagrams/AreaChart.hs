@@ -2,7 +2,6 @@ module Diagrams.AreaChart (areaChart, Variable (..)) where
 
 import Control.Applicative
 import Data.List
-import Data.Maybe
 import Data.Monoid.Extra
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
@@ -17,19 +16,20 @@ areaChartInner :: Double -> [Variable] -> Diagram B
 areaChartInner overallWidth sirData =
     scaleToY 1 . mconcat $
         zipWith
-            ( \(bottoms, tops) Variable{colour} ->
-                fromVertices
-                    (zipWith (curry p2) [0, w ..] bottoms <> reverse (zipWith (curry p2) [0, w ..] tops))
-                    & closeLine
-                    & strokeLoop
-                    & translate (maybe 0 (V2 0) $ listToMaybe bottoms)
+            ( \(bottom, top) Variable{colour} ->
+                (bottom `catLocTrails` reverseLocLine top)
+                    & mapLoc closeLine
+                    & strokeLocLoop
                     & fc colour
                     & lcA transparent
             )
-            ys
+            (adjacentPairs boundaries)
             sirData
   where
-    ys = map unzip $ mapColumns (adjacentPairs . scanl (+) 0) $ map (\Variable{values} -> values) sirData
+    boundaries =
+        map (fromVertices . zipWith (curry p2) [0, w ..])
+            . mapColumns (scanl (+) 0)
+            $ map (\Variable{values} -> values) sirData
     w = overallWidth / maximum (map (genericLength . \Variable{values} -> values) sirData)
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs = \case
@@ -64,3 +64,11 @@ areaChart animated w sirData =
                 )
             . reverse
             $ sirData
+
+-- see https://github.com/diagrams/diagrams-lib/pull/374
+catLocTrails ::
+    Located (Trail' Line V2 Double) ->
+    Located (Trail' Line V2 Double) ->
+    Located (Trail' Line V2 Double)
+catLocTrails a@(Loc aLoc aLine) b@(Loc _ bLine) =
+    Loc aLoc (aLine <> lineFromOffsets [atStart b .-. atEnd a] <> bLine)
