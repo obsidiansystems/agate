@@ -18,4 +18,7 @@ exponentialODE =
 
 runSolverExponential :: [Double]
 runSolverExponential =
-    mapMaybe (Map.lookup "x") (Prelude.take 10000 (odeSolve exponentialODE (ODEParams 0.0001) (Map.fromList [("x", 1)])))
+    mapMaybe (Map.lookup "x")
+        . Prelude.take 10000
+        . odeSolve exponentialODE (ODEParams 0.0001)
+        $ Map.fromList [("x", 1)]
