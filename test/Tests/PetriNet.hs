@@ -15,6 +15,7 @@ import Math.Agate.Examples.ODE.SEAIR
 import Math.Agate.Examples.ODE.SEIR
 import Math.Agate.Examples.ODE.SIR
 import Math.Agate.Examples.ODE.SIRD
+import Math.Agate.Examples.ODE.SIRS
 import Math.Agate.Examples.ODE.SIS
 import Math.Agate.Examples.ODE.SIWR
 import Math.Agate.Examples.PetriNet.Madrid
@@ -24,6 +25,7 @@ import Math.Agate.Examples.PetriNet.SEAIR
 import Math.Agate.Examples.PetriNet.SEIR
 import Math.Agate.Examples.PetriNet.SIR
 import Math.Agate.Examples.PetriNet.SIRD
+import Math.Agate.Examples.PetriNet.SIRS
 import Math.Agate.Examples.PetriNet.SIS
 import Math.Agate.Examples.PetriNet.SIWR
 import Math.Agate.PetriNet
@@ -49,6 +51,9 @@ petriTests =
         , testGroup
             "SIRD"
             [allDiagramTests "sird" sird runSolverSIRD]
+        , testGroup
+            "SIRS"
+            [allDiagramTests "sirs" sirs runSolverSIRS]
         , testGroup
             "SIS"
             [allDiagramTests "sis" sis runSolverSIS]

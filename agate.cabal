@@ -72,6 +72,7 @@ library agate-examples
         Math.Agate.Examples.PetriNet.SEAIR
         Math.Agate.Examples.PetriNet.SIR
         Math.Agate.Examples.PetriNet.SIRD
+        Math.Agate.Examples.PetriNet.SIRS
         Math.Agate.Examples.PetriNet.SIS
         Math.Agate.Examples.PetriNet.SIWR
         Math.Agate.Examples.ODE.Malthusian
@@ -80,6 +81,7 @@ library agate-examples
         Math.Agate.Examples.ODE.SEAIR
         Math.Agate.Examples.ODE.SIR
         Math.Agate.Examples.ODE.SIRD
+        Math.Agate.Examples.ODE.SIRS
         Math.Agate.Examples.ODE.SIS
         Math.Agate.Examples.ODE.SIWR
         Math.Agate.Examples.ODE.Exponential
