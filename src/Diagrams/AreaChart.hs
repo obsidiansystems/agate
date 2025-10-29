@@ -2,6 +2,8 @@ module Diagrams.AreaChart (areaChart, Variable (..)) where
 
 import Control.Applicative
 import Data.List
+import Data.List.Extra
+import Data.Maybe
 import Data.Monoid.Extra
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
@@ -29,8 +31,13 @@ areaChartInner overallWidth sirData =
     boundaries =
         map (fromVertices . zipWith (curry p2) [0, w ..])
             . mapColumns (scanl (+) 0)
-            $ map (\Variable{values} -> values) sirData
-    w = overallWidth / maximum (map (genericLength . \Variable{values} -> values) sirData)
+            . map
+                ( \Variable{values} ->
+                    map (fromMaybe (error "empty chunk in chart data") . listToMaybe) $
+                        chunksOf 10 values
+                )
+            $ sirData
+    w = 10 * overallWidth / maximum (map (genericLength . \Variable{values} -> values) sirData)
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs = \case
         [] -> []
