@@ -37,8 +37,8 @@ seir =
             , transition [I] recovery [R]
             ]
   where
-    birth = 0.05
-    mortality = 0.1
+    birth = 0.1
+    mortality = 0.05
     transmission = 1 -- 0.4
     recovery = 0.3
     incubation = 0.05
