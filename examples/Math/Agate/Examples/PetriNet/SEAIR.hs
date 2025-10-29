@@ -1,9 +1,9 @@
 module Math.Agate.Examples.PetriNet.SEAIR where
 
-import Math.Agate.Diagrams.PetriNet
-import Math.Agate.PetriNet
-import qualified Math.Agate.Examples.PetriNet.Colours as Colours
 import Data.List.Extra (enumerate)
+import Math.Agate.Diagrams.PetriNet
+import Math.Agate.Examples.PetriNet.Colours qualified as Colours
+import Math.Agate.PetriNet
 
 data SEAIRPlace
     = S
@@ -27,21 +27,21 @@ instance PetriPlace SEAIRPlace where
         R -> "recovered"
 
 seair :: (Place net ~ SEAIRPlace, Fractional (Transition net), PetriNet net) => net
-seair = 
-  let
-    births = transition [] birth [S]
-    deaths = mconcat [ transition [place] mortality [] | place <- enumerate ]
-    in
-    mconcat
-        [ births 
-        , deaths
-        , transition [S, I] transmission [E, I]
-        , transition [S, A] (q * transmission) [E, A]
-        , transition [E] (p * incubation) [I]
-        , transition [E] ((1 - p) * incubation) [A]
-        , transition [I] recoveryI [R]
-        , transition [A] recoveryA [R]
-        ] 
+seair =
+    let
+        births = transition [] birth [S]
+        deaths = mconcat [transition [place] mortality [] | place <- enumerate]
+     in
+        mconcat
+            [ births
+            , deaths
+            , transition [S, I] transmission [E, I]
+            , transition [S, A] (q * transmission) [E, A]
+            , transition [E] (p * incubation) [I]
+            , transition [E] ((1 - p) * incubation) [A]
+            , transition [I] recoveryI [R]
+            , transition [A] recoveryA [R]
+            ]
   where
     birth = 0.1
     mortality = 0.05
