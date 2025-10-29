@@ -15,8 +15,8 @@ data Variable = Variable
     }
 
 areaChartInner :: Double -> [Variable] -> Diagram B
-areaChartInner overallWidth sirData =
-    scaleToX overallWidth . scaleToY 1 . mconcat $
+areaChartInner aspectRatio sirData =
+    scaleToX aspectRatio . scaleToY 1 . mconcat $
         zipWith
             ( \(bottom, top) Variable{colour} ->
                 (bottom `catLocTrails` reverseLocLine top)
