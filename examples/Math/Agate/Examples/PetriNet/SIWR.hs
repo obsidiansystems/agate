@@ -24,20 +24,15 @@ instance PetriPlace SIWRPlace where
 
 siwr :: (Place net ~ SIWRPlace, Fractional (Transition net), PetriNet net) => net
 siwr =
-    let
-        births = transition [] birth [S]
-        deaths = mconcat [transition [place] mortality [] | place <- [S, I, R]]
-        water = transition [W] decay []
-     in
-        mconcat
-            [ births
-            , deaths
-            , water
-            , transition [S, I] transmissionI [I, I]
-            , transition [S, W] transmissionW [I]
-            , transition [I] contamination [I, W]
-            , transition [I] recovery [R]
-            ]
+    mconcat
+        [ transition [] birth [S]
+        , mconcat [transition [place] mortality [] | place <- [S, I, R]]
+        , transition [W] decay []
+        , transition [S, I] transmissionI [I, I]
+        , transition [S, W] transmissionW [I]
+        , transition [I] contamination [I, W]
+        , transition [I] recovery [R]
+        ]
   where
     birth = 0.05
     mortality = 0.1

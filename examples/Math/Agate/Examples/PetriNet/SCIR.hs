@@ -25,21 +25,17 @@ instance PetriPlace SCIRPlace where
 
 scir :: (Place net ~ SCIRPlace, Fractional (Transition net), PetriNet net) => net
 scir =
-    let
-        births = transition [] birth [S]
-        deaths = mconcat [transition [place] mortality [] | place <- enumerate]
-     in
-        mconcat
-            [ births
-            , deaths
-            , transition [S, I] transmission [C, I]
-            , transition [S, C] (q * transmission) [C, C]
-            , transition [C] carrierToInfected [I]
-            , transition [C] carrierToRecovered [R]
-            , transition [I] recovery [R]
-            , transition [I] transmission [C]
-            , transition [R] resusceptible [S]
-            ]
+    mconcat
+        [ transition [] birth [S]
+        , mconcat [transition [place] mortality [] | place <- enumerate]
+        , transition [S, I] transmission [C, I]
+        , transition [S, C] (q * transmission) [C, C]
+        , transition [C] carrierToInfected [I]
+        , transition [C] carrierToRecovered [R]
+        , transition [I] recovery [R]
+        , transition [I] transmission [C]
+        , transition [R] resusceptible [S]
+        ]
   where
     birth = 0.1
     mortality = 0.05

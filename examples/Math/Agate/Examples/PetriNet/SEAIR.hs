@@ -28,20 +28,16 @@ instance PetriPlace SEAIRPlace where
 
 seair :: (Place net ~ SEAIRPlace, Fractional (Transition net), PetriNet net) => net
 seair =
-    let
-        births = transition [] birth [S]
-        deaths = mconcat [transition [place] mortality [] | place <- enumerate]
-     in
-        mconcat
-            [ births
-            , deaths
-            , transition [S, I] transmission [E, I]
-            , transition [S, A] (q * transmission) [E, A]
-            , transition [E] (p * incubation) [I]
-            , transition [E] ((1 - p) * incubation) [A]
-            , transition [I] recoveryI [R]
-            , transition [A] recoveryA [R]
-            ]
+    mconcat
+        [ transition [] birth [S]
+        , mconcat [transition [place] mortality [] | place <- enumerate]
+        , transition [S, I] transmission [E, I]
+        , transition [S, A] (q * transmission) [E, A]
+        , transition [E] (p * incubation) [I]
+        , transition [E] ((1 - p) * incubation) [A]
+        , transition [I] recoveryI [R]
+        , transition [A] recoveryA [R]
+        ]
   where
     birth = 0.1
     mortality = 0.05

@@ -25,17 +25,13 @@ instance PetriPlace SEIRPlace where
 
 seir :: (Place net ~ SEIRPlace, Fractional (Transition net), PetriNet net) => net
 seir =
-    let
-        births = transition [] birth [S]
-        deaths = mconcat [transition [place] mortality [] | place <- enumerate]
-     in
-        mconcat
-            [ births
-            , deaths
-            , transition [S, I] transmission [E, I]
-            , transition [E] incubation [I]
-            , transition [I] recovery [R]
-            ]
+    mconcat
+        [ transition [] birth [S]
+        , mconcat [transition [place] mortality [] | place <- enumerate]
+        , transition [S, I] transmission [E, I]
+        , transition [E] incubation [I]
+        , transition [I] recovery [R]
+        ]
   where
     birth = 0.1
     mortality = 0.05
