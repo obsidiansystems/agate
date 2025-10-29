@@ -35,6 +35,8 @@ import Math.Agate.Examples.ODE.SEAIR
 import Math.Agate.Examples.PetriNet.SEAIR
 import Math.Agate.Examples.PetriNet.SCIR
 import Math.Agate.Examples.ODE.SCIR
+import Math.Agate.Examples.ODE.SIWR
+import Math.Agate.Examples.PetriNet.SIWR
 
 petriTests :: TestTree
 petriTests =
@@ -68,6 +70,9 @@ petriTests =
         , testGroup
             "SCIR"
             [allDiagramTests "scir" scir runSolverSCIR]
+        , testGroup
+            "SIWR"
+            [allDiagramTests "siwr" siwr runSolverSIWR]
         , testGroup
             "Madrid"
             [ testGroup

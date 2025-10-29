@@ -73,6 +73,7 @@ library agate-examples
         Math.Agate.Examples.PetriNet.SIR
         Math.Agate.Examples.PetriNet.SIRD
         Math.Agate.Examples.PetriNet.SIS
+        Math.Agate.Examples.PetriNet.SIWR
         Math.Agate.Examples.ODE.Malthusian
         Math.Agate.Examples.ODE.SCIR
         Math.Agate.Examples.ODE.SEIR
@@ -80,6 +81,7 @@ library agate-examples
         Math.Agate.Examples.ODE.SIR
         Math.Agate.Examples.ODE.SIRD
         Math.Agate.Examples.ODE.SIS
+        Math.Agate.Examples.ODE.SIWR
         Math.Agate.Examples.ODE.Exponential
     build-depends: agate
     hs-source-dirs: examples

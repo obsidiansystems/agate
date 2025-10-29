@@ -6,6 +6,7 @@ module Math.Agate.Examples.PetriNet.Colours (
     exposed,
     asymptomatic,
     carrier,
+    water,
 ) where
 
 import Data.Colour.RGBSpace (uncurryRGB)
@@ -29,6 +30,9 @@ infected = uncurryRGB sRGB $ hsl 0 0.7 0.55
 
 recovered :: Colour Double
 recovered = uncurryRGB sRGB $ hsl 120 0.7 0.32
+
+water :: Colour Double
+water = uncurryRGB sRGB $ hsl 207 0.7 0.39
 
 deceased :: Colour Double
 deceased = uncurryRGB sRGB $ hsl 0 0 0.3
