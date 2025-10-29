@@ -109,9 +109,9 @@ drawPetri drawOpts =
                     [ text (placeSymbol p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
                     , circle drawOpts.placeSize & lw 0 & fc (placeColour p) & case drawOpts.animation of
                         Just marking ->
-                            animate . TransformAnimation 15 Nothing . ScaleAnimation
-                                $ map (pure @V2 . sqrt)
-                                $ normalise marking p
+                            animate . TransformAnimation 15 Nothing . ScaleAnimation $
+                                map (pure @V2 . sqrt) $
+                                    normalise marking p
                         Nothing -> id
                     , circle drawOpts.placeSize & fc white
                     ]
