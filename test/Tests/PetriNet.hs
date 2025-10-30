@@ -6,7 +6,6 @@ module Tests.PetriNet where
 import Data.GraphViz
 import Data.List.Extra
 import Data.Map.Lazy qualified as Map
-import Data.Maybe
 import Diagrams.AreaChart
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
@@ -83,9 +82,7 @@ allDiagramTests name net solution =
   where
     solverResult =
         fmap
-            ( map (fromMaybe (error "empty chunk in diagram solver data") . listToMaybe)
-                . chunksOf 10
-            )
+            (takeEvery 10)
             . Map.fromList
             $ enumerate <&> \v -> (v, map (Map.! v) solution)
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}

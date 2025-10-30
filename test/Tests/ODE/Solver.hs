@@ -1,8 +1,6 @@
 module Tests.ODE.Solver where
 
 import Data.Colour.Names
-import Data.List.Extra
-import Data.Maybe
 import Diagrams.AreaChart
 import Math.Agate.Examples.ODE.Exponential
 import Math.Agate.Examples.ODE.Malthusian
@@ -30,10 +28,7 @@ odeSolverTests =
                     [ Variable
                         { name = "x"
                         , colour = green
-                        , values =
-                            map (fromMaybe (error "empty chunk in solver data") . listToMaybe)
-                                . chunksOf 100
-                                $ runSolverExponential
+                        , values = takeEvery 100 runSolverExponential
                         }
                     ]
             ]
