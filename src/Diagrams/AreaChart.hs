@@ -55,7 +55,6 @@ areaChart animated w vars =
             , key & alignL & centerY
             ]
   where
-    key :: Diagram B
     key =
         vcat
             . map
