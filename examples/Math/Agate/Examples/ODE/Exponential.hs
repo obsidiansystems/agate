@@ -6,7 +6,7 @@ import Math.Agate.ODE.Polynomial (PolynomialODE (..))
 import Math.Agate.ODE.Polynomial.Solver
 import Math.CommutativeAlgebra.Polynomial qualified as Poly
 
--- simple ODE example where x' = x
+-- | Simple ODE example where x' = x
 exponentialODE :: PolynomialODE Double String
 exponentialODE =
     PolynomialODE $
