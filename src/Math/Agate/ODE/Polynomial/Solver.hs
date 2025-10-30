@@ -1,30 +1,30 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {- HLINT ignore "Use newtype instead of data" -}
 
 module Math.Agate.ODE.Polynomial.Solver (odeSolve, ODEParams (..), solvePetri) where
 
-import Data.Functor
-import Data.List.Extra
-import Data.Map as Map
-import Math.Agate.ODE.Polynomial
+import Data.Functor ((<&>))
+import Data.List.Extra (enumerate)
+import Data.Map.Lazy
+import Data.Map.Lazy qualified as Map
+import Math.Agate.ODE
+import Math.Agate.ODE.Polynomial (PolynomialODE)
 import Math.Agate.PetriNet
-import Math.CommutativeAlgebra.Polynomial as Poly
 
 data ODEParams k = ODEParams
     { stepSize :: k
     }
 
-odeSolve :: forall v k. (Num k, Ord v, Show v, Eq k) => PolynomialODE k v -> ODEParams k -> Map v k -> [Map v k]
-odeSolve s@(PolynomialODE p) params x0 =
-    newValues : odeSolve s params newValues
+odeSolve :: forall system k v. (ODESystem system, Field system ~ k, Var system ~ v, Ord v) => system -> ODEParams k -> Map v k -> [Map v k]
+odeSolve sys params initialValues =
+    newValues : odeSolve sys params newValues
   where
-    varList :: [(GlexPoly k v, k)]
-    varList = [(Poly.var vv, value) | (vv, value) <- Map.toList x0]
     newValues :: Map v k
-    newValues =
-        flip Map.mapWithKey p $ \v e ->
-            case Map.lookup v x0 of
-                Just e' -> e' + stepSize params * Poly.eval e varList
-                Nothing -> error "key not found"
+    newValues = flip mapWithKey initialValues $ \v k ->
+        (+) k
+            . (*) (stepSize params)
+            . eval @system (initialValues !)
+            $ derivative sys v
 
 solvePetri ::
     ( net ~ AsODE (PolynomialODE k p)
