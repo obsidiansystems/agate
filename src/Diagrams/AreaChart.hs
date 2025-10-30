@@ -12,7 +12,7 @@ data Variable = Variable
     }
 
 areaChartInner :: Double -> [Variable] -> Diagram B
-areaChartInner aspectRatio sirData =
+areaChartInner aspectRatio vars =
     scaleToX aspectRatio . scaleToY 1 . mconcat $
         zipWith
             ( \(bottom, top) Variable{colour} ->
@@ -23,13 +23,13 @@ areaChartInner aspectRatio sirData =
                     & lcA transparent
             )
             (adjacentPairs boundaries)
-            sirData
+            vars
   where
     boundaries =
         map (fromVertices . zipWith (curry p2) [0 ..])
             . mapColumns (scanl (+) 0)
             . map (\Variable{values} -> values)
-            $ sirData
+            $ vars
     adjacentPairs :: [a] -> [(a, a)]
     adjacentPairs = \case
         [] -> []
@@ -40,7 +40,7 @@ areaChartInner aspectRatio sirData =
     zipWithN f xs = getZipList $ f <$> traverse ZipList xs
 
 areaChart :: Maybe Int -> Double -> [Variable] -> Diagram B
-areaChart animated w sirData =
+areaChart animated w vars =
     maybe
         mempty
         ( \animationLength ->
@@ -51,7 +51,7 @@ areaChart animated w sirData =
         animated
         <> hsep
             0.1
-            [ named "chartInner" $ areaChartInner w sirData & centerY
+            [ named "chartInner" $ areaChartInner w vars & centerY
             , key & alignL & centerY
             ]
   where
@@ -64,7 +64,7 @@ areaChart animated w sirData =
                         ||| ((text name & scale 0.1 & font "helvetica") <> (rect 0.8 0.15 & fc whitesmoke))
                 )
             . reverse
-            $ sirData
+            $ vars
 
 -- see https://github.com/diagrams/diagrams-lib/pull/374
 catLocTrails ::
