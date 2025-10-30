@@ -13,7 +13,7 @@ instance (Ord v, Show v, Eq k, Num k) => ODESystem (PolynomialODE k v) where
     type Exp (PolynomialODE k v) = GlexPoly k v
     type Var (PolynomialODE k v) = v
     v += e = PolynomialODE (Map.singleton v e)
-    var v = Poly.var v
+    var = Poly.var
 
 instance (Ord v, Show v, Eq k, Num k) => Semigroup (PolynomialODE k v) where
     PolynomialODE m1 <> PolynomialODE m2 = PolynomialODE (Map.unionWith (+) m1 m2)

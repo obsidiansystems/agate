@@ -1,4 +1,3 @@
-{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -20,6 +19,7 @@ import Data.Fixed (E3, showFixed)
 import Data.Graph.Inductive (Gr, Node)
 import Data.GraphViz
 import Data.GraphViz.Attributes.Complete
+import Data.List.Extra (enumerate, transpose)
 import Data.Map.Lazy qualified as M
 import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Set qualified as Set
@@ -76,7 +76,6 @@ defaultDrawOpts =
         , showTransition = showFixed @E3 True . realToFrac
         , animation = Nothing
         }
-
 layoutPetri ::
     (Ord p, Ord t, Show p, Show t) =>
     LayoutOpts ->
@@ -98,7 +97,7 @@ layoutPetri LayoutOpts{aspectRatio, command} petri = layoutGraph' params command
             }
 
 drawPetri ::
-    (Ord p, Show p, PetriPlace p, Ord t, Show t) =>
+    (Bounded p, Enum p, Ord p, Show p, PetriPlace p, Ord t, Show t) =>
     DrawOpts p t ->
     Gr (AttributeNode (Vertex p t)) (AttributeNode Int) ->
     Diagram B
@@ -109,7 +108,10 @@ drawPetri drawOpts =
                 mconcat
                     [ text (placeSymbol p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
                     , circle drawOpts.placeSize & lw 0 & fc (placeColour p) & case drawOpts.animation of
-                        Just marking -> animate (TransformAnimation 15 Nothing $ ScaleAnimation $ map ((\c -> V2 c c) . sqrt) $ marking p)
+                        Just marking ->
+                            animate . TransformAnimation 15 Nothing . ScaleAnimation $
+                                map (pure @V2 . sqrt) $
+                                    normalise marking p
                         Nothing -> id
                     , circle drawOpts.placeSize & fc white
                     ]
@@ -121,16 +123,18 @@ drawPetri drawOpts =
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
-    fname = "Helvetica" -- "Latin Modern Math"
+    fname = "Helvetica"
     opts p w =
         with
             & gaps .~ local drawOpts.placeSize
             & arrowShaft .~ (unLoc . fromMaybe (error "arrow has no path") . listToMaybe $ pathTrails p)
             & headLength .~ local (0.5 * drawOpts.placeSize * fromIntegral w)
             & arrowHead .~ arrowheadThorn (150 @@ deg)
+    normalise :: (Enum p, Bounded p) => (p -> [Double]) -> p -> [Double]
+    normalise marking p = zipWith (/) (marking p) (map sum . transpose . fmap marking $ enumerate)
 
 layoutAndDrawPetri ::
-    (Ord p, Show p, PetriPlace p, Ord t, Show t) =>
+    (Bounded p, Enum p, Ord p, Show p, PetriPlace p, Ord t, Show t) =>
     LayoutOpts ->
     DrawOpts p t ->
     PetriNetImpl p t ->

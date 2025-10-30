@@ -1,7 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeOperators #-}
-
 module Math.Agate.Examples.PetriNet.Madrid (madridNet) where
 
 import Data.List.NonEmpty qualified as NE
@@ -16,7 +12,7 @@ data MadridPlace
     | S
     | W
     | NW
-    deriving (Eq, Ord, Show, PetriPlace)
+    deriving (Bounded, Enum, Eq, Ord, Show, PetriPlace)
 
 madridNet :: (Place net ~ MadridPlace, Transition net ~ Double, PetriNet net) => net
 madridNet =

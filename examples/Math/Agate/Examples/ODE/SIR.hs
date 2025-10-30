@@ -5,7 +5,7 @@ import Math.Agate.Examples.PetriNet.SIR
 import Math.Agate.ODE.Polynomial.Solver
 
 runSolverSIR :: [Map SIRPlace Double]
-runSolverSIR = solvePetri generalSIR \case
+runSolverSIR = solvePetri sir \case
     S -> 0.95
     I -> 0.05
     R -> 0
