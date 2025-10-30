@@ -80,6 +80,7 @@ allDiagramTests name net solution =
         , combinedTest
         ]
   where
+    animationLength = 15
     solverResult =
         fmap
             (takeEvery 10)
@@ -98,12 +99,12 @@ allDiagramTests name net solution =
     petriTest =
         goldenVsString "Petri" ("test/outputs/petri/" <> name <> "/petri.svg") $
             diagToSVGBS <$> layoutAndDrawPetri layoutOpts drawOpts net
-    chartTest = goldenVsString "Chart" ("test/outputs/petri/" <> name <> "/chart.svg") . pure . diagToSVGBS $ chart False
+    chartTest = goldenVsString "Chart" ("test/outputs/petri/" <> name <> "/chart.svg") . pure . diagToSVGBS $ chart Nothing
     combinedTest = goldenVsString "Combined" ("test/outputs/petri/" <> name <> "/combined.svg") do
-        petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 100 . (solverResult Map.!))} net
+        petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 100 . (solverResult Map.!), animationLength)} net
         pure
             . diagToSVGBS
             $ vcat
-                [ scaleUToX 1 $ chart True
+                [ scaleUToX 1 $ chart $ Just animationLength
                 , scaleUToX 1 petri
                 ]

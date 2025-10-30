@@ -23,7 +23,7 @@ odeSolverTests =
                 . pure
                 . diagToSVGBS
                 $ areaChart
-                    False
+                    Nothing
                     3
                     [ Variable
                         { name = "x"

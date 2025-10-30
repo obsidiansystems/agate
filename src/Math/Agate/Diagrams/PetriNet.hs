@@ -65,7 +65,7 @@ data DrawOpts p t = DrawOpts
     { placeSize :: Double
     , showPlace :: p -> String
     , showTransition :: t -> String
-    , animation :: Maybe (p -> [Double])
+    , animation :: Maybe (p -> [Double], Int)
     }
 
 defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
@@ -108,8 +108,8 @@ drawPetri drawOpts =
                 mconcat
                     [ text (placeSymbol p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
                     , circle drawOpts.placeSize & lw 0 & fc (placeColour p) & case drawOpts.animation of
-                        Just marking ->
-                            animate . TransformAnimation 15 Nothing . ScaleAnimation $
+                        Just (marking, animationLength) ->
+                            animate . TransformAnimation animationLength Nothing . ScaleAnimation $
                                 map (pure @V2 . sqrt) $
                                     normalise marking p
                         Nothing -> id

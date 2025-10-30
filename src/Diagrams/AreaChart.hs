@@ -2,7 +2,6 @@ module Diagrams.AreaChart (areaChart, Variable (..)) where
 
 import Control.Applicative
 import Data.List
-import Data.Monoid.Extra
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
 
@@ -40,14 +39,16 @@ areaChartInner aspectRatio sirData =
     zipWithN :: (Traversable t) => (t a -> b) -> t [a] -> [b]
     zipWithN f xs = getZipList $ f <$> traverse ZipList xs
 
-areaChart :: Bool -> Double -> [Variable] -> Diagram B
+areaChart :: Maybe Int -> Double -> [Variable] -> Diagram B
 areaChart animated w sirData =
-    mwhen
-        animated
-        ( animate
-            (TransformAnimation 15 Nothing $ TranslateAnimation [V2 0 0, V2 w 0])
-            (rect 0.005 1)
+    maybe
+        mempty
+        ( \animationLength ->
+            animate
+                (TransformAnimation animationLength Nothing $ TranslateAnimation [V2 0 0, V2 w 0])
+                (rect 0.005 1)
         )
+        animated
         <> hsep
             0.1
             [ named "chartInner" $ areaChartInner w sirData & centerY
