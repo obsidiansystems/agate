@@ -18,7 +18,7 @@ odeSolverTests =
             "Exponential"
             [ testCase "Checks" $ do
                 assertBool "Expected solution" (not (null runSolverExponential))
-                assertBool "Expected positivity" (all (> 0) runSolverExponential)
+                assertBool "Expected positivity" (all (> 0) $ take 10000 runSolverExponential)
             , goldenVsString "Chart" "test/outputs/ode/exponential/chart.svg"
                 . pure
                 . diagToSVGBS
@@ -28,7 +28,7 @@ odeSolverTests =
                     [ Variable
                         { name = "x"
                         , colour = green
-                        , values = takeEvery 100 runSolverExponential
+                        , values = takeEvery 100 $ take 10000 runSolverExponential
                         }
                     ]
             ]
