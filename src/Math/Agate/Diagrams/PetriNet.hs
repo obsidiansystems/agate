@@ -63,6 +63,7 @@ defaultLayoutOpts =
 
 data DrawOpts p t = DrawOpts
     { placeSize :: Double
+    , fontName :: String
     , showPlace :: p -> String
     , showTransition :: t -> String
     , animation :: Maybe (p -> [Double], Int)
@@ -72,6 +73,7 @@ defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
 defaultDrawOpts =
     DrawOpts
         { placeSize = 30
+        , fontName = "Helvetica"
         , showPlace = show
         , showTransition = showFixed @E3 True . realToFrac
         , animation = Nothing
@@ -123,7 +125,7 @@ drawPetri drawOpts =
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
-    fname = "Helvetica"
+    fname = drawOpts.fontName
     opts p w =
         with
             & gaps .~ local drawOpts.placeSize
