@@ -24,6 +24,7 @@ import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
+import Data.Maybe
 
 class GradedPoset p where
   grades :: p dot -> Map Int (Set dot)
@@ -152,3 +153,16 @@ closure ::
   p dot -> Set dot -> Set dot
 closure poset dots =
   Set.unions $ map (predecessors poset) $ Set.toList dots
+
+dimension ::
+  forall dot p.
+  (Ord dot, GradedPoset p) =>
+  p dot -> Set dot -> Int
+dimension poset dots
+  | null dots = -1
+  | otherwise = maximum $ catMaybes theGrades
+  where
+    dotsL :: [dot] = Set.toList dots
+    theGrades :: [Maybe Int] = grade poset <$> dotsL
+
+

@@ -22,6 +22,7 @@ import Math.Agate.OgPoset.OgPoset (
   buildOgPoset,
   closure,
   predecessors,
+  dimension
  )
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -54,6 +55,9 @@ ogPosetTests =
               closure poset (Set.fromList [1]) @?= Set.fromList [1]
               closure poset (Set.fromList [0, 1]) @?= Set.fromList [0, 1]
               closure poset (Set.fromList [2]) @?= Set.fromList [0, 1, 2]
+              dimension poset Set.empty @?= -1
+              dimension poset (Set.fromList [0, 1]) @?= 0
+              dimension poset (Set.fromList [2]) @?= 1
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
           case maybePoset of
@@ -138,6 +142,11 @@ ogPosetTests =
               closure poset (Set.fromList [(1, 0)]) @?= Set.fromList [(0, 0), (0, 1), (1, 0)]
               closure poset (Set.fromList [(1, 0), (1, 1)])
                 @?= Set.fromList [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1)]
+              dimension poset Set.empty @?= -1
+              dimension poset (Set.fromList [(0, 0)]) @?= 0
+              dimension poset (Set.fromList [(0, 0), (1, 1)]) @?= 1
+              dimension poset (Set.fromList [(1, 0), (1, 3)]) @?= 1
+              dimension poset (Set.fromList [(1, 0), (2, 0)]) @?= 2
        in
         testGroup
           "Constructing OgPoset's"
