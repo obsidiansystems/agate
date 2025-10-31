@@ -172,6 +172,13 @@ inboundary ::
 inboundary poset n =
   boundaryFor poset n outcofaces
 
+outboundary ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Int -> Set dot -> Set dot
+outboundary poset n =
+  boundaryFor poset n incofaces
+
 boundaryFor ::
   forall dot p.
   (Ord dot, OgPoset p) =>
