@@ -169,16 +169,23 @@ inboundary ::
   forall dot p.
   (Ord dot, OgPoset p) =>
   p dot -> Int -> Set dot -> Set dot
-inboundary poset n setU =
+inboundary poset n =
+  boundaryFor poset n outcofaces
+
+boundaryFor ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Int -> (p dot -> Map dot (Set dot)) -> Set dot -> Set dot
+boundaryFor poset n xFaces setU =
   Set.filter boundary setU
   where
-    xFaces :: Map dot (Set dot)
-    xFaces = outcofaces poset
+    faces :: Map dot (Set dot)
+    faces = xFaces poset
     doLookup :: dot -> Set dot
-    doLookup d = Map.findWithDefault Set.empty d xFaces
+    doLookup d = Map.findWithDefault Set.empty d faces
     boundary :: dot -> Bool
     boundary d =
-      (grade poset d == Just n) && Set.null (
-        Set.intersection (doLookup d) setU
-        )
+      (grade poset d == Just n) && 
+        Set.null (Set.intersection (doLookup d) setU)
+        
 
