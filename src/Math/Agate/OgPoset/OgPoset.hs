@@ -165,4 +165,20 @@ dimension poset dots
     dotsL :: [dot] = Set.toList dots
     theGrades :: [Maybe Int] = grade poset <$> dotsL
 
+inboundary ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Int -> Set dot -> Set dot
+inboundary poset n setU =
+  Set.filter boundary setU
+  where
+    xFaces :: Map dot (Set dot)
+    xFaces = outcofaces poset
+    doLookup :: dot -> Set dot
+    doLookup d = Map.findWithDefault Set.empty d xFaces
+    boundary :: dot -> Bool
+    boundary d =
+      (grade poset d == Just n) && not (
+        Set.null (Set.intersection (doLookup d) setU)
+      )
 

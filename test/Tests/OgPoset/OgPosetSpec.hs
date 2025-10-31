@@ -22,7 +22,8 @@ import Math.Agate.OgPoset.OgPoset (
   buildOgPoset,
   closure,
   predecessors,
-  dimension
+  dimension,
+  inboundary
  )
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -58,6 +59,12 @@ ogPosetTests =
               dimension poset Set.empty @?= -1
               dimension poset (Set.fromList [0, 1]) @?= 0
               dimension poset (Set.fromList [2]) @?= 1
+              let setU = Set.fromList [0]
+              closure poset setU @?= setU
+              inboundary poset 0 setU @?= Set.empty
+              inboundary poset 1 setU @?= Set.empty
+              inboundary poset 2 setU @?= Set.empty
+
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
           case maybePoset of
@@ -147,6 +154,16 @@ ogPosetTests =
               dimension poset (Set.fromList [(0, 0), (1, 1)]) @?= 1
               dimension poset (Set.fromList [(1, 0), (1, 3)]) @?= 1
               dimension poset (Set.fromList [(1, 0), (2, 0)]) @?= 2
+              let setU = Set.fromList [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2)]
+              closure poset setU @?= setU
+              inboundary poset 0 setU @?= Set.fromList [ (0, 1), (0, 2) ]
+              inboundary poset 1 setU @?= Set.empty
+              inboundary poset 2 setU @?= Set.empty
+              let setV = Set.fromList [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2)]
+              closure poset setV @?= setV
+              inboundary poset 0 setV @?= Set.fromList [ (0, 1), (0, 2) ]
+              inboundary poset 1 setV @?= Set.empty
+              inboundary poset 2 setV @?= Set.empty
        in
         testGroup
           "Constructing OgPoset's"
