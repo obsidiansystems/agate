@@ -178,7 +178,7 @@ inboundary poset n setU =
     doLookup d = Map.findWithDefault Set.empty d xFaces
     boundary :: dot -> Bool
     boundary d =
-      (grade poset d == Just n) && not (
-        Set.null (Set.intersection (doLookup d) setU)
-      )
+      (grade poset d == Just n) && Set.null (
+        Set.intersection (doLookup d) setU
+        )
 
