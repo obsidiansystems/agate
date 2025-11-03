@@ -165,18 +165,18 @@ dimension poset dots
     dotsL :: [dot] = Set.toList dots
     theGrades :: [Maybe Int] = grade poset <$> dotsL
 
-inboundary ::
+inPreBoundary ::
   forall dot p.
   (Ord dot, OgPoset p) =>
   p dot -> Int -> Set dot -> Set dot
-inboundary poset n =
+inPreBoundary poset n =
   preBoundaryFor poset n outcofaces
 
-outboundary ::
+outPreBoundary ::
   forall dot p.
   (Ord dot, OgPoset p) =>
   p dot -> Int -> Set dot -> Set dot
-outboundary poset n =
+outPreBoundary poset n =
   preBoundaryFor poset n incofaces
 
 preBoundaryFor ::

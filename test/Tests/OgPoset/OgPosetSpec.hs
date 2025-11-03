@@ -18,7 +18,7 @@ import Math.Agate.OgPoset.OgPoset (
   OgFaceTable (..), OgPoset (..),
   buildOgPoset, closure,
   predecessors, dimension,
-  inboundary, outboundary )
+  inPreBoundary, outPreBoundary )
 
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -56,12 +56,12 @@ ogPosetTests =
               dimension poset (Set.fromList [2]) @?= 1
               let setU = Set.fromList [0]
               closure poset setU @?= setU
-              inboundary poset 0 setU @?= Set.fromList [ 0 ]
-              inboundary poset 1 setU @?= Set.empty
-              inboundary poset 2 setU @?= Set.empty
-              outboundary poset 0 setU @?= Set.fromList [ 0 ]
-              outboundary poset 1 setU @?= Set.empty
-              outboundary poset 2 setU @?= Set.empty
+              inPreBoundary poset 0 setU @?= Set.fromList [ 0 ]
+              inPreBoundary poset 1 setU @?= Set.empty
+              inPreBoundary poset 2 setU @?= Set.empty
+              outPreBoundary poset 0 setU @?= Set.fromList [ 0 ]
+              outPreBoundary poset 1 setU @?= Set.empty
+              outPreBoundary poset 2 setU @?= Set.empty
 
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
@@ -154,28 +154,28 @@ ogPosetTests =
               dimension poset (Set.fromList [(1, 0), (2, 0)]) @?= 2
               let setU = Set.fromList [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2)]
               closure poset setU @?= setU
-              inboundary poset 0 setU @?= Set.fromList [ (0, 0) ]
-              inboundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
-              inboundary poset 2 setU @?= Set.empty
-              outboundary poset 0 setU @?= Set.fromList [ (0, 2) ]
-              outboundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
-              outboundary poset 2 setU @?= Set.empty
+              inPreBoundary poset 0 setU @?= Set.fromList [ (0, 0) ]
+              inPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
+              inPreBoundary poset 2 setU @?= Set.empty
+              outPreBoundary poset 0 setU @?= Set.fromList [ (0, 2) ]
+              outPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
+              outPreBoundary poset 2 setU @?= Set.empty
               let setV = Set.fromList [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2)]
               closure poset setV @?= setV
-              inboundary poset 0 setV @?= Set.fromList [ (0, 0) ]
-              inboundary poset 1 setV @?= Set.fromList [ (1, 0), (1, 3) ]
-              inboundary poset 2 setV @?= Set.empty
-              outboundary poset 0 setV @?= Set.fromList [(0, 1), (0, 2) ]
-              outboundary poset 1 setV @?= Set.fromList [ (1, 0), (1, 3) ]
-              outboundary poset 2 setV @?= Set.empty
+              inPreBoundary poset 0 setV @?= Set.fromList [ (0, 0) ]
+              inPreBoundary poset 1 setV @?= Set.fromList [ (1, 0), (1, 3) ]
+              inPreBoundary poset 2 setV @?= Set.empty
+              outPreBoundary poset 0 setV @?= Set.fromList [(0, 1), (0, 2) ]
+              outPreBoundary poset 1 setV @?= Set.fromList [ (1, 0), (1, 3) ]
+              outPreBoundary poset 2 setV @?= Set.empty
               let setW = Set.fromList [ (2, 0), (1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
               closure poset setW @?= setW
-              inboundary poset 0 setW @?= Set.fromList [ (0, 0), (0, 3) ]
-              inboundary poset 1 setW @?= Set.fromList [ (1, 0), (1, 1) ]
-              inboundary poset 2 setW @?= Set.fromList [ (2, 0) ]
-              outboundary poset 0 setW @?= Set.fromList [ (0, 2), (0, 3) ]
-              outboundary poset 1 setW @?= Set.fromList [ (1, 3) ]
-              outboundary poset 2 setW @?= Set.fromList [ (2, 0) ]
+              inPreBoundary poset 0 setW @?= Set.fromList [ (0, 0), (0, 3) ]
+              inPreBoundary poset 1 setW @?= Set.fromList [ (1, 0), (1, 1) ]
+              inPreBoundary poset 2 setW @?= Set.fromList [ (2, 0) ]
+              outPreBoundary poset 0 setW @?= Set.fromList [ (0, 2), (0, 3) ]
+              outPreBoundary poset 1 setW @?= Set.fromList [ (1, 3) ]
+              outPreBoundary poset 2 setW @?= Set.fromList [ (2, 0) ]
        in
         testGroup
           "Constructing OgPoset's"
