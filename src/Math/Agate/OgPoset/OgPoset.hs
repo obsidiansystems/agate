@@ -170,20 +170,20 @@ inboundary ::
   (Ord dot, OgPoset p) =>
   p dot -> Int -> Set dot -> Set dot
 inboundary poset n =
-  boundaryFor poset n outcofaces
+  preBoundaryFor poset n outcofaces
 
 outboundary ::
   forall dot p.
   (Ord dot, OgPoset p) =>
   p dot -> Int -> Set dot -> Set dot
 outboundary poset n =
-  boundaryFor poset n incofaces
+  preBoundaryFor poset n incofaces
 
-boundaryFor ::
+preBoundaryFor ::
   forall dot p.
   (Ord dot, OgPoset p) =>
   p dot -> Int -> (p dot -> Map dot (Set dot)) -> Set dot -> Set dot
-boundaryFor poset n xFaces setU =
+preBoundaryFor poset n xFaces setU =
   Set.filter boundary setU
   where
     faces :: Map dot (Set dot)
