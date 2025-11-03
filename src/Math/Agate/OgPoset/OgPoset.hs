@@ -195,4 +195,14 @@ preBoundaryFor poset n xFaces setU =
       (grade poset d == Just n) && 
         Set.null (Set.intersection (doLookup d) setU)
         
-
+maximals :: 
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Set dot -> Set dot
+maximals poset set =
+  Set.filter maximal set
+  where
+    maximal :: dot -> Bool
+    maximal x =
+      (null $ Set.intersection set (Map.findWithDefault Set.empty x (incofaces poset)))
+      && (null $ Set.intersection set (Map.findWithDefault Set.empty x (outcofaces poset)))

@@ -18,7 +18,7 @@ import Math.Agate.OgPoset.OgPoset (
   OgFaceTable (..), OgPoset (..),
   buildOgPoset, closure,
   predecessors, dimension,
-  inPreBoundary, outPreBoundary )
+  inPreBoundary, outPreBoundary, maximals )
 
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -64,7 +64,11 @@ ogPosetTests =
               outPreBoundary poset 0 setU @?= Set.fromList [ 0 ]
               outPreBoundary poset 1 setU @?= Set.empty
               outPreBoundary poset 2 setU @?= Set.empty
-              -- maximals poset setU @?= setU
+              maximals poset setU @?= setU
+              maximals poset Set.empty @?= Set.empty
+              maximals poset (Set.fromList [0, 1, 2]) @?= Set.fromList [2]
+              maximals poset (Set.fromList [0, 1]) @?= Set.fromList [0, 1]
+              maximals poset (Set.fromList [0, 2]) @?= Set.fromList [2]
 
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
