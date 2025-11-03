@@ -36,9 +36,11 @@ ogPosetTests =
             Left err -> assertFailure $ "Failed to create OgPoset: " ++ show err
             Right poset -> do
               grades poset @?= Map.fromList [(0, Set.fromList [0, 1]), (1, Set.fromList [2])]
-              grade poset 0 @?= Just 0
-              grade poset 1 @?= Just 0
-              grade poset 2 @?= Just 1
+              (grade poset <$> [0, 1, 2]) @??= (Just <$> [0, 0, 1])
+              -- for_ [0, 1, 2, 3] (\n -> grade poset n @?= Just 
+              -- grade poset 0 @?= Just 0
+              -- grade poset 1 @?= Just 0
+              -- grade poset 2 @?= Just 1
               infaces poset @?= Map.fromList [(0, Set.empty), (1, Set.empty), (2, Set.fromList [0])]
               outfaces poset @?= Map.fromList [(0, Set.empty), (1, Set.empty), (2, Set.fromList [1])]
               incofaces poset @?= Map.fromList [(0, Set.fromList [2]), (1, Set.empty), (2, Set.empty)]
@@ -62,6 +64,7 @@ ogPosetTests =
               outPreBoundary poset 0 setU @?= Set.fromList [ 0 ]
               outPreBoundary poset 1 setU @?= Set.empty
               outPreBoundary poset 2 setU @?= Set.empty
+              -- maximals poset setU @?= setU
 
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
@@ -214,3 +217,6 @@ verifyXFaces xfaces expectedValues =
  where
   expectedMap :: (Map FancyInt (Set FancyInt)) =
     Set.fromList <$> Map.fromList expectedValues
+
+(@??=) :: (Eq a, Show a) => [a] -> [a] -> Assertion
+as @??= bs = for_ (zip as bs) (uncurry (@?=))
