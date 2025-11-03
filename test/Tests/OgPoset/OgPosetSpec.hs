@@ -16,9 +16,8 @@ import Math.Agate.OgPoset.OgPoset (
   AddFaceException (..), GradedPoset (..),
   HasCofaces (..), HasFaces (..),
   OgFaceTable (..), OgPoset (..),
-  buildOgPoset, closure,
-  predecessors, dimension,
-  inPreBoundary, outPreBoundary, maximals )
+  buildOgPoset, closure,  predecessors, dimension,  inPreBoundary, 
+  outPreBoundary, maximals, level )
 
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -73,6 +72,9 @@ ogPosetTests =
               maximals poset (Set.fromList [0, 1, 2]) @?= Set.fromList [2]
               maximals poset (Set.fromList [0, 1]) @?= Set.fromList [0, 1]
               maximals poset (Set.fromList [0, 2]) @?= Set.fromList [2]
+              level poset 0 (Set.fromList [0, 2]) @?= Set.fromList [0]
+              level poset 1 (Set.fromList [0, 2]) @?= Set.fromList [2]
+              level poset 2 (Set.fromList [0, 2]) @?= Set.fromList []
 
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
@@ -165,9 +167,13 @@ ogPosetTests =
               dimension poset (Set.fromList [(1, 0), (2, 0)]) @?= 2
               let setU = Set.fromList [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2)]
               closure poset setU @?= setU
+              inPreBoundary poset (-1) setU @?= Set.empty     
+              inPreBoundary poset (-2) setU @?= Set.empty              
               inPreBoundary poset 0 setU @?= Set.fromList [ (0, 0) ]
               inPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
               inPreBoundary poset 2 setU @?= Set.empty
+              outPreBoundary poset (-1) setU @?= Set.empty     
+              outPreBoundary poset (-2) setU @?= Set.empty              
               outPreBoundary poset 0 setU @?= Set.fromList [ (0, 2) ]
               outPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
               outPreBoundary poset 2 setU @?= Set.empty
@@ -187,6 +193,9 @@ ogPosetTests =
               outPreBoundary poset 0 setW @?= Set.fromList [ (0, 2), (0, 3) ]
               outPreBoundary poset 1 setW @?= Set.fromList [ (1, 3) ]
               outPreBoundary poset 2 setW @?= Set.fromList [ (2, 0) ]
+              level poset 0 setW @?= Set.fromList [ (0, 0), (0, 1), (0, 2), (0, 3) ]
+              level poset 1 setW @?= Set.fromList [ (1, 0), (1, 1), (1, 3) ]
+              level poset 2 setW @?= Set.fromList [ (2, 0) ]
        in
         testGroup
           "Constructing OgPoset's"

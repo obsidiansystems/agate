@@ -209,3 +209,10 @@ maximals poset set =
       disjoint :: (p dot -> Map dot (Set dot)) -> Bool
       disjoint xFaces =
         null $ Set.intersection set $ Map.findWithDefault Set.empty x $ xFaces poset
+
+level ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Int -> Set dot -> Set dot
+level poset n =
+  Set.filter (\x -> grade poset x == Just n)
