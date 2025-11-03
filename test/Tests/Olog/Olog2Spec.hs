@@ -7,16 +7,12 @@
 
 module Tests.Olog.Olog2Spec where
 
-import Data.Either (isRight)
 import Math.Agate.Olog.Olog2 (Arrow (..), Path (..), identityPath, toPath, 
-    (~), PathException(..), Relator(..), (===), RelatorException(..),
+    (~), Relator(..), (===), RelatorException(..),
     Olog(..), makeOlog, makeOlogWithExtras )
 import Test.Tasty
 import Test.Tasty.HUnit
-import GHC.Generics (Selector)
 import Control.Exception
-import System.Exit
-import Control.Monad.IO.Class (MonadIO(liftIO))
 import Data.Functor.Identity
 import Data.Set
 
