@@ -89,8 +89,9 @@ library agate-examples
         Math.Agate.Examples.ODE.SIS
         Math.Agate.Examples.ODE.SIWR
         Math.Agate.Examples.ODE.Exponential
-    build-depends: agate
-    hs-source-dirs: examples
+        Math.Agate.Examples.ODE.Rossler
+    build-depends:    agate
+    hs-source-dirs:   examples
 
 test-suite agate-test
     import: common
