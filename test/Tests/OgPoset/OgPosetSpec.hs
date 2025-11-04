@@ -17,7 +17,7 @@ import Math.Agate.OgPoset.OgPoset (
   HasCofaces (..), HasFaces (..),
   OgFaceTable (..), OgPoset (..),
   buildOgPoset, closure,  predecessors, dimension,  inPreBoundary,
-  outPreBoundary, maximals, level )
+  outPreBoundary, maximals, level, elements )
 -- import Debug.Trace
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -76,7 +76,7 @@ ogPosetTests =
               level poset 1 (Set.fromList [0, 2]) @?= Set.fromList [2]
               level poset 2 (Set.fromList [0, 2]) @?= Set.fromList []
               verify_14_2 poset setU
-
+              elements poset @?= Set.fromList [ 0, 1, 2 ]
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
           case maybePoset of
@@ -200,6 +200,11 @@ ogPosetTests =
               level poset 1 setW @?= Set.fromList [ (1, 0), (1, 1), (1, 3) ]
               level poset 2 setW @?= Set.fromList [ (2, 0) ]
               verify_14_2 poset setW
+              elements poset @?= Set.fromList [
+                (0, 0), (0, 1), (0, 2), (0, 3),
+                (1, 0), (1, 1), (1, 2), (1, 3),
+                (2, 0)
+                ]
        in
         testGroup
           "Constructing OgPoset's"

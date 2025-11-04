@@ -216,3 +216,10 @@ level ::
   p dot -> Int -> Set dot -> Set dot
 level poset n =
   Set.filter (\x -> grade poset x == Just n)
+
+elements ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Set dot
+elements poset =
+  Set.unions $ Map.elems $ grades poset
