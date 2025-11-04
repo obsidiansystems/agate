@@ -4,7 +4,7 @@ import Data.Map (Map)
 import Math.Agate.Examples.PetriNet.SIWR
 import Math.Agate.ODE.Polynomial.Solver
 
--- | SIWR model take from [this](https://arxiv.org/pdf/2206.03269) paper
+-- | SIWR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 runSolverSIWR :: [Map SIWRPlace Double]
 runSolverSIWR = solvePetri siwr \case
     S -> 0.95

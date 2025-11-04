@@ -4,7 +4,7 @@ import Data.Map (Map)
 import Math.Agate.Examples.PetriNet.SEAIR
 import Math.Agate.ODE.Polynomial.Solver
 
--- | SEAIR model take from [this](https://arxiv.org/pdf/2206.03269) paper
+-- | SEAIR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 runSolverSEAIR :: [Map SEAIRPlace Double]
 runSolverSEAIR = solvePetri seair \case
     S -> 0.95
