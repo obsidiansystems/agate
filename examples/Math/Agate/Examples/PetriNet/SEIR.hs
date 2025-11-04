@@ -23,6 +23,7 @@ instance PetriPlace SEIRPlace where
         I -> "infected"
         R -> "recovered"
 
+-- | SEIR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 seir :: (Place net ~ SEIRPlace, Fractional (Transition net), PetriNet net) => net
 seir =
     mconcat

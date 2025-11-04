@@ -23,6 +23,7 @@ instance PetriPlace SCIRPlace where
         I -> "infected"
         R -> "recovered"
 
+-- | SCIR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 scir :: (Place net ~ SCIRPlace, Fractional (Transition net), PetriNet net) => net
 scir =
     mconcat

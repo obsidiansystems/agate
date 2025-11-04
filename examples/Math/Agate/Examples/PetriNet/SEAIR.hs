@@ -26,6 +26,7 @@ instance PetriPlace SEAIRPlace where
         I -> "infected"
         R -> "recovered"
 
+-- | SEAIR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 seair :: (Place net ~ SEAIRPlace, Fractional (Transition net), PetriNet net) => net
 seair =
     mconcat

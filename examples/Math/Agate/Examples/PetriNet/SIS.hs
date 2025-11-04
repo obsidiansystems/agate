@@ -16,6 +16,7 @@ instance PetriPlace SISPlace where
         S -> "susceptible"
         I -> "infected"
 
+-- | SIS model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 sis :: (Place net ~ SISPlace, Fractional (Transition net), PetriNet net) => net
 sis =
     mconcat

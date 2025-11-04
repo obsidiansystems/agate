@@ -22,6 +22,7 @@ instance PetriPlace SIWRPlace where
         W -> "water"
         R -> "recovered"
 
+-- | SIWR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 siwr :: (Place net ~ SIWRPlace, Fractional (Transition net), PetriNet net) => net
 siwr =
     mconcat

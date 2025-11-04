@@ -19,6 +19,7 @@ instance PetriPlace SIRSPlace where
         I -> "infected"
         R -> "recovered"
 
+-- | SIRS model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 sirs :: (Place net ~ SIRSPlace, Fractional (Transition net), PetriNet net) => net
 sirs =
     mconcat
