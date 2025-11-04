@@ -77,7 +77,14 @@ ogPosetTests =
               level poset 1 (Set.fromList [0, 2]) @?= Set.fromList [2]
               level poset 2 (Set.fromList [0, 2]) @?= Set.fromList []
               verify_14_2 poset setU
-              elements poset @?= Set.fromList [ 0, 1, 2 ]
+              let setX = elements poset
+              setX @?= Set.fromList [ 0, 1, 2 ]
+              let inBdrU :: Int -> Set Int = (\n -> inBoundary poset n (elements poset))
+              let outBdrU :: Int -> Set Int = (\n -> outBoundary poset n (elements poset))
+              inBdrU 0 @?= Set.fromList [ 0 ]
+              inBdrU 1 @?= setX
+              outBdrU 0 @?= Set.fromList [ 1 ]
+              outBdrU 1 @?= setX
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
           case maybePoset of
@@ -211,8 +218,10 @@ ogPosetTests =
               let outBdrU :: Int -> Set FancyInt = (\n -> outBoundary poset n (elements poset))
               inBdrU 0 @?= Set.fromList [ (0, 0) ]
               inBdrU 1 @?= Set.fromList [ (0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2) ]
+              inBdrU 2 @?= setX
               outBdrU 0 @?= Set.fromList [ (0, 3) ]
               outBdrU 1 @?= Set.fromList [ (0, 0), (0, 2), (0, 3), (1, 2), (1, 3) ]
+              outBdrU 2 @?= setX
        in
         testGroup
           "Constructing OgPoset's"
