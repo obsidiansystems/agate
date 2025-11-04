@@ -195,6 +195,36 @@ preBoundaryFor poset n xFaces setU =
       (grade poset d == Just n) &&
         Set.null (Set.intersection (doLookup d) setU)
 
+inBoundary ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Int -> Set dot -> Set dot
+inBoundary poset n =
+  boundaryFor poset n inPreBoundary
+
+outBoundary ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Int -> Set dot -> Set dot
+outBoundary poset n =
+  boundaryFor poset n outPreBoundary
+
+boundaryFor ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Int -> (p dot -> Int -> Set dot -> Set dot) -> Set dot -> Set dot
+boundaryFor poset n xPreBoundary setU =
+  Set.unions $ closure poset <$> (
+    preBdr : maxClosures)
+  where
+    preBdr :: Set dot =
+      xPreBoundary poset n setU
+    maxU :: Set dot =
+      maximals poset setU
+    maxClosures :: [Set dot] =
+      (\k -> level poset k maxU)
+        <$> [0..(n-1)]
+
 maximals ::
   forall dot p.
   (Ord dot, OgPoset p) =>
