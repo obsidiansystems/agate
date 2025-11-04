@@ -1,6 +1,8 @@
 module TestUtils where
 
 import Data.ByteString.Lazy (ByteString)
+import Data.List.Extra
+import Data.Maybe
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Diagrams.Backend.SVG
 import Diagrams.Prelude hiding (outer)
@@ -19,3 +21,7 @@ diagToSVGBS =
                 []
                 True
             )
+
+-- | Samples every n'th element. Argument must be positive.
+takeEvery :: Int -> [a] -> [a]
+takeEvery n = map (fromMaybe (error "takeEvery: empty chunk") . listToMaybe) . chunksOf n

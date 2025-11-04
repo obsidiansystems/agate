@@ -50,7 +50,7 @@ common common
         text,
 
 library
-    import:           common
+    import: common
     exposed-modules:
         Diagrams.AreaChart
         Math.Agate.Algol
@@ -81,24 +81,32 @@ library agate-examples
         Math.Agate.Examples.PetriNet.Colours
         Math.Agate.Examples.PetriNet.Madrid
         Math.Agate.Examples.PetriNet.Malthusian
+        Math.Agate.Examples.PetriNet.SCIR
         Math.Agate.Examples.PetriNet.SEIR
+        Math.Agate.Examples.PetriNet.SEAIR
         Math.Agate.Examples.PetriNet.SIR
         Math.Agate.Examples.PetriNet.SIRD
+        Math.Agate.Examples.PetriNet.SIRS
         Math.Agate.Examples.PetriNet.SIS
+        Math.Agate.Examples.PetriNet.SIWR
         Math.Agate.Examples.ODE.Malthusian
+        Math.Agate.Examples.ODE.SCIR
         Math.Agate.Examples.ODE.SEIR
+        Math.Agate.Examples.ODE.SEAIR
         Math.Agate.Examples.ODE.SIR
         Math.Agate.Examples.ODE.SIRD
+        Math.Agate.Examples.ODE.SIRS
         Math.Agate.Examples.ODE.SIS
+        Math.Agate.Examples.ODE.SIWR
         Math.Agate.Examples.ODE.Exponential
-    build-depends:    agate
-    hs-source-dirs:   examples
+    build-depends: agate
+    hs-source-dirs: examples
 
 test-suite agate-test
-    import:           common
-    type:             exitcode-stdio-1.0
-    hs-source-dirs:   test
-    main-is:          Main.hs
+    import: common
+    type: exitcode-stdio-1.0
+    hs-source-dirs: test
+    main-is: Main.hs
     other-modules:
         TestUtils,
         Tests.ODE.Solver,

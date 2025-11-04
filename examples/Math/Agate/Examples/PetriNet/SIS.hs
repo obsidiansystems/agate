@@ -1,9 +1,8 @@
 module Math.Agate.Examples.PetriNet.SIS where
 
 import Math.Agate.Diagrams.PetriNet
+import Math.Agate.Examples.PetriNet.Colours qualified as Colours
 import Math.Agate.PetriNet
-import qualified Math.Agate.Examples.PetriNet.Colours as Colours
-
 
 data SISPlace
     = S
@@ -17,6 +16,7 @@ instance PetriPlace SISPlace where
         S -> "susceptible"
         I -> "infected"
 
+-- | SIS model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 sis :: (Place net ~ SISPlace, Fractional (Transition net), PetriNet net) => net
 sis =
     mconcat

@@ -6,7 +6,7 @@ import Math.Agate.ODE.Polynomial (PolynomialODE (..))
 import Math.Agate.ODE.Polynomial.Solver
 import Math.CommutativeAlgebra.Polynomial qualified as Poly
 
--- simple ODE example where x' = x
+-- | Simple ODE example where x' = x
 exponentialODE :: PolynomialODE Double String
 exponentialODE =
     PolynomialODE $
@@ -18,4 +18,6 @@ exponentialODE =
 
 runSolverExponential :: [Double]
 runSolverExponential =
-    mapMaybe (Map.lookup "x") (Prelude.take 10000 (odeSolve exponentialODE (ODEParams 0.0001) (Map.fromList [("x", 1)])))
+    mapMaybe (Map.lookup "x")
+        . odeSolve exponentialODE (ODEParams 0.0001)
+        $ Map.fromList [("x", 1)]

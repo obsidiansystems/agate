@@ -2,8 +2,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-{- HLINT ignore "Use newtype instead of data" -}
-
 module Math.Agate.Diagrams.PetriNet (
     PetriPlace (..),
     layoutPetri,
@@ -63,15 +61,17 @@ defaultLayoutOpts =
 
 data DrawOpts p t = DrawOpts
     { placeSize :: Double
+    , fontName :: String
     , showPlace :: p -> String
     , showTransition :: t -> String
-    , animation :: Maybe (p -> [Double])
+    , animation :: Maybe (p -> [Double], Int)
     }
 
 defaultDrawOpts :: (Show p, Show t, Real t) => DrawOpts p t
 defaultDrawOpts =
     DrawOpts
         { placeSize = 30
+        , fontName = "Helvetica"
         , showPlace = show
         , showTransition = showFixed @E3 True . realToFrac
         , animation = Nothing
@@ -108,8 +108,8 @@ drawPetri drawOpts =
                 mconcat
                     [ text (placeSymbol p) & font fname & fontSizeL (drawOpts.placeSize * (2 / 3)) & fc black
                     , circle drawOpts.placeSize & lw 0 & fc (placeColour p) & case drawOpts.animation of
-                        Just marking ->
-                            animate . TransformAnimation 15 Nothing . ScaleAnimation $
+                        Just (marking, animationLength) ->
+                            animate . TransformAnimation animationLength Nothing . ScaleAnimation $
                                 map (pure @V2 . sqrt) $
                                     normalise marking p
                         Nothing -> id
@@ -123,7 +123,7 @@ drawPetri drawOpts =
         )
         (\_ p1 _ p2 w p -> arrowBetween' (opts p w) p1 p2)
   where
-    fname = "Helvetica"
+    fname = drawOpts.fontName
     opts p w =
         with
             & gaps .~ local drawOpts.placeSize
