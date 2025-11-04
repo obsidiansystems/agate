@@ -16,9 +16,9 @@ import Math.Agate.OgPoset.OgPoset (
   AddFaceException (..), GradedPoset (..),
   HasCofaces (..), HasFaces (..),
   OgFaceTable (..), OgPoset (..),
-  buildOgPoset, closure,  predecessors, dimension,  inPreBoundary, 
+  buildOgPoset, closure,  predecessors, dimension,  inPreBoundary,
   outPreBoundary, maximals, level )
-
+-- import Debug.Trace
 import Test.Tasty
 import Test.Tasty.HUnit
 
@@ -75,6 +75,7 @@ ogPosetTests =
               level poset 0 (Set.fromList [0, 2]) @?= Set.fromList [0]
               level poset 1 (Set.fromList [0, 2]) @?= Set.fromList [2]
               level poset 2 (Set.fromList [0, 2]) @?= Set.fromList []
+              verify_14_2 poset setU
 
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
@@ -167,16 +168,17 @@ ogPosetTests =
               dimension poset (Set.fromList [(1, 0), (2, 0)]) @?= 2
               let setU = Set.fromList [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2)]
               closure poset setU @?= setU
-              inPreBoundary poset (-1) setU @?= Set.empty     
-              inPreBoundary poset (-2) setU @?= Set.empty              
+              inPreBoundary poset (-1) setU @?= Set.empty
+              inPreBoundary poset (-2) setU @?= Set.empty
               inPreBoundary poset 0 setU @?= Set.fromList [ (0, 0) ]
               inPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
               inPreBoundary poset 2 setU @?= Set.empty
-              outPreBoundary poset (-1) setU @?= Set.empty     
-              outPreBoundary poset (-2) setU @?= Set.empty              
+              outPreBoundary poset (-1) setU @?= Set.empty
+              outPreBoundary poset (-2) setU @?= Set.empty
               outPreBoundary poset 0 setU @?= Set.fromList [ (0, 2) ]
               outPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
               outPreBoundary poset 2 setU @?= Set.empty
+              verify_14_2 poset setU
               let setV = Set.fromList [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2)]
               closure poset setV @?= setV
               inPreBoundary poset 0 setV @?= Set.fromList [ (0, 0) ]
@@ -185,6 +187,7 @@ ogPosetTests =
               outPreBoundary poset 0 setV @?= Set.fromList [(0, 1), (0, 2) ]
               outPreBoundary poset 1 setV @?= Set.fromList [ (1, 0), (1, 3) ]
               outPreBoundary poset 2 setV @?= Set.empty
+              verify_14_2 poset setV
               let setW = Set.fromList [ (2, 0), (1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
               closure poset setW @?= setW
               inPreBoundary poset 0 setW @?= Set.fromList [ (0, 0), (0, 3) ]
@@ -196,6 +199,7 @@ ogPosetTests =
               level poset 0 setW @?= Set.fromList [ (0, 0), (0, 1), (0, 2), (0, 3) ]
               level poset 1 setW @?= Set.fromList [ (1, 0), (1, 1), (1, 3) ]
               level poset 2 setW @?= Set.fromList [ (2, 0) ]
+              verify_14_2 poset setW
        in
         testGroup
           "Constructing OgPoset's"
@@ -237,3 +241,23 @@ verifyXFaces xfaces expectedValues =
 
 (@??=) :: (Eq a, Show a) => [a] -> [a] -> Assertion
 as @??= bs = for_ (zip as bs) (uncurry (@?=))
+
+verify_14_2 :: forall dot p. (Ord dot, Show dot, OgPoset p) =>
+  p dot -> Set dot -> Assertion
+verify_14_2 poset setU =
+  for_ [0..3] (\n ->
+    let
+      lhsIn = inPreBoundary poset n setU
+      lhsOut = outPreBoundary poset n setU
+      theIntersection = Set.intersection lhsIn lhsOut
+      maxU_n = level poset n maxU
+    in -- do
+      -- trace ("testing: " <> show n <>
+      --   "\nsetU = " <> (show setU) <>
+      --   "\ntheIntersection = " <> (show theIntersection) <>
+      --   "\nmaxU_n = " <> (show maxU_n)
+      --   ) (True @?= True)
+      theIntersection @?= maxU_n
+    )
+  where
+    maxU = maximals poset setU
