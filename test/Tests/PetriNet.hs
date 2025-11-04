@@ -10,16 +10,24 @@ import Diagrams.AreaChart
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.Examples.ODE.Malthusian
+import Math.Agate.Examples.ODE.SCIR
+import Math.Agate.Examples.ODE.SEAIR
 import Math.Agate.Examples.ODE.SEIR
 import Math.Agate.Examples.ODE.SIR
 import Math.Agate.Examples.ODE.SIRD
+import Math.Agate.Examples.ODE.SIRS
 import Math.Agate.Examples.ODE.SIS
+import Math.Agate.Examples.ODE.SIWR
 import Math.Agate.Examples.PetriNet.Madrid
 import Math.Agate.Examples.PetriNet.Malthusian
+import Math.Agate.Examples.PetriNet.SCIR
+import Math.Agate.Examples.PetriNet.SEAIR
 import Math.Agate.Examples.PetriNet.SEIR
 import Math.Agate.Examples.PetriNet.SIR
 import Math.Agate.Examples.PetriNet.SIRD
+import Math.Agate.Examples.PetriNet.SIRS
 import Math.Agate.Examples.PetriNet.SIS
+import Math.Agate.Examples.PetriNet.SIWR
 import Math.Agate.PetriNet
 import Test.Tasty
 import Test.Tasty.Golden
@@ -44,6 +52,9 @@ petriTests =
             "SIRD"
             [allDiagramTests "sird" sird runSolverSIRD]
         , testGroup
+            "SIRS"
+            [allDiagramTests "sirs" sirs runSolverSIRS]
+        , testGroup
             "SIS"
             [allDiagramTests "sis" sis runSolverSIS]
         , testGroup
@@ -52,6 +63,15 @@ petriTests =
         , testGroup
             "SEIR"
             [allDiagramTests "seir" seir runSolverSEIR]
+        , testGroup
+            "SEAIR"
+            [allDiagramTests "seair" seair runSolverSEAIR]
+        , testGroup
+            "SCIR"
+            [allDiagramTests "scir" scir runSolverSCIR]
+        , testGroup
+            "SIWR"
+            [allDiagramTests "siwr" siwr runSolverSIWR]
         , testGroup
             "Madrid"
             [ testGroup

@@ -1,7 +1,7 @@
 module Math.Agate.Examples.PetriNet.Malthusian where
 
-import Math.Agate.Diagrams.PetriNet
 import Diagrams.Prelude
+import Math.Agate.Diagrams.PetriNet
 import Math.Agate.PetriNet
 
 data MalthusianPlace = N
@@ -11,7 +11,8 @@ instance PetriPlace MalthusianPlace where
     placeName N = "population"
 
 malthusian :: (Place net ~ MalthusianPlace, Fractional (Transition net), PetriNet net) => net
-malthusian = mconcat
+malthusian =
+    mconcat
         [ transition [] alpha [N]
         , transition [N] mu []
         ]

@@ -1,41 +1,50 @@
-module Math.Agate.Examples.PetriNet.SEIR where
+module Math.Agate.Examples.PetriNet.SEAIR where
 
 import Data.List.Extra (enumerate)
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.Examples.PetriNet.Colours qualified as Colours
 import Math.Agate.PetriNet
 
-data SEIRPlace
+data SEAIRPlace
     = S
     | E
+    | A
     | I
     | R
     deriving (Show, Eq, Ord, Enum, Bounded)
-instance PetriPlace SEIRPlace where
+instance PetriPlace SEAIRPlace where
     placeColour = \case
         S -> Colours.susceptible
         E -> Colours.exposed
+        A -> Colours.asymptomatic
         I -> Colours.infected
         R -> Colours.recovered
     placeName = \case
         S -> "susceptible"
         E -> "exposed"
+        A -> "asymptomatic"
         I -> "infected"
         R -> "recovered"
 
--- | SEIR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
-seir :: (Place net ~ SEIRPlace, Fractional (Transition net), PetriNet net) => net
-seir =
+-- | SEAIR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
+seair :: (Place net ~ SEAIRPlace, Fractional (Transition net), PetriNet net) => net
+seair =
     mconcat
         [ transition [] birth [S]
         , mconcat [transition [place] mortality [] | place <- enumerate]
         , transition [S, I] transmission [E, I]
-        , transition [E] incubation [I]
-        , transition [I] recovery [R]
+        , transition [S, A] (q * transmission) [E, A]
+        , transition [E] (p * incubation) [I]
+        , transition [E] ((1 - p) * incubation) [A]
+        , transition [I] recoveryI [R]
+        , transition [A] recoveryA [R]
         ]
   where
     birth = 0.1
     mortality = 0.05
-    transmission = 1 -- 0.4
-    recovery = 0.3
+    transmission = 1
+    p = 0.5
+    q = 0.7
+    recoveryI = 0.3
+    recoveryA = 0.2
     incubation = 0.05

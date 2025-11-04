@@ -2,8 +2,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-{- HLINT ignore "Use newtype instead of data" -}
-
 module Math.Agate.Diagrams.PetriNet (
     PetriPlace (..),
     layoutPetri,
