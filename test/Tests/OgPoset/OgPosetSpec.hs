@@ -81,8 +81,12 @@ ogPosetTests =
               setX @?= Set.fromList [ 0, 1, 2 ]
               let inBdrU :: Int -> Set Int = (\n -> inBoundary poset n (elements poset))
               let outBdrU :: Int -> Set Int = (\n -> outBoundary poset n (elements poset))
+              inBdrU (-2) @?= Set.empty
+              inBdrU (-1) @?= Set.empty
               inBdrU 0 @?= Set.fromList [ 0 ]
               inBdrU 1 @?= setX
+              outBdrU (-2) @?= Set.empty
+              outBdrU (-1) @?= Set.empty
               outBdrU 0 @?= Set.fromList [ 1 ]
               outBdrU 1 @?= setX
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
@@ -216,9 +220,13 @@ ogPosetTests =
                 ]
               let inBdrU :: Int -> Set FancyInt = (\n -> inBoundary poset n (elements poset))
               let outBdrU :: Int -> Set FancyInt = (\n -> outBoundary poset n (elements poset))
+              inBdrU (-2) @?= Set.empty
+              inBdrU (-1) @?= Set.empty
               inBdrU 0 @?= Set.fromList [ (0, 0) ]
               inBdrU 1 @?= Set.fromList [ (0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2) ]
               inBdrU 2 @?= setX
+              outBdrU (-2) @?= Set.empty
+              outBdrU (-1) @?= Set.empty
               outBdrU 0 @?= Set.fromList [ (0, 3) ]
               outBdrU 1 @?= Set.fromList [ (0, 0), (0, 2), (0, 3), (1, 2), (1, 3) ]
               outBdrU 2 @?= setX
