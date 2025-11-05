@@ -25,6 +25,7 @@ import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 import Data.Maybe
+import Data.List
 
 class GradedPoset p where
   grades :: p dot -> Map Int (Set dot)
@@ -256,7 +257,7 @@ elements poset =
 
 sublists :: forall a.[a] -> [[a]]
 sublists []  = [[]]
-sublists (x:xs) = 
+sublists (x:xs) =
   recursed ++ map (x:) recursed
   where
     recursed :: [[a]]
@@ -267,4 +268,9 @@ closedSubsets ::
   (Ord dot, OgPoset p) =>
   p dot -> Set (Set dot)
 closedSubsets poset =
-  Set.empty
+  Set.fromList $ nub allUnions
+  where
+    allUnions :: [Set dot]
+    allUnions = Set.unions <$> sublists (nub allCyclics)
+    allCyclics :: [Set dot]
+    allCyclics = predecessors poset <$> Set.toList (elements poset)
