@@ -253,3 +253,18 @@ elements ::
   p dot -> Set dot
 elements poset =
   Set.unions $ Map.elems $ grades poset
+
+sublists :: forall a.[a] -> [[a]]
+sublists []  = [[]]
+sublists (x:xs) = 
+  recursed ++ map (x:) recursed
+  where
+    recursed :: [[a]]
+    recursed = sublists xs
+
+closedSubsets ::
+  forall dot p.
+  (Ord dot, OgPoset p) =>
+  p dot -> Set (Set dot)
+closedSubsets poset =
+  Set.empty

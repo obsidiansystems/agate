@@ -16,9 +16,9 @@ import Math.Agate.OgPoset.OgPoset (
   AddFaceException (..), GradedPoset (..),
   HasCofaces (..), HasFaces (..),
   OgFaceTable (..), OgPoset (..),
-  buildOgPoset, closure,  predecessors, dimension,  
+  buildOgPoset, closure,  predecessors, dimension,
   inPreBoundary, outPreBoundary, inBoundary, outBoundary,
-  maximals, level, elements )
+  maximals, level, elements, closedSubsets, sublists )
 -- import Debug.Trace
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -89,6 +89,9 @@ ogPosetTests =
               outBdrU (-1) @?= Set.empty
               outBdrU 0 @?= Set.fromList [ 1 ]
               outBdrU 1 @?= setX
+              -- closedSubsets poset @?= Set.fromList (Set.fromList <$> [ 
+              --   [], [0], [1], [0, 1], [0, 1, 2002]
+              --   ])
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
           case maybePoset of
@@ -256,7 +259,15 @@ ogPosetTests =
                   , ((1, 3), [(0, 0)], [(0, 2)])
                   , ((2, 0), [(1, 0), (1, 1)], [(1, 3)])
                   ]
-          ]
+          ],
+        testGroup "Utility functions" [
+          testCase "enumerate sublists" $ do
+            let noInts :: [Int] = []
+            sublists [] @?= [noInts]
+            sublists [0] @?= [noInts, [0]]
+            sublists [0, 1] @?= [noInts, [1], [0], [0, 1]]
+            sublists [2, 4, 3] @?= [noInts,[3],[4],[4, 3],[2],[2, 3],[2, 4],[2,4,3]]
+        ]
     ]
 
 verifyXFaces ::
