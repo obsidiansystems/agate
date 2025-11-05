@@ -19,7 +19,6 @@ import Math.Agate.OgPoset.OgPoset (
   buildOgPoset, closure,  predecessors, dimension,
   inPreBoundary, outPreBoundary, inBoundary, outBoundary,
   maximals, level, elements, closedSubsets, sublists )
--- import Debug.Trace
 import Test.Tasty
 import Test.Tasty.HUnit
 
@@ -93,6 +92,7 @@ ogPosetTests =
                 [], [0], [1], [0, 1], [0, 1, 2]
                 ])
               for_ (closedSubsets poset) (verify_14_2 poset)
+              for_ (closedSubsets poset) (verify_lemma_16 poset)
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
         checkExample11 maybePoset = do
           case maybePoset of
@@ -261,6 +261,7 @@ ogPosetTests =
                 [(1, 0), (1, 1), (1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
                 ])
               for_ (closedSubsets poset) (verify_14_2 poset)
+              for_ (closedSubsets poset) (verify_lemma_16 poset)
        in
         testGroup
           "Constructing OgPoset's"
@@ -320,13 +321,21 @@ verify_14_2 poset setU =
       lhsOut = outPreBoundary poset n setU
       theIntersection = Set.intersection lhsIn lhsOut
       maxU_n = level poset n maxU
-    in -- do
-      -- trace ("testing: " <> show n <>
-      --   "\nsetU = " <> (show setU) <>
-      --   "\ntheIntersection = " <> (show theIntersection) <>
-      --   "\nmaxU_n = " <> (show maxU_n)
-      --   ) (True @?= True)
+    in
       theIntersection @?= maxU_n
     )
   where
     maxU = maximals poset setU
+
+verify_lemma_16 :: forall dot p. (Ord dot, Show dot, OgPoset p) =>
+  p dot -> Set dot -> Assertion
+verify_lemma_16 poset setU =
+  let dimU :: Int = dimension poset setU
+  in for_ [0..dimU] (\n -> do
+    let dnU_in :: Set dot = inBoundary poset n setU
+    Set.isSubsetOf dnU_in setU @?= True
+    (dnU_in == setU) @?= (n == dimU)
+    let dnU_out :: Set dot = outBoundary poset n setU
+    Set.isSubsetOf dnU_out setU @?= True
+    (dnU_out == setU) @?= (n == dimU)
+  ) 
