@@ -255,7 +255,7 @@ elements poset =
 sublists :: forall a. [a] -> [[a]]
 sublists [] = [[]]
 sublists (x : xs) =
-  recursed ++ map (x :) recursed
+  recursed <> map (x :) recursed
  where
   recursed :: [[a]]
   recursed = sublists xs
