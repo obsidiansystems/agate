@@ -59,7 +59,21 @@ library
         Math.Agate.ODE.Polynomial.Solver
         Math.Agate.Diagrams.PetriNet
         Math.Agate.PetriNet
-    hs-source-dirs: src
+        Math.Agate.Olog.Olog
+        Math.Agate.Olog.Olog2
+        Math.Agate.OgPoset.OgPoset
+
+    -- Modules included in this library but not exported.
+    other-modules:
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+
+    -- Other library packages from which modules are imported.
+    build-depends:
+
+    -- Directories containing source files.
+    hs-source-dirs:   src
 
 library agate-examples
     import: common
@@ -94,13 +108,20 @@ test-suite agate-test
     hs-source-dirs: test
     main-is: Main.hs
     other-modules:
+        TestUtils,
         Tests.ODE.Solver,
         Tests.PetriNet,
+        -- Tests.PetriNet.Chart,
+        Tests.Olog.OlogSpec,
+        Tests.Olog.Olog2Spec,
         TestUtils,
+        Tests.OgPoset.OgPosetSpec
+
+    -- Test dependencies.
     build-depends:
         agate,
         agate-examples,
         tasty,
         tasty-quickcheck,
         tasty-golden,
-        tasty-hunit,
+        tasty-hunit

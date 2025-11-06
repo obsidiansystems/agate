@@ -1,0 +1,236 @@
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+{-# HLINT ignore "Unused LANGUAGE pragma" #-}
+{-# HLINT ignore "Use concatMap" #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+{-# HLINT ignore "Move catMaybes" #-}
+{-# HLINT ignore "Use mapMaybe" #-}
+{-# HLINT ignore "Use list comprehension" #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE NoFieldSelectors #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+module Math.Agate.Olog.Olog 
+  ( Arc,
+    Relator,
+    Olog,
+    makeOlog,
+    MakeOlogError (..),
+  )
+where
+
+import Control.Monad
+import Data.List.NonEmpty (NonEmpty, nonEmpty)
+import qualified Data.List.NonEmpty as NE
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Maybe
+import Data.Traversable
+
+
+data Arc dot = Arc
+  { name :: String,
+    source :: dot,
+    target :: dot
+  }
+  deriving (Show, Eq)
+
+data Relator = Relator
+  { lhs :: [String],
+    rhs :: [String]
+  }
+  deriving (Show, Eq)
+
+data Olog dot = Olog
+  { dots :: [dot],
+    arcs :: [Arc dot],
+    relators :: [Relator]
+  }
+  deriving (Show, Eq)
+
+makeOlogOld ::
+  forall dot.
+  (Eq dot, Show dot) =>
+  [dot] ->
+  [(String, dot, dot)] ->
+  [([String], [String])] ->
+  Either (MakeOlogError dot) (Olog dot)
+makeOlogOld dots preArcs preRelators =
+  case errors of
+    [] ->
+      Right $
+        Olog
+          dots
+          (map (\(name, src, tgt) -> Arc {name = name, source = src, target = tgt}) preArcs)
+          ( (\(path1, path2) -> Relator {lhs = path1, rhs = path2}) <$> preRelators
+          )
+    err : _ -> Left err
+  where
+    errorUnless b e = if b then Nothing else Just e
+    errors :: [MakeOlogError dot] = arcErrors <> relatorErrors
+    arcErrors =
+      concat . concat $
+        map
+          ( fmap maybeToList . \(dotMapper, errorPrefix) ->
+              map (\arc@(name, _, _) -> (\dot -> errorUnless (dot `elem` dots) $ errorPrefix name dot) $ dotMapper arc) preArcs
+          )
+          [ (\(_, src, _) -> src, UnknownSource),
+            (\(_, _, tgt) -> tgt, UnknownTarget)
+          ]
+    knownArcNames = map (\(name, _, _) -> name) preArcs
+    relatorErrors :: [MakeOlogError dot] =
+      relatorKnownArcErrors <> relatorLhsJoinErrors <> relatorRhsJoinErrors <> relatorMismatchErrors
+    relatorKnownArcErrors =
+      concat $
+        map
+          ( \(lhs, rhs) ->
+              -- TODO: don't need to check triviality here
+              (if null lhs && null rhs then [ForbiddenTrivialRelator] else [])
+                <> catMaybes
+                  ( map
+                      (\arcName -> errorUnless (arcName `elem` knownArcNames) $ UnknownArc arcName)
+                      $ lhs <> rhs
+                  )
+          )
+          preRelators
+    namesToArcs :: Map String (dot, dot) = Map.fromList $ (\(s, src, tgt) -> (s, (src, tgt))) <$> preArcs
+    relatorLhsJoinErrors = relatorXhsJoinErrors NonJoiningExpressionLhs fst
+    relatorRhsJoinErrors = relatorXhsJoinErrors NonJoiningExpressionRhs snd
+    relatorXhsJoinErrors ::
+      ([String] -> MakeOlogError dot) ->
+      (([String], [String]) -> [String]) ->
+      [MakeOlogError dot]
+    relatorXhsJoinErrors errorFactory picker = catMaybes $ map (checkTerm errorFactory . picker) preRelators
+    checkTerm :: ([String] -> MakeOlogError dot) -> [String] -> Maybe (MakeOlogError dot)
+    checkTerm errorFactory arcNames = errorUnless (targets == sources) $ errorFactory arcNames
+      where
+        arcs :: [(dot, dot)] = catMaybes $ flip Map.lookup namesToArcs <$> arcNames
+        targets :: [dot] = tail $ snd <$> arcs
+        sources :: [dot] = init $ fst <$> arcs
+    relatorMismatchErrors = catMaybes $ checkMismatch <$> preRelators
+    checkMismatch :: ([String], [String]) -> Maybe (MakeOlogError dot)
+    checkMismatch (lhs, rhs) = do
+      nonEmptyLhsAndSig <- case nonEmpty lhs of
+        Nothing ->
+          -- lhs empty
+          Just Nothing
+        Just nonEmptyLhs -> do
+          -- lhs non-empty
+          sig <- signature nonEmptyLhs
+          Just $ Just sig
+      nonEmptyRhsAndSig <- case nonEmpty rhs of
+        Nothing ->
+          -- rhs empty
+          Just Nothing
+        Just nonEmptyRhs -> do
+          -- rhs non-empty
+          sig <- signature nonEmptyRhs
+          Just $ Just sig
+      case (nonEmptyLhsAndSig, nonEmptyRhsAndSig) of
+        (Nothing, Nothing) ->
+          -- both empty
+          Just ForbiddenTrivialRelator
+        (Just (src, tgt), Nothing) ->
+          -- right empty
+          errorUnless (src == tgt) $ NotALoop lhs
+        (Nothing, Just (src, tgt)) ->
+          -- left empty
+          errorUnless (src == tgt) $ NotALoop rhs
+        (Just lSig, Just rSig) ->
+          -- both non-empty
+          errorUnless (lSig == rSig) $ RelatorMismatch lhs rhs lSig rSig
+      where
+        signature :: NonEmpty String -> Maybe (dot, dot)
+        signature terms =
+          case Map.lookup (NE.last terms) namesToArcs of
+            Nothing -> Nothing
+            Just (src, _) ->
+              case Map.lookup (NE.head terms) namesToArcs of
+                Nothing -> Nothing
+                Just (_, tgt) -> Just (src, tgt)
+
+-- type f $ x = f x
+-- type ($) f x = f x
+
+data MakeOlogError dot
+  = UnknownSource String dot
+  | UnknownTarget String dot
+  | ForbiddenTrivialRelator
+  | UnknownArc String
+  | NonJoiningExpressionLhs [String]
+  | NonJoiningExpressionRhs [String]
+  | RelatorMismatch [String] [String] (dot, dot) (dot, dot)
+  | NotALoop [String]
+  deriving (Show, Eq)
+
+makeOlog ::
+  forall dot.
+  (Eq dot) =>
+  [dot] ->
+  [(String, dot, dot)] ->
+  [([String], [String])] ->
+  Either (MakeOlogError dot) (Olog dot)
+makeOlog dots preArcs preRelators = do
+  arcs <- for preArcs \(name, source, target) -> do
+    -- TODO reuse `namesToArcs`?
+    unless (source `elem` dots) $ Left $ UnknownSource name source
+    unless (target `elem` dots) $ Left $ UnknownTarget name target
+    pure Arc{name, source, target}
+  relators <- for preRelators \(lhs, rhs) -> do
+    lhs' :: [(String, (dot, dot))] <- for lhs \arcName -> case Map.lookup arcName namesToArcs of
+      Nothing -> Left $ UnknownArc arcName
+      Just srcAndTgt -> pure (arcName, srcAndTgt)
+    rhs' :: [(String, (dot, dot))] <- for rhs \arcName -> case Map.lookup arcName namesToArcs of
+      Nothing -> Left $ UnknownArc arcName
+      Just srcAndTgt -> pure (arcName, srcAndTgt)
+    case (nonEmpty lhs', nonEmpty rhs') of
+      (Nothing, Nothing) ->
+        Left ForbiddenTrivialRelator
+      (Just l, Nothing) -> do
+        checkTerm NonJoiningExpressionLhs l
+        let (_, (_, tgt)) = NE.head l
+        let (_, (src, _)) = NE.last l
+        errorWhen (src /= tgt) $ NotALoop lhs
+      (Nothing, Just r) -> do
+        checkTerm NonJoiningExpressionRhs r
+        let (_, (_, tgt)) = NE.head r
+        let (_, (src, _)) = NE.last r
+        errorWhen (src /= tgt) $ NotALoop rhs
+      (Just l, Just r) -> do
+        checkTerm NonJoiningExpressionLhs l
+        checkTerm NonJoiningExpressionRhs r
+        let combinedSrcTgt xhs = (fst $ snd $ NE.last xhs, snd $ snd $ NE.head xhs)
+            l' = combinedSrcTgt l
+            r' = combinedSrcTgt r
+        errorWhen (l' /=  r') $ RelatorMismatch lhs rhs l' r'
+    pure Relator {lhs, rhs}
+  pure Olog {dots, arcs, relators}
+  where
+    checkTerm errorFactory arcs = do
+      let
+        targets = NE.tail $ snd . snd <$> (arcs :: (NonEmpty (String, (dot, dot))))
+        sources = NE.init $ fst . snd <$> arcs
+      errorWhen (sources /= targets) $ errorFactory $ map fst $ NE.toList arcs 
+    errorWhen b e = if b then Left e else Right ()
+    namesToArcs = Map.fromList $ (\(name, src, tgt) -> (name, (src, tgt))) <$> preArcs
+
+-- checkArc :: (PreArc dot -> dot, String) -> PreArc dot -> Maybe String
+-- checkArc (mapper, errorPrefix) preArc =
+--   if mapper preArc `elem` dots then Nothing else Just $ errorPrefix <> show dot
+-- checkers :: [(PreArc dot -> dot, String)] =
+--   [ (\(_, src, _) -> src, "bad source: "),
+--     (\(_, _, tgt) -> tgt, "bad target: ")
+--   ]
+-- applyChecker :: (PreArc dot -> dot, String) -> Maybe String
+-- applyChecker (mapper, prefix) =
+--   map mapper arcs
+-- rawStrings :: [Maybe String] = map applyChecker [
+--   (\(_, src, _) -> src, "bad source: "),
+--     (\(_, _, tgt) -> tgt, "bad target: ")
+--   ]
+-- errors = []
