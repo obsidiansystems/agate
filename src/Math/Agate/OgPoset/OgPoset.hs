@@ -20,12 +20,12 @@
 module Math.Agate.OgPoset.OgPoset where
 
 import Control.Monad (foldM)
+import Data.List
 import Data.Map (Map)
 import Data.Map qualified as Map
+import Data.Maybe
 import Data.Set (Set)
 import Data.Set qualified as Set
-import Data.Maybe
-import Data.List
 
 class GradedPoset p where
   grades :: p dot -> Map Int (Set dot)
@@ -162,9 +162,9 @@ dimension ::
 dimension poset dots
   | null dots = -1
   | otherwise = maximum $ catMaybes theGrades
-  where
-    dotsL :: [dot] = Set.toList dots
-    theGrades :: [Maybe Int] = grade poset <$> dotsL
+ where
+  dotsL :: [dot] = Set.toList dots
+  theGrades :: [Maybe Int] = grade poset <$> dotsL
 
 inPreBoundary ::
   forall dot p.
@@ -186,15 +186,15 @@ preBoundaryFor ::
   p dot -> Int -> (p dot -> Map dot (Set dot)) -> Set dot -> Set dot
 preBoundaryFor poset n xFaces setU =
   Set.filter boundary setU
-  where
-    faces :: Map dot (Set dot)
-    faces = xFaces poset
-    doLookup :: dot -> Set dot
-    doLookup d = Map.findWithDefault Set.empty d faces
-    boundary :: dot -> Bool
-    boundary d =
-      (grade poset d == Just n) &&
-        Set.null (Set.intersection (doLookup d) setU)
+ where
+  faces :: Map dot (Set dot)
+  faces = xFaces poset
+  doLookup :: dot -> Set dot
+  doLookup d = Map.findWithDefault Set.empty d faces
+  boundary :: dot -> Bool
+  boundary d =
+    (grade poset d == Just n)
+      && Set.null (Set.intersection (doLookup d) setU)
 
 inBoundary ::
   forall dot p.
@@ -215,16 +215,17 @@ boundaryFor ::
   (Ord dot, OgPoset p) =>
   p dot -> Int -> (p dot -> Int -> Set dot -> Set dot) -> Set dot -> Set dot
 boundaryFor poset n xPreBoundary setU =
-  Set.unions $ closure poset <$> (
-    preBdr : maxClosures)
-  where
-    preBdr :: Set dot =
-      xPreBoundary poset n setU
-    maxU :: Set dot =
-      maximals poset setU
-    maxClosures :: [Set dot] =
-      (\k -> level poset k maxU)
-        <$> [0..(n-1)]
+  Set.unions $
+    closure poset
+      <$> (preBdr : maxClosures)
+ where
+  preBdr :: Set dot =
+    xPreBoundary poset n setU
+  maxU :: Set dot =
+    maximals poset setU
+  maxClosures :: [Set dot] =
+    (\k -> level poset k maxU)
+      <$> [0 .. (n - 1)]
 
 maximals ::
   forall dot p.
@@ -232,14 +233,14 @@ maximals ::
   p dot -> Set dot -> Set dot
 maximals poset set =
   Set.filter maximal set
-  where
-    maximal :: dot -> Bool
-    maximal x =
-      disjoint incofaces && disjoint outcofaces
-      where
-      disjoint :: (p dot -> Map dot (Set dot)) -> Bool
-      disjoint xFaces =
-        null $ Set.intersection set $ Map.findWithDefault Set.empty x $ xFaces poset
+ where
+  maximal :: dot -> Bool
+  maximal x =
+    disjoint incofaces && disjoint outcofaces
+   where
+    disjoint :: (p dot -> Map dot (Set dot)) -> Bool
+    disjoint xFaces =
+      null $ Set.intersection set $ Map.findWithDefault Set.empty x $ xFaces poset
 
 level ::
   forall dot p.
@@ -255,13 +256,13 @@ elements ::
 elements poset =
   Set.unions $ Map.elems $ grades poset
 
-sublists :: forall a.[a] -> [[a]]
-sublists []  = [[]]
-sublists (x:xs) =
-  recursed ++ map (x:) recursed
-  where
-    recursed :: [[a]]
-    recursed = sublists xs
+sublists :: forall a. [a] -> [[a]]
+sublists [] = [[]]
+sublists (x : xs) =
+  recursed ++ map (x :) recursed
+ where
+  recursed :: [[a]]
+  recursed = sublists xs
 
 closedSubsets ::
   forall dot p.
@@ -269,8 +270,8 @@ closedSubsets ::
   p dot -> Set (Set dot)
 closedSubsets poset =
   Set.fromList $ nub allUnions
-  where
-    allUnions :: [Set dot]
-    allUnions = Set.unions <$> sublists (nub allCyclics)
-    allCyclics :: [Set dot]
-    allCyclics = predecessors poset <$> Set.toList (elements poset)
+ where
+  allUnions :: [Set dot]
+  allUnions = Set.unions <$> sublists (nub allCyclics)
+  allCyclics :: [Set dot]
+  allCyclics = predecessors poset <$> Set.toList (elements poset)

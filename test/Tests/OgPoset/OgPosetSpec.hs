@@ -13,12 +13,26 @@ import Data.Map qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 import Math.Agate.OgPoset.OgPoset (
-  AddFaceException (..), GradedPoset (..),
-  HasCofaces (..), HasFaces (..),
-  OgFaceTable (..), OgPoset (..),
-  buildOgPoset, closure,  predecessors, dimension,
-  inPreBoundary, outPreBoundary, inBoundary, outBoundary,
-  maximals, level, elements, closedSubsets, sublists )
+  AddFaceException (..),
+  GradedPoset (..),
+  HasCofaces (..),
+  HasFaces (..),
+  OgFaceTable (..),
+  OgPoset (..),
+  buildOgPoset,
+  closedSubsets,
+  closure,
+  dimension,
+  elements,
+  inBoundary,
+  inPreBoundary,
+  level,
+  maximals,
+  outBoundary,
+  outPreBoundary,
+  predecessors,
+  sublists,
+ )
 import Test.Tasty
 import Test.Tasty.HUnit
 
@@ -36,7 +50,7 @@ ogPosetTests =
             Right poset -> do
               grades poset @?= Map.fromList [(0, Set.fromList [0, 1]), (1, Set.fromList [2])]
               (grade poset <$> [0, 1, 2]) @??= (Just <$> [0, 0, 1])
-              -- for_ [0, 1, 2, 3] (\n -> grade poset n @?= Just 
+              -- for_ [0, 1, 2, 3] (\n -> grade poset n @?= Just
               -- grade poset 0 @?= Just 0
               -- grade poset 1 @?= Just 0
               -- grade poset 2 @?= Just 1
@@ -59,12 +73,12 @@ ogPosetTests =
               closure poset setU @?= setU
               inPreBoundary poset (-1) setU @?= Set.empty
               inPreBoundary poset (-2) setU @?= Set.empty
-              inPreBoundary poset 0 setU @?= Set.fromList [ 0 ]
+              inPreBoundary poset 0 setU @?= Set.fromList [0]
               inPreBoundary poset 1 setU @?= Set.empty
               inPreBoundary poset 2 setU @?= Set.empty
               outPreBoundary poset (-1) setU @?= Set.empty
               outPreBoundary poset (-2) setU @?= Set.empty
-              outPreBoundary poset 0 setU @?= Set.fromList [ 0 ]
+              outPreBoundary poset 0 setU @?= Set.fromList [0]
               outPreBoundary poset 1 setU @?= Set.empty
               outPreBoundary poset 2 setU @?= Set.empty
               maximals poset setU @?= setU
@@ -77,20 +91,27 @@ ogPosetTests =
               level poset 2 (Set.fromList [0, 2]) @?= Set.fromList []
               verify_14_2 poset setU
               let setX = elements poset
-              setX @?= Set.fromList [ 0, 1, 2 ]
+              setX @?= Set.fromList [0, 1, 2]
               let inBdrU :: Int -> Set Int = (\n -> inBoundary poset n (elements poset))
               let outBdrU :: Int -> Set Int = (\n -> outBoundary poset n (elements poset))
               inBdrU (-2) @?= Set.empty
               inBdrU (-1) @?= Set.empty
-              inBdrU 0 @?= Set.fromList [ 0 ]
+              inBdrU 0 @?= Set.fromList [0]
               inBdrU 1 @?= setX
               outBdrU (-2) @?= Set.empty
               outBdrU (-1) @?= Set.empty
-              outBdrU 0 @?= Set.fromList [ 1 ]
+              outBdrU 0 @?= Set.fromList [1]
               outBdrU 1 @?= setX
-              closedSubsets poset @?= Set.fromList (Set.fromList <$> [
-                [], [0], [1], [0, 1], [0, 1, 2]
-                ])
+              closedSubsets poset
+                @?= Set.fromList
+                  ( Set.fromList
+                      <$> [ []
+                          , [0]
+                          , [1]
+                          , [0, 1]
+                          , [0, 1, 2]
+                          ]
+                  )
               for_ (closedSubsets poset) (verify_14_2 poset)
               for_ (closedSubsets poset) (verify_lemma_16 poset)
         checkExample11 :: Either (AddFaceException FancyInt) (OgFaceTable FancyInt) -> Assertion
@@ -186,80 +207,120 @@ ogPosetTests =
               closure poset setU @?= setU
               inPreBoundary poset (-1) setU @?= Set.empty
               inPreBoundary poset (-2) setU @?= Set.empty
-              inPreBoundary poset 0 setU @?= Set.fromList [ (0, 0) ]
-              inPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
+              inPreBoundary poset 0 setU @?= Set.fromList [(0, 0)]
+              inPreBoundary poset 1 setU @?= Set.fromList [(1, 0), (1, 1)]
               inPreBoundary poset 2 setU @?= Set.empty
               outPreBoundary poset (-1) setU @?= Set.empty
               outPreBoundary poset (-2) setU @?= Set.empty
-              outPreBoundary poset 0 setU @?= Set.fromList [ (0, 2) ]
-              outPreBoundary poset 1 setU @?= Set.fromList [ (1, 0), (1, 1) ]
+              outPreBoundary poset 0 setU @?= Set.fromList [(0, 2)]
+              outPreBoundary poset 1 setU @?= Set.fromList [(1, 0), (1, 1)]
               outPreBoundary poset 2 setU @?= Set.empty
               verify_14_2 poset setU
               let setV = Set.fromList [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2)]
               closure poset setV @?= setV
-              inPreBoundary poset 0 setV @?= Set.fromList [ (0, 0) ]
-              inPreBoundary poset 1 setV @?= Set.fromList [ (1, 0), (1, 3) ]
+              inPreBoundary poset 0 setV @?= Set.fromList [(0, 0)]
+              inPreBoundary poset 1 setV @?= Set.fromList [(1, 0), (1, 3)]
               inPreBoundary poset 2 setV @?= Set.empty
-              outPreBoundary poset 0 setV @?= Set.fromList [(0, 1), (0, 2) ]
-              outPreBoundary poset 1 setV @?= Set.fromList [ (1, 0), (1, 3) ]
+              outPreBoundary poset 0 setV @?= Set.fromList [(0, 1), (0, 2)]
+              outPreBoundary poset 1 setV @?= Set.fromList [(1, 0), (1, 3)]
               outPreBoundary poset 2 setV @?= Set.empty
               verify_14_2 poset setV
-              let setW = Set.fromList [ (2, 0), (1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+              let setW = Set.fromList [(2, 0), (1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
               closure poset setW @?= setW
-              inPreBoundary poset 0 setW @?= Set.fromList [ (0, 0), (0, 3) ]
-              inPreBoundary poset 1 setW @?= Set.fromList [ (1, 0), (1, 1) ]
-              inPreBoundary poset 2 setW @?= Set.fromList [ (2, 0) ]
-              outPreBoundary poset 0 setW @?= Set.fromList [ (0, 2), (0, 3) ]
-              outPreBoundary poset 1 setW @?= Set.fromList [ (1, 3) ]
-              outPreBoundary poset 2 setW @?= Set.fromList [ (2, 0) ]
-              level poset 0 setW @?= Set.fromList [ (0, 0), (0, 1), (0, 2), (0, 3) ]
-              level poset 1 setW @?= Set.fromList [ (1, 0), (1, 1), (1, 3) ]
-              level poset 2 setW @?= Set.fromList [ (2, 0) ]
+              inPreBoundary poset 0 setW @?= Set.fromList [(0, 0), (0, 3)]
+              inPreBoundary poset 1 setW @?= Set.fromList [(1, 0), (1, 1)]
+              inPreBoundary poset 2 setW @?= Set.fromList [(2, 0)]
+              outPreBoundary poset 0 setW @?= Set.fromList [(0, 2), (0, 3)]
+              outPreBoundary poset 1 setW @?= Set.fromList [(1, 3)]
+              outPreBoundary poset 2 setW @?= Set.fromList [(2, 0)]
+              level poset 0 setW @?= Set.fromList [(0, 0), (0, 1), (0, 2), (0, 3)]
+              level poset 1 setW @?= Set.fromList [(1, 0), (1, 1), (1, 3)]
+              level poset 2 setW @?= Set.fromList [(2, 0)]
               verify_14_2 poset setW
+              let x =
+                    [ [1, 2, 3]
+                    , [4, 5, 6]
+                    ]
               let setX = elements poset
-              setX @?= Set.fromList [
-                (0, 0), (0, 1), (0, 2), (0, 3),
-                (1, 0), (1, 1), (1, 2), (1, 3),
-                (2, 0)
-                ]
+              setX
+                @?= Set.fromList
+                  [ (0, 0)
+                  , (0, 1)
+                  , (0, 2)
+                  , (0, 3)
+                  , (1, 0)
+                  , (1, 1)
+                  , (1, 2)
+                  , (1, 3)
+                  , (2, 0)
+                  ]
               let inBdrU :: Int -> Set FancyInt = (\n -> inBoundary poset n (elements poset))
               let outBdrU :: Int -> Set FancyInt = (\n -> outBoundary poset n (elements poset))
               inBdrU (-2) @?= Set.empty
               inBdrU (-1) @?= Set.empty
-              inBdrU 0 @?= Set.fromList [ (0, 0) ]
-              inBdrU 1 @?= Set.fromList [ (0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2) ]
+              inBdrU 0 @?= Set.fromList [(0, 0)]
+              inBdrU 1 @?= Set.fromList [(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2)]
               inBdrU 2 @?= setX
               outBdrU (-2) @?= Set.empty
               outBdrU (-1) @?= Set.empty
-              outBdrU 0 @?= Set.fromList [ (0, 3) ]
-              outBdrU 1 @?= Set.fromList [ (0, 0), (0, 2), (0, 3), (1, 2), (1, 3) ]
+              outBdrU 0 @?= Set.fromList [(0, 3)]
+              outBdrU 1 @?= Set.fromList [(0, 0), (0, 2), (0, 3), (1, 2), (1, 3)]
               outBdrU 2 @?= setX
-              Set.filter (notElem (2, 0)) (closedSubsets poset) @?=
-                Set.fromList (Set.fromList <$> [
-                [],
-                [(0, 0)], [(0, 1)], [(0, 2)], [(0, 3)],
-                [(0, 0), (0, 1)], [(0, 0), (0, 2)], [(0, 0), (0, 3)], [(0, 1), (0, 2)], [(0, 1), (0, 3)], [(0, 2), (0, 3)],
-                [(0, 1), (0, 2), (0, 3)], [(0, 0), (0, 2), (0, 3)], [(0, 0), (0, 1), (0, 3)], [(0, 0), (0, 1), (0, 2)],
-                [(0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 0), (0, 0), (0, 1)], [(1, 1), (0, 1), (0, 2)], [(1, 2), (0, 2), (0, 3)], [(1, 3), (0, 0), (0, 2)],
-                [(1, 0), (0, 0), (0, 1), (0, 2)], [(1, 0), (0, 0), (0, 1), (0, 3)], [(1, 0), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 1), (0, 1), (0, 2), (0, 0)], [(1, 1), (0, 1), (0, 2), (0, 3)], [(1, 1), (0, 1), (0, 2), (0, 0), (0, 3)],
-                [(1, 2), (0, 2), (0, 3)], [(1, 2), (0, 0), (0, 2), (0, 3)], [(1, 2), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 2), (0, 1), (0, 2), (0, 3)],
-                [(1, 3), (0, 0), (0, 2), (0, 1)], [(1, 3), (0, 0), (0, 2), (0, 3)], [(1, 3), (0, 0), (0, 2), (0, 1), (0, 3)],
-                [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2)], [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 0), (1, 2), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2)], [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 1), (1, 2), (0, 1), (0, 2), (0, 3)], [(1, 1), (1, 2), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 1), (1, 3), (0, 0), (0, 1), (0, 2)], [(1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 2), (1, 3), (0, 0), (0, 2), (0, 3)], [(1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 1), (1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 0), (1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2)],
-                [(1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 0), (1, 1), (1, 2), (0, 0), (0, 1), (0, 2), (0, 3)],
-                [(1, 0), (1, 1), (1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
-                ])
+              Set.filter (notElem (2, 0)) (closedSubsets poset)
+                @?= Set.fromList
+                  ( Set.fromList
+                      <$> [ []
+                          , [(0, 0)]
+                          , [(0, 1)]
+                          , [(0, 2)]
+                          , [(0, 3)]
+                          , [(0, 0), (0, 1)]
+                          , [(0, 0), (0, 2)]
+                          , [(0, 0), (0, 3)]
+                          , [(0, 1), (0, 2)]
+                          , [(0, 1), (0, 3)]
+                          , [(0, 2), (0, 3)]
+                          , [(0, 1), (0, 2), (0, 3)]
+                          , [(0, 0), (0, 2), (0, 3)]
+                          , [(0, 0), (0, 1), (0, 3)]
+                          , [(0, 0), (0, 1), (0, 2)]
+                          , [(0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 0), (0, 0), (0, 1)]
+                          , [(1, 1), (0, 1), (0, 2)]
+                          , [(1, 2), (0, 2), (0, 3)]
+                          , [(1, 3), (0, 0), (0, 2)]
+                          , [(1, 0), (0, 0), (0, 1), (0, 2)]
+                          , [(1, 0), (0, 0), (0, 1), (0, 3)]
+                          , [(1, 0), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 1), (0, 1), (0, 2), (0, 0)]
+                          , [(1, 1), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 1), (0, 1), (0, 2), (0, 0), (0, 3)]
+                          , [(1, 2), (0, 2), (0, 3)]
+                          , [(1, 2), (0, 0), (0, 2), (0, 3)]
+                          , [(1, 2), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 2), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 3), (0, 0), (0, 2), (0, 1)]
+                          , [(1, 3), (0, 0), (0, 2), (0, 3)]
+                          , [(1, 3), (0, 0), (0, 2), (0, 1), (0, 3)]
+                          , [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2)]
+                          , [(1, 0), (1, 1), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 0), (1, 2), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2)]
+                          , [(1, 0), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 1), (1, 2), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 1), (1, 2), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 1), (1, 3), (0, 0), (0, 1), (0, 2)]
+                          , [(1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 2), (1, 3), (0, 0), (0, 2), (0, 3)]
+                          , [(1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 1), (1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 0), (1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2)]
+                          , [(1, 0), (1, 1), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 0), (1, 1), (1, 2), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          , [(1, 0), (1, 1), (1, 2), (1, 3), (0, 0), (0, 1), (0, 2), (0, 3)]
+                          ]
+                  )
               for_ (closedSubsets poset) (verify_14_2 poset)
               for_ (closedSubsets poset) (verify_lemma_16 poset)
        in
@@ -288,14 +349,15 @@ ogPosetTests =
                   , ((1, 3), [(0, 0)], [(0, 2)])
                   , ((2, 0), [(1, 0), (1, 1)], [(1, 3)])
                   ]
-          ],
-        testGroup "Utility functions" [
-          testCase "enumerate sublists" $ do
+          ]
+    , testGroup
+        "Utility functions"
+        [ testCase "enumerate sublists" $ do
             let noInts :: [Int] = []
             sublists [] @?= [noInts]
             sublists [0] @?= [noInts, [0]]
             sublists [0, 1] @?= [noInts, [1], [0], [0, 1]]
-            sublists [2, 4, 3] @?= [noInts,[3],[4],[4, 3],[2],[2, 3],[2, 4],[2,4,3]]
+            sublists [2, 4, 3] @?= [noInts, [3], [4], [4, 3], [2], [2, 3], [2, 4], [2, 4, 3]]
         ]
     ]
 
@@ -312,30 +374,38 @@ verifyXFaces xfaces expectedValues =
 (@??=) :: (Eq a, Show a) => [a] -> [a] -> Assertion
 as @??= bs = for_ (zip as bs) (uncurry (@?=))
 
-verify_14_2 :: forall dot p. (Ord dot, Show dot, OgPoset p) =>
+verify_14_2 ::
+  forall dot p.
+  (Ord dot, Show dot, OgPoset p) =>
   p dot -> Set dot -> Assertion
 verify_14_2 poset setU =
-  for_ [0..3] (\n ->
-    let
-      lhsIn = inPreBoundary poset n setU
-      lhsOut = outPreBoundary poset n setU
-      theIntersection = Set.intersection lhsIn lhsOut
-      maxU_n = level poset n maxU
-    in
-      theIntersection @?= maxU_n
+  for_
+    [0 .. 3]
+    ( \n ->
+        let
+          lhsIn = inPreBoundary poset n setU
+          lhsOut = outPreBoundary poset n setU
+          theIntersection = Set.intersection lhsIn lhsOut
+          maxU_n = level poset n maxU
+         in
+          theIntersection @?= maxU_n
     )
-  where
-    maxU = maximals poset setU
+ where
+  maxU = maximals poset setU
 
-verify_lemma_16 :: forall dot p. (Ord dot, Show dot, OgPoset p) =>
+verify_lemma_16 ::
+  forall dot p.
+  (Ord dot, Show dot, OgPoset p) =>
   p dot -> Set dot -> Assertion
 verify_lemma_16 poset setU =
   let dimU :: Int = dimension poset setU
-  in for_ [0..dimU] (\n -> do
-    let dnU_in :: Set dot = inBoundary poset n setU
-    Set.isSubsetOf dnU_in setU @?= True
-    (dnU_in == setU) @?= (n == dimU)
-    let dnU_out :: Set dot = outBoundary poset n setU
-    Set.isSubsetOf dnU_out setU @?= True
-    (dnU_out == setU) @?= (n == dimU)
-  ) 
+   in for_
+        [0 .. dimU]
+        ( \n -> do
+            let dnU_in :: Set dot = inBoundary poset n setU
+            Set.isSubsetOf dnU_in setU @?= True
+            (dnU_in == setU) @?= (n == dimU)
+            let dnU_out :: Set dot = outBoundary poset n setU
+            Set.isSubsetOf dnU_out setU @?= True
+            (dnU_out == setU) @?= (n == dimU)
+        )
