@@ -149,8 +149,7 @@ closure ::
   forall dot p.
   (Ord dot, GradedPoset p) =>
   p dot -> Set dot -> Set dot
-closure poset dots =
-  Set.unions $ map (predecessors poset) $ Set.toList dots
+closure poset = Set.unions . map (predecessors poset) . Set.toList
 
 dimension ::
   forall dot p.
