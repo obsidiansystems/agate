@@ -101,15 +101,13 @@ instance OgPoset OgFaceTable where
     let lookupGrade :: dot -> Either (AddFaceException dot) Int
         lookupGrade f = maybeToEither (UnknownFace f) $ grade ogPoset f
      in do
-          gradedFaces :: [Int] <-
-            traverse lookupGrade (newInfaces <> newOutfaces)
-          newGrade :: Int <-
-            case gradedFaces of
-              [] -> pure 0
-              x : xs ->
-                if all (== x) xs
-                  then pure $ x + 1
-                  else Left $ MismatchedGrades gradedFaces
+          gradedFaces :: [Int] <- traverse lookupGrade (newInfaces <> newOutfaces)
+          newGrade :: Int <- case gradedFaces of
+            [] -> pure 0
+            x : xs ->
+              if all (== x) xs
+                then pure $ x + 1
+                else Left $ MismatchedGrades gradedFaces
           pure
             OgFaceTable
               { grades = Map.insertWith Set.union newGrade (Set.singleton newDot) (grades ogPoset)
