@@ -1,6 +1,8 @@
 module Math.Agate.Examples.ODE.Rossler where
 
+import Data.Map.Lazy qualified as Map
 import Math.Agate.ODE
+import Math.Agate.ODE.Polynomial.Solver
 import Math.Agate.ODE.RealValued
 
 data RosslerVar = X | Y | Z
@@ -20,3 +22,9 @@ rosslerODE =
     a = 0.2
     b = 0.6
     c = 5.7
+
+runSolverRossler :: [Double]
+runSolverRossler =
+    fmap (Map.! X)
+        . odeSolve rosslerODE (ODEParams 0.0001)
+        $ Map.fromList [(X, 0), (Y, 1), (Z, 0)]

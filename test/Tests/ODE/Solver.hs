@@ -4,6 +4,7 @@ import Data.Colour.Names
 import Diagrams.AreaChart
 import Math.Agate.Examples.ODE.Exponential
 import Math.Agate.Examples.ODE.Malthusian
+import Math.Agate.Examples.ODE.Rossler (runSolverRossler)
 import Math.Agate.Examples.ODE.SIR
 import Test.Tasty
 import Test.Tasty.Golden
@@ -30,6 +31,21 @@ odeSolverTests =
                         { name = "x"
                         , colour = green
                         , values = takeEvery 100 $ take 10000 runSolverExponential
+                        }
+                    ]
+            ]
+        , testGroup
+            "Rossler"
+            [ goldenVsString "Chart" "test/outputs/ode/rossler/chart.svg"
+                . pure
+                . diagToSVGBS
+                $ areaChart
+                    Nothing
+                    3
+                    [ Variable
+                        { name = "X"
+                        , colour = blue
+                        , values = takeEvery 1000 $ take 1000000 runSolverRossler
                         }
                     ]
             ]
