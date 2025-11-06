@@ -37,15 +37,15 @@ class GradedPoset p where
     (Ord dot) =>
     p dot -> dot -> Set dot
 
-class HasFaces p where
+class (GradedPoset p) => HasFaces p where
   infaces :: p dot -> Map dot (Set dot)
   outfaces :: p dot -> Map dot (Set dot)
 
-class HasCofaces p where
+class (GradedPoset p) => HasCofaces p where
   incofaces :: p dot -> Map dot (Set dot)
   outcofaces :: p dot -> Map dot (Set dot)
 
-class (GradedPoset p, HasFaces p, HasCofaces p) => OgPoset p where
+class (HasFaces p, HasCofaces p) => OgPoset p where
   empty :: p dot
   addFace :: (Ord dot) => dot -> [dot] -> [dot] -> p dot -> Either (AddFaceException dot) (p dot)
 
