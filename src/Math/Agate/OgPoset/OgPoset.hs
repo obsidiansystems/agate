@@ -3,6 +3,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# HLINT ignore "Unused LANGUAGE pragma" #-}
 {-# HLINT ignore "Use concatMap" #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -12,6 +13,7 @@
 {-# HLINT ignore "Use mapMaybe" #-}
 {-# HLINT ignore "Use list comprehension" #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
@@ -49,30 +51,30 @@ class (HasFaces p, HasCofaces p) => OgPoset p where
   addFace :: (Ord dot) => dot -> [dot] -> [dot] -> p dot -> Either (AddFaceException dot) (p dot)
 
 data OgFaceTable dot = OgFaceTable
-  { _grades :: Map Int (Set dot)
-  , _grade :: Map dot Int
-  , _infaces :: Map dot (Set dot)
-  , _outfaces :: Map dot (Set dot)
-  , _incofaces :: Map dot (Set dot)
-  , _outcofaces :: Map dot (Set dot)
-  , _predecessors :: Map dot (Set dot)
+  { grades :: Map Int (Set dot)
+  , grade :: Map dot Int
+  , infaces :: Map dot (Set dot)
+  , outfaces :: Map dot (Set dot)
+  , incofaces :: Map dot (Set dot)
+  , outcofaces :: Map dot (Set dot)
+  , predecessors :: Map dot (Set dot)
   }
   deriving (Show, Eq, Ord)
 
 instance GradedPoset OgFaceTable where
-  grades = _grades
+  grades = (.grades)
   grade ogFaceTable d =
-    Map.lookup d (_grade ogFaceTable)
+    Map.lookup d ogFaceTable.grade
   predecessors ogFaceTable d =
-    Map.findWithDefault Set.empty d (_predecessors ogFaceTable)
+    Map.findWithDefault Set.empty d ogFaceTable.predecessors
 
 instance HasFaces OgFaceTable where
-  infaces = _infaces
-  outfaces = _outfaces
+  infaces = (.infaces)
+  outfaces = (.outfaces)
 
 instance HasCofaces OgFaceTable where
-  incofaces = _incofaces
-  outcofaces = _outcofaces
+  incofaces = (.incofaces)
+  outcofaces = (.outcofaces)
 
 data AddFaceException dot
   = UnknownFace dot
@@ -82,13 +84,13 @@ data AddFaceException dot
 instance OgPoset OgFaceTable where
   empty =
     OgFaceTable
-      { _grades = Map.empty
-      , _grade = Map.empty
-      , _infaces = Map.empty
-      , _outfaces = Map.empty
-      , _incofaces = Map.empty
-      , _outcofaces = Map.empty
-      , _predecessors = Map.empty
+      { grades = Map.empty
+      , grade = Map.empty
+      , infaces = Map.empty
+      , outfaces = Map.empty
+      , incofaces = Map.empty
+      , outcofaces = Map.empty
+      , predecessors = Map.empty
       }
   addFace ::
     forall dot.
@@ -113,28 +115,28 @@ instance OgPoset OgFaceTable where
                   else Left $ MismatchedGrades gradedFaces
           pure
             OgFaceTable
-              { _grades = Map.insertWith Set.union newGrade (Set.singleton newDot) (_grades ogPoset)
-              , _grade = Map.insert newDot newGrade (_grade ogPoset)
-              , _infaces = Map.insert newDot (Set.fromList newInfaces) (_infaces ogPoset)
-              , _outfaces = Map.insert newDot (Set.fromList newOutfaces) (_outfaces ogPoset)
-              , _incofaces =
+              { grades = Map.insertWith Set.union newGrade (Set.singleton newDot) (grades ogPoset)
+              , grade = Map.insert newDot newGrade ogPoset.grade
+              , infaces = Map.insert newDot (Set.fromList newInfaces) (infaces ogPoset)
+              , outfaces = Map.insert newDot (Set.fromList newOutfaces) (outfaces ogPoset)
+              , incofaces =
                   foldl'
                     (\m f -> Map.insertWith Set.union f (Set.singleton newDot) m)
-                    (Map.insert newDot Set.empty (_incofaces ogPoset))
+                    (Map.insert newDot Set.empty (incofaces ogPoset))
                     newInfaces
-              , _outcofaces =
+              , outcofaces =
                   foldl'
                     (\m f -> Map.insertWith Set.union f (Set.singleton newDot) m)
-                    (Map.insert newDot Set.empty (_outcofaces ogPoset))
+                    (Map.insert newDot Set.empty (outcofaces ogPoset))
                     newOutfaces
-              , _predecessors =
+              , predecessors =
                   Map.insert
                     newDot
                     ( Set.insert newDot $
                         Set.unions
                           (predecessors ogPoset <$> (newInfaces <> newOutfaces))
                     )
-                    (_predecessors ogPoset)
+                    ogPoset.predecessors
               }
 
 buildOgPoset ::
