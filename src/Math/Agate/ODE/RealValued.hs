@@ -1,4 +1,4 @@
-module Math.Agate.ODE.RealValued (RealValuedODE (..), RealFunction (..)) where
+module Math.Agate.ODE.RealValued (RealValuedODE (..), RealFunction (..), promoteUnary) where
 
 import Data.Map (Map)
 import Data.Map qualified as Map
@@ -9,22 +9,22 @@ type Assignment k v = v -> k
 newtype RealFunction k v = RealFunction (Assignment k v -> k)
 
 instance (Num k) => Num (RealFunction k v) where
-    (+) = binaryOver (+)
-    (-) = binaryOver (-)
-    (*) = binaryOver (*)
-    signum = unaryOver signum
-    abs = unaryOver abs
+    (+) = promoteBinary (+)
+    (-) = promoteBinary (-)
+    (*) = promoteBinary (*)
+    signum = promoteUnary signum
+    abs = promoteUnary abs
     fromInteger n = RealFunction (const $ fromInteger n)
 
 instance (Fractional k) => Fractional (RealFunction k v) where
     fromRational k = RealFunction (const $ fromRational k)
-    (/) = binaryOver (/)
+    (/) = promoteBinary (/)
 
-binaryOver :: (k -> k -> k) -> RealFunction k v -> RealFunction k v -> RealFunction k v
-binaryOver f (RealFunction f1) (RealFunction f2) = RealFunction (\a -> f1 a `f` f2 a)
+promoteBinary :: (k -> k -> k) -> RealFunction k v -> RealFunction k v -> RealFunction k v
+promoteBinary f (RealFunction f1) (RealFunction f2) = RealFunction (\a -> f1 a `f` f2 a)
 
-unaryOver :: (k -> k) -> RealFunction k v -> RealFunction k v
-unaryOver op (RealFunction f1) = RealFunction (op . f1)
+promoteUnary :: (k -> k) -> RealFunction k v -> RealFunction k v
+promoteUnary op (RealFunction f1) = RealFunction (op . f1)
 
 newtype RealValuedODE k v = RealValuedODE (Map v (RealFunction k v))
 
