@@ -102,7 +102,7 @@ instance OgPoset OgFaceTable where
         lookupGrade f = maybeToEither (UnknownFace f) $ grade ogPoset f
      in do
           gradedFaces :: [Int] <-
-            sequence $ lookupGrade <$> (newInfaces <> newOutfaces)
+            traverse lookupGrade (newInfaces <> newOutfaces)
           newGrade :: Int <-
             case gradedFaces of
               [] -> pure 0
