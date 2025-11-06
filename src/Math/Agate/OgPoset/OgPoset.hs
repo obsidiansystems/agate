@@ -20,6 +20,7 @@
 module Math.Agate.OgPoset.OgPoset where
 
 import Control.Monad (foldM)
+import Data.Containers.ListUtils (nubOrd)
 import Data.List
 import Data.Map (Map)
 import Data.Map qualified as Map
@@ -269,7 +270,7 @@ closedSubsets ::
   (Ord dot, OgPoset p) =>
   p dot -> Set (Set dot)
 closedSubsets poset =
-  Set.fromList $ nub allUnions
+  Set.fromList $ nubOrd allUnions
  where
   allUnions :: [Set dot]
   allUnions = Set.unions <$> sublists (nub allCyclics)
