@@ -100,8 +100,7 @@ instance OgPoset OgFaceTable where
   addFace newDot newInfaces newOutfaces ogPoset =
     let lookupGrade :: dot -> Either (AddFaceException dot) Int
         lookupGrade f = maybeToEither (UnknownFace f) $ grade ogPoset f
-     in -- Right ogPoset
-        do
+     in do
           gradedFaces :: [Int] <-
             sequence $ lookupGrade <$> (newInfaces <> newOutfaces)
           newGrade :: Int <-
