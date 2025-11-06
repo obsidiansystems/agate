@@ -106,7 +106,7 @@ instance OgPoset OgFaceTable where
           newGrade :: Int <-
             case gradedFaces of
               [] -> pure 0
-              (x : xs) ->
+              x : xs ->
                 if all (== x) xs
                   then pure $ x + 1
                   else Left $ MismatchedGrades gradedFaces
