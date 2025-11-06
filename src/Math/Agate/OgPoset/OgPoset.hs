@@ -23,6 +23,7 @@ module Math.Agate.OgPoset.OgPoset where
 
 import Control.Monad (foldM)
 import Data.Containers.ListUtils (nubOrd)
+import Data.Either.Extra
 import Data.Map (Map)
 import Data.Map qualified as Map
 import Data.Maybe
@@ -98,10 +99,7 @@ instance OgPoset OgFaceTable where
     dot -> [dot] -> [dot] -> OgFaceTable dot -> Either (AddFaceException dot) (OgFaceTable dot)
   addFace newDot newInfaces newOutfaces ogPoset =
     let lookupGrade :: dot -> Either (AddFaceException dot) Int
-        lookupGrade f =
-          case grade ogPoset f of
-            Nothing -> Left $ UnknownFace f
-            Just g -> Right g
+        lookupGrade f = maybeToEither (UnknownFace f) $ grade ogPoset f
      in -- Right ogPoset
         do
           gradedFaces :: [Int] <-
