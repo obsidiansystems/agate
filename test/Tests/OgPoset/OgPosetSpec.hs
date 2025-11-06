@@ -237,10 +237,6 @@ ogPosetTests =
               level poset 1 setW @?= Set.fromList [(1, 0), (1, 1), (1, 3)]
               level poset 2 setW @?= Set.fromList [(2, 0)]
               verify_14_2 poset setW
-              let x =
-                    [ [1, 2, 3]
-                    , [4, 5, 6]
-                    ]
               let setX = elements poset
               setX
                 @?= Set.fromList
