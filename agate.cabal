@@ -89,6 +89,7 @@ library agate-examples
         Math.Agate.Examples.ODE.SIS
         Math.Agate.Examples.ODE.SIWR
         Math.Agate.Examples.ODE.Exponential
+        Math.Agate.Examples.ODE.Pendulum
         Math.Agate.Examples.ODE.Rossler
     build-depends:    agate
     hs-source-dirs:   examples
