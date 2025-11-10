@@ -4,9 +4,23 @@ import Data.Map.Lazy qualified as Map
 import Math.Agate.ODE
 import Math.Agate.ODE.Solver
 import Math.Agate.ODE.RealValued
+import Math.Agate.Diagrams.PetriNet (PetriPlace (..))
+import Diagrams.Prelude (yellow, gold, pink, purple)
 
 data PendulumVar = Theta1 | Theta1' | Theta2 | Theta2'
     deriving (Show, Eq, Ord, Enum, Bounded)
+
+instance PetriPlace PendulumVar where
+    placeSymbol = \case
+        Theta1 -> "θ_1"
+        Theta1' -> "dθ_1/dt"
+        Theta2 -> "θ_2"
+        Theta2' -> "dθ_2/dt"
+    placeColour = \case
+        Theta1 -> yellow
+        Theta1' -> gold
+        Theta2 -> pink
+        Theta2' -> purple
 
 doublePendulumODE :: RealValuedODE PendulumVar Double
 doublePendulumODE =

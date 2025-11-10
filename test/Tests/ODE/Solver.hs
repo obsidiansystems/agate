@@ -1,8 +1,9 @@
 module Tests.ODE.Solver where
 
 import Data.Colour.Names
-import Data.Map.Lazy qualified as Map
+import Data.Map.Lazy qualified as M
 import Diagrams.AreaChart
+import Math.Agate.Diagrams.PetriNet (PetriPlace (..))
 import Math.Agate.Examples.ODE.Exponential
 import Math.Agate.Examples.ODE.Malthusian
 import Math.Agate.Examples.ODE.Pendulum
@@ -55,22 +56,17 @@ odeSolverTests =
                 [ goldenVsString "Chart" "test/outputs/ode/pendlum/chart.svg"
                     . pure
                     . diagToSVGBS
-                    $ let
-                        n = 10000
-                       in
-                        lineChartInner
-                            3
-                            [ Variable
-                                { name = "Theta1"
-                                , colour = black
-                                , values = take n $ (Map.! Theta1) <$> runSolverDoublePendulum
-                                }
-                            , Variable
-                                { name = "Theta2"
-                                , colour = black
-                                , values = take n $ (Map.! Theta2) <$> runSolverDoublePendulum
-                                }
-                            ]
+                    $ lineChartInner
+                        3
+                        ( ( \v ->
+                                Variable
+                                    { name = placeSymbol v
+                                    , colour = placeColour v
+                                    , values = take 10000 $ (M.! v) <$> runSolverDoublePendulum
+                                    }
+                          )
+                            <$> [Theta1, Theta2]
+                        )
                 ]
             ]
         , let result = take 100 runSolverSIR
