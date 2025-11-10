@@ -1,4 +1,4 @@
-module Math.Agate.ODE.RealValued (RealValuedODE (..), RealFunction (..), (<%>)) where
+module Math.Agate.ODE.RealValued (RealValuedODE (..), RealFunction (..)) where
 
 import Data.Map (Map)
 import Data.Map qualified as Map
@@ -6,9 +6,18 @@ import Math.Agate.ODE
 
 type Assignment v k = v -> k
 
-newtype RealFunction v k = RealFunction (Assignment v k -> k)
+newtype RealFunction v k1 k2 = RealFunction (Assignment v k1 -> k2)
 
-instance (Num k) => Num (RealFunction v k) where
+promoteUnary :: (a -> b) -> RealFunction v k a -> RealFunction v k b
+promoteUnary op (RealFunction f1) = RealFunction (op . f1)
+
+promoteBinary :: (a -> a -> b) -> RealFunction v k a -> RealFunction v k a -> RealFunction v k b
+promoteBinary f (RealFunction f1) (RealFunction f2) = RealFunction (\a -> f1 a `f` f2 a)
+
+instance Functor (RealFunction v k1) where
+    fmap = promoteUnary
+
+instance (Num k2) => Num (RealFunction v k1 k2) where
     (+) = promoteBinary (+)
     (-) = promoteBinary (-)
     (*) = promoteBinary (*)
@@ -17,23 +26,14 @@ instance (Num k) => Num (RealFunction v k) where
     fromInteger n = RealFunction (const $ fromInteger n)
 
 
-instance (Fractional k) => Fractional (RealFunction v k) where
+instance (Fractional k2) => Fractional (RealFunction v k1 k2) where
     fromRational v = RealFunction (const $ fromRational v)
     (/) = promoteBinary (/)
 
-promoteBinary :: (k -> k -> k) -> RealFunction v k -> RealFunction v k -> RealFunction v k
-promoteBinary f (RealFunction f1) (RealFunction f2) = RealFunction (\a -> f1 a `f` f2 a)
-
-promoteUnary :: (k -> k) -> RealFunction v k -> RealFunction v k
-promoteUnary op (RealFunction f1) = RealFunction (op . f1)
-
-(<%>) :: (k -> k) -> RealFunction v k -> RealFunction v k
-(<%>) = promoteUnary
-
-newtype RealValuedODE v k = RealValuedODE (Map v (RealFunction v k))
+newtype RealValuedODE v k = RealValuedODE (Map v (RealFunction v k k))
 
 instance (Ord v, Show v, Eq k, Num k) => ODESystem (RealValuedODE v k) where
-    type Exp (RealValuedODE v k) = RealFunction v k
+    type Exp (RealValuedODE v k) = RealFunction v k k
     type Var (RealValuedODE v k) = v
     type Field (RealValuedODE v k) = k
     v += e = RealValuedODE (Map.singleton v e)
