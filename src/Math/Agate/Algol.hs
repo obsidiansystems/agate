@@ -67,16 +67,3 @@ runIt = do
     v <- readIORef y
     print "The value is..."
     print v
-
--- runIt has to be an IO ()
--- so sampleProgram has to be an AlgolIO v
--- so the implicit Algol system has to be AlgolIO v
-
--- directions for Idealized Algol:
--- more conveniences: typed variables, lambdas
--- can it be an instance of a monad (not a monoid), with more operations
--- so your IA program can be a do expression
--- can our ODE solvers be IA programs?
--- change the kinds of 'system', their constraints? or a function type => type e.g. List
--- so Algol becomes a Monad => Monad ...? instead of a Monoid => Monoid ...
--- more implementations of Algol, other things you can do with it
