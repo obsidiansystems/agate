@@ -60,8 +60,8 @@ sampleProgram y = new $ \x ->
                 <> assign y (var @system y + 1)
             )
 
-runIt :: IO ()
-runIt = do
+runSampleProgram :: IO ()
+runSampleProgram = do
     y <- newIORef (0 :: Double)
     runAlgolIO (sampleProgram y)
     v <- readIORef y
