@@ -65,5 +65,5 @@ runSampleProgram = do
     y <- newIORef (0 :: Double)
     runAlgolIO (sampleProgram y)
     v <- readIORef y
-    print "The value is..."
+    putStrLn "The value is..."
     print v
