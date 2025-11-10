@@ -4,10 +4,10 @@ module Math.Agate.ODE (ODESystem (..)) where
 
 -- | First order ODEs
 class (Monoid system, Num (Exp system)) => ODESystem system where
-    -- The type of mathematical expressions associated to the system of ODEs
+    -- | The type of mathematical expressions associated to the system of ODEs
     type Exp system
 
-    -- Type type of variables (occurring in those expressions)
+    -- | Type type of variables (occurring in those expressions)
     type Var system
 
     -- | Express a basic differential equation of the form var' = expr. The monoid instance for system should add these rates of change together for each given variable.
