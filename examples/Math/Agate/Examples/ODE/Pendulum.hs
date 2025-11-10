@@ -19,18 +19,15 @@ doublePendulumODE =
   where
     var' = var @(RealValuedODE PendulumVar Double)
     k = a1 * b2 - a2 * b1
-    a1 = (m1 + m2) * l1
-    b1 = m2 * l2 * (cos <$> delta)
-    a2 = m2 * l2
-    b2 = m2 * l1 * (cos <$> delta)
-    f1 = (m1 * l2 * (var' Theta2' ^^ 2) * (sin <$> delta)) + ((m1 + m2) * g * (sin <$> var' Theta1))
-    f2 = (m2 * g * (sin <$> var' Theta2)) - (m2 * l1 * (var' Theta1' ^^ 2) * (sin <$> delta))
+    a1 = (4/3) * l
+    b1 = (1/2) * l * (cos <$> delta)
+    a2 = (1/2) * l * (cos <$> delta)
+    b2 = (1/3) * l
+    f1 = (1/2) * l * (var' Theta2' ^^ (2 :: Integer)) * (sin <$> delta) + (3/2) * g * (sin <$> var' Theta1)
+    f2 = - ((1 / 2) * (var' Theta1' ^^ (2 :: Integer)) * (sin <$> delta)) + (1/2) * g * (sin <$> var' Theta2)
     delta = var' Theta1 - var' Theta2
-    m1 = 1
-    m2 = 1
     g = 9.81
-    l1 = 1
-    l2 = 1
+    l = 1
 
 runSolverDoublePendulum :: [Map.Map PendulumVar Double]
 runSolverDoublePendulum =
