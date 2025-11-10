@@ -2,7 +2,7 @@ module Math.Agate.Examples.ODE.SIR where
 
 import Data.Map (Map)
 import Math.Agate.Examples.PetriNet.SIR
-import Math.Agate.ODE.Polynomial.Solver
+import Math.Agate.ODE.Solver
 
 runSolverSIR :: [Map SIRPlace Double]
 runSolverSIR = solvePetri sir \case

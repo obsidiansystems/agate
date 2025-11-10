@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {- HLINT ignore "Use newtype instead of data" -}
 
-module Math.Agate.ODE.Polynomial.Solver (odeSolve, ODEParams (..), solvePetri) where
+module Math.Agate.ODE.Solver (odeSolve, ODEParams (..), solvePetri) where
 
 import Data.Functor ((<&>))
 import Data.List.Extra (enumerate)

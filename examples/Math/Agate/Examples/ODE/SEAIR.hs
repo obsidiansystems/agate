@@ -2,7 +2,7 @@ module Math.Agate.Examples.ODE.SEAIR where
 
 import Data.Map (Map)
 import Math.Agate.Examples.PetriNet.SEAIR
-import Math.Agate.ODE.Polynomial.Solver
+import Math.Agate.ODE.Solver
 
 -- | SEAIR model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 runSolverSEAIR :: [Map SEAIRPlace Double]

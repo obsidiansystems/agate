@@ -2,7 +2,7 @@ module Math.Agate.Examples.ODE.SIRS where
 
 import Data.Map (Map)
 import Math.Agate.Examples.PetriNet.SIRS
-import Math.Agate.ODE.Polynomial.Solver
+import Math.Agate.ODE.Solver
 
 -- | SIRS model taken from [this](https://arxiv.org/pdf/2206.03269) paper
 runSolverSIRS :: [Map SIRSPlace Double]

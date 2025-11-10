@@ -2,7 +2,7 @@ module Math.Agate.Examples.ODE.Rossler where
 
 import Data.Map.Lazy qualified as Map
 import Math.Agate.ODE
-import Math.Agate.ODE.Polynomial.Solver
+import Math.Agate.ODE.Solver
 import Math.Agate.ODE.RealValued
 
 data RosslerVar = X | Y | Z
