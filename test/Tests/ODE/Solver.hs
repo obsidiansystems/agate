@@ -55,19 +55,22 @@ odeSolverTests =
                 [ goldenVsString "Chart" "test/outputs/ode/pendlum/chart.svg"
                     . pure
                     . diagToSVGBS
-                    $ lineChartInner
-                        3
-                        [ Variable
-                            { name = "Theta1"
-                            , colour = black
-                            , values = takeWhile (not . \n -> isNaN n || abs n > pi) $ (Map.! Theta1) <$> runSolverDoublePendulum
-                            }
-                        , Variable
-                            { name = "Theta2"
-                            , colour = black
-                            , values = takeWhile (not . \n -> isNaN n || abs n > pi) $ (Map.! Theta2) <$> runSolverDoublePendulum
-                            }
-                        ]
+                    $ let
+                        n = 10000
+                       in
+                        lineChartInner
+                            3
+                            [ Variable
+                                { name = "Theta1"
+                                , colour = black
+                                , values = take n $ (Map.! Theta1) <$> runSolverDoublePendulum
+                                }
+                            , Variable
+                                { name = "Theta2"
+                                , colour = black
+                                , values = take n $ (Map.! Theta2) <$> runSolverDoublePendulum
+                                }
+                            ]
                 ]
             ]
         , let result = take 100 runSolverSIR
