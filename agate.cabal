@@ -32,10 +32,10 @@ common common
         TypeOperators
     ghc-options: -Wall
     build-depends:
-        base >=4,
+        base,
         bytestring,
         colour,
-        containers >=0.6,
+        containers,
         diagrams-core,
         diagrams-graphviz,
         diagrams-lib,
@@ -45,7 +45,7 @@ common common
         filepath,
         fgl,
         graphviz,
-        HaskellForMaths >=0.4.9,
+        HaskellForMaths,
         lens,
         svg-builder,
         text,
