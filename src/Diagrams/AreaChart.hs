@@ -1,4 +1,4 @@
-module Diagrams.AreaChart (areaChart, Variable (..)) where
+module Diagrams.AreaChart (areaChart, Variable (..), lineChartInner) where
 
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
@@ -9,6 +9,9 @@ data Variable = Variable
     , colour :: Colour Double
     , values :: [Double]
     }
+
+lineChartInner :: Renderable (Path V2 Double) b => Double -> [Variable] -> QDiagram b V2 Double Any
+lineChartInner aspectRatio = scaleToX aspectRatio . scaleToY 1 . mconcat . map (\Variable{colour, values} -> fromVertices (zipWith (curry p2) [0 ..] values) & strokeLocLine & lw 5 & lc colour)
 
 areaChartInner :: Double -> [Variable] -> Diagram B
 areaChartInner aspectRatio vars =

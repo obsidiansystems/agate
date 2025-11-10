@@ -1,9 +1,11 @@
 module Tests.ODE.Solver where
 
 import Data.Colour.Names
+import Data.Map.Lazy qualified as Map
 import Diagrams.AreaChart
 import Math.Agate.Examples.ODE.Exponential
 import Math.Agate.Examples.ODE.Malthusian
+import Math.Agate.Examples.ODE.Pendulum
 import Math.Agate.Examples.ODE.Rossler (runSolverRossler)
 import Math.Agate.Examples.ODE.SIR
 import Test.Tasty
@@ -48,6 +50,25 @@ odeSolverTests =
                         , values = takeEvery 1000 $ take 1000000 runSolverRossler
                         }
                     ]
+            , testGroup
+                "Double Pendulum"
+                [ goldenVsString "Chart" "test/outputs/ode/pendlum/chart.svg"
+                    . pure
+                    . diagToSVGBS
+                    $ lineChartInner
+                        3
+                        [ Variable
+                            { name = "Theta1"
+                            , colour = black
+                            , values = takeWhile (not . \n -> isNaN n || abs n > pi) $ (Map.! Theta1) <$> runSolverDoublePendulum
+                            }
+                        , Variable
+                            { name = "Theta2"
+                            , colour = black
+                            , values = takeWhile (not . \n -> isNaN n || abs n > pi) $ (Map.! Theta2) <$> runSolverDoublePendulum
+                            }
+                        ]
+                ]
             ]
         , let result = take 100 runSolverSIR
            in testCase "SIR" $ do
