@@ -9,6 +9,7 @@ import Test.Tasty
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import TestUtils
+import Utils
 
 odeSolverTests :: TestTree
 odeSolverTests =

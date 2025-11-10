@@ -1,9 +1,8 @@
 module Diagrams.AreaChart (areaChart, Variable (..)) where
 
-import Control.Applicative
-import Data.List
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
+import Utils
 
 data Variable = Variable
     { name :: String
@@ -30,14 +29,6 @@ areaChartInner aspectRatio vars =
             . mapColumns (scanl (+) 0)
             . map (\Variable{values} -> values)
             $ vars
-    adjacentPairs :: [a] -> [(a, a)]
-    adjacentPairs = \case
-        [] -> []
-        x : xs -> zip (x : xs) xs
-    mapColumns :: ([a] -> [b]) -> [[a]] -> [[b]]
-    mapColumns f = transpose . zipWithN f
-    zipWithN :: (Traversable t) => (t a -> b) -> t [a] -> [b]
-    zipWithN f xs = getZipList $ f <$> traverse ZipList xs
 
 areaChart :: Maybe Int -> Double -> [Variable] -> Diagram B
 areaChart animated w vars =
