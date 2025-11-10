@@ -59,8 +59,6 @@ library
         Math.Agate.ODE.Polynomial.Solver
         Math.Agate.Diagrams.PetriNet
         Math.Agate.PetriNet
-        Math.Agate.Olog.Olog
-        Math.Agate.Olog.Olog2
         Math.Agate.OgPoset.OgPoset
     hs-source-dirs: src
 
@@ -100,8 +98,6 @@ test-suite agate-test
         TestUtils,
         Tests.ODE.Solver,
         Tests.PetriNet,
-        Tests.Olog.OlogSpec,
-        Tests.Olog.Olog2Spec,
         Tests.OgPoset.OgPosetSpec
 
     build-depends:
