@@ -8,6 +8,10 @@ import Math.Agate.ODE.RealValued
 data RosslerVar = X | Y | Z
     deriving (Show, Eq, Ord, Enum, Bounded)
 
+-- | ODE system for the rossler attractor
+-- see [here](https://en.wikipedia.org/wiki/R%C3%B6ssler_attractor)
+-- values for $ (a, b, c) $ are the values Rossler initially studied that
+-- exhibited chaotic behavior
 rosslerODE :: RealValuedODE RosslerVar Double
 rosslerODE =
     let

@@ -22,6 +22,9 @@ instance PetriPlace PendulumVar where
         Theta2 -> pink
         Theta2' -> purple
 
+-- | ODE system governing the mechanics of a double pendulum.
+-- For details on the derivation, see [here](https://en.wikipedia.org/wiki/Double_pendulum)
+-- Equations 1 and 2 are used and then the ODE is linearised via the subsitution u = Theta1', v = Theta2'
 doublePendulumODE :: RealValuedODE PendulumVar Double
 doublePendulumODE =
     mconcat
