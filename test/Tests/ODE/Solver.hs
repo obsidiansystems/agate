@@ -53,7 +53,7 @@ odeSolverTests =
                     ]
             , testGroup
                 "Double Pendulum"
-                [ goldenVsString "Chart" "test/outputs/ode/pendlum/chart.svg"
+                [ goldenVsString "Chart" "test/outputs/ode/pendulum/chart.svg"
                     . pure
                     . diagToSVGBS
                     $ lineChartInner
