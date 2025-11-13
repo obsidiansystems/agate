@@ -12,7 +12,7 @@
         owner = "georgefst";
         repo = "diagrams-svg";
         rev = "animations";
-        hash = "sha256-AUwvzlriILQDgsWL+mlKYfP5+DSBEyXHYenUeJTdtPw=";
+        hash = "sha256-zBBES3ocTLAzpNqjwKLUO9Gg4fwVMZmFKLGWrppBYI0=";
       }) {});
     };
   };
