@@ -62,7 +62,7 @@ odeSolverTests =
                                 Variable
                                     { name = placeSymbol v
                                     , colour = placeColour v
-                                    , values = take 10000 $ (M.! v) <$> runSolverDoublePendulum
+                                    , values = take 100 . takeEvery 100 $ (M.! v) <$> runSolverDoublePendulum
                                     }
                           )
                             <$> [Theta1, Theta2]
