@@ -57,7 +57,8 @@ library
         Math.Agate.Algol
         Math.Agate.ODE
         Math.Agate.ODE.Polynomial
-        Math.Agate.ODE.Polynomial.Solver
+        Math.Agate.ODE.RealValued
+        Math.Agate.ODE.Solver
         Math.Agate.Diagrams.PetriNet
         Math.Agate.PetriNet
         Math.Agate.OgPoset.OgPoset
@@ -88,8 +89,10 @@ library agate-examples
         Math.Agate.Examples.ODE.SIS
         Math.Agate.Examples.ODE.SIWR
         Math.Agate.Examples.ODE.Exponential
-    build-depends: agate
-    hs-source-dirs: examples
+        Math.Agate.Examples.ODE.Pendulum
+        Math.Agate.Examples.ODE.Rossler
+    build-depends:    agate
+    hs-source-dirs:   examples
 
 test-suite agate-test
     import: common
