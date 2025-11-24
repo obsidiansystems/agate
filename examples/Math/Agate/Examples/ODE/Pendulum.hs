@@ -1,11 +1,11 @@
 module Math.Agate.Examples.ODE.Pendulum where
 
 import Data.Map.Lazy qualified as Map
-import Math.Agate.ODE
-import Math.Agate.ODE.Solver
-import Math.Agate.ODE.RealValued
+import Diagrams.Prelude (gold, pink, purple, yellow)
 import Math.Agate.Diagrams.PetriNet (PetriPlace (..))
-import Diagrams.Prelude (yellow, gold, pink, purple)
+import Math.Agate.ODE
+import Math.Agate.ODE.RealValued
+import Math.Agate.ODE.Solver
 
 data PendulumVar = Theta1 | Theta1' | Theta2 | Theta2'
     deriving (Show, Eq, Ord, Enum, Bounded)
@@ -22,9 +22,10 @@ instance PetriPlace PendulumVar where
         Theta2 -> pink
         Theta2' -> purple
 
--- | ODE system governing the mechanics of a double pendulum.
--- For details on the derivation, see [here](https://en.wikipedia.org/wiki/Double_pendulum)
--- Equations 1 and 2 are used and then the ODE is linearised via the subsitution u = Theta1', v = Theta2'
+{- | ODE system governing the mechanics of a double pendulum.
+For details on the derivation, see [here](https://en.wikipedia.org/wiki/Double_pendulum)
+Equations 1 and 2 are used and then the ODE is linearised via the subsitution u = Theta1', v = Theta2'
+-}
 doublePendulumODE :: RealValuedODE PendulumVar Double
 doublePendulumODE =
     mconcat
@@ -50,8 +51,11 @@ runSolverDoublePendulum :: [Map.Map PendulumVar Double]
 runSolverDoublePendulum =
     odeSolve doublePendulumODE (ODEParams 0.001) $
         Map.fromList
-            [ (Theta1, 0.01) -- pi / 4)
-            , (Theta2, -0.02) -- pi / 4)
-            , (Theta1', 0.1)
+            [ (Theta1, pi - theta1_0)
+            , (Theta2, pi - theta2_0)
+            , (Theta1', 0)
             , (Theta2', 0)
             ]
+  where
+    theta1_0 = pi / 4
+    theta2_0 = -pi / 4
