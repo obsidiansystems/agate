@@ -1,5 +1,4 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE ExplicitForAll #-}
 
 module Math.Agate.ODE (ODESystem (..)) where
 
