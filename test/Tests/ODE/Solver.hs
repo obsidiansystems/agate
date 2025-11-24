@@ -90,7 +90,7 @@ odeSolverTests =
                                             RotateAnimation (noCenters theta1s)
                                         )
                                 , unitLineDownward
-                                    & lc purple
+                                    & lc pink
                                     & animate
                                         ( TransformAnimation animationLength Nothing $
                                             RotateAnimation (noCenters theta2s)
