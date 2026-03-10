@@ -3,6 +3,8 @@ module Main (main) where
 import Test.Tasty
 import Tests.ODE.Solver (odeSolverTests)
 import Tests.PetriNet (petriTests)
+import Tests.Stochastic.Charts (stochasticChartTests)
+import Tests.Stochastic.MarkovKernel (stochasticTests)
 
 main :: IO ()
 main =
@@ -11,4 +13,6 @@ main =
             "Tests"
             [ odeSolverTests
             , petriTests
+            , stochasticTests
+            , stochasticChartTests
             ]

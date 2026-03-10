@@ -45,7 +45,9 @@ common common
         fgl,
         graphviz,
         HaskellForMaths >=0.4.9,
+        lazyppl,
         lens,
+        monoidal-containers,
         svg-builder,
         text,
 
@@ -59,6 +61,7 @@ library
         Math.Agate.ODE.Polynomial.Solver
         Math.Agate.Diagrams.PetriNet
         Math.Agate.PetriNet
+        Math.Agate.Stochastic.MarkovKernel
     hs-source-dirs:   src
 
 library agate-examples
@@ -71,6 +74,8 @@ library agate-examples
         Math.Agate.Examples.PetriNet.SIR
         Math.Agate.Examples.PetriNet.SIRD
         Math.Agate.Examples.PetriNet.SIS
+        Math.Agate.Examples.PetriNet.LotkaVolterra
+        Math.Agate.Examples.ODE.LotkaVolterra
         Math.Agate.Examples.ODE.Malthusian
         Math.Agate.Examples.ODE.SEIR
         Math.Agate.Examples.ODE.SIR
@@ -88,10 +93,13 @@ test-suite agate-test
     other-modules:
         Tests.ODE.Solver,
         Tests.PetriNet,
+        Tests.Stochastic.Charts,
+        Tests.Stochastic.MarkovKernel,
         TestUtils,
     build-depends:
         agate,
         agate-examples,
+        random,
         tasty,
         tasty-quickcheck,
         tasty-golden,

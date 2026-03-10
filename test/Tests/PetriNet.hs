@@ -25,6 +25,8 @@ import Math.Agate.Examples.PetriNet.Malthusian
 import Math.Agate.Examples.ODE.Malthusian
 import Math.Agate.Examples.PetriNet.SEIR
 import Math.Agate.Examples.ODE.SEIR
+import Math.Agate.Examples.PetriNet.LotkaVolterra
+import Math.Agate.Examples.ODE.LotkaVolterra
 
 petriTests :: TestTree
 petriTests =
@@ -54,6 +56,9 @@ petriTests =
             "SEIR"
                 [allDiagramTests "seir" seir runSolverSEIR]
         , testGroup
+            "Lotka-Volterra"
+                [allDiagramTests "lotka-volterra" lotkaVolterra runSolverLotkaVolterra]
+        , testGroup
             "Madrid"
             [ testGroup
                 "Diagrams"
@@ -80,7 +85,7 @@ allDiagramTests name net solution =
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
     drawOpts = defaultDrawOpts
     chart animated =
-        areaChart animated 3 $
+        lineChart animated 3 $
             enumerate <&> \p ->
                 Variable
                     { name = placeName p
