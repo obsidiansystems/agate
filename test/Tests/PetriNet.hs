@@ -80,6 +80,23 @@ petriTests =
             "Lotka-Volterra"
                 [allDiagramTests lineChart "lotka-volterra" lotkaVolterra runSolverLotkaVolterra]
         , testGroup
+            "P-invariants"
+            [ testCase "SIR: S+I+R conserved" $
+                pInvariants (sir :: PetriNetImpl SIRPlace Rational) @?= [[1, 1, 1]]
+            , testCase "SIRD: S+I+R+D conserved" $
+                pInvariants (sird :: PetriNetImpl SIRDPlace Rational) @?= [[1, 1, 1, 1]]
+            , testCase "SIRS: S+I+R conserved" $
+                pInvariants (sirs :: PetriNetImpl SIRSPlace Rational) @?= [[1, 1, 1]]
+            , testCase "SIS: S+I conserved" $
+                pInvariants (sis :: PetriNetImpl SISPlace Rational) @?= [[1, 1]]
+            , testCase "Malthusian: no invariant" $
+                pInvariants (malthusian :: PetriNetImpl MalthusianPlace Rational) @?= []
+            , testCase "SEIR: no invariant (vital dynamics)" $
+                pInvariants (seir :: PetriNetImpl SEIRPlace Rational) @?= []
+            , testCase "Lotka-Volterra: no invariant" $
+                pInvariants (lotkaVolterra :: PetriNetImpl LotkaVolterraPlace Rational) @?= []
+            ]
+        , testGroup
             "Madrid"
             [ testGroup
                 "Diagrams"
@@ -123,6 +140,7 @@ allDiagramTests chartType name net solution =
                     { name = placeName p
                     , colour = placeColour p
                     , values = take 100 $ solverResult Map.! p
+                    , dashedLine = False
                     }
     petriTest =
         goldenVsString "Petri" ("test/outputs/petri/" <> name <> "/petri.svg") $

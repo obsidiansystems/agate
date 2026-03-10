@@ -25,20 +25,24 @@ import Data.Map.Lazy qualified as Map
 import Data.Map.Monoidal (MonoidalMap, getMonoidalMap)
 import Data.Map.Monoidal qualified as MMap
 import Data.Monoid (Sum (..))
-import System.Random (mkStdGen)
+import System.Random (StdGen, mkStdGen, split)
 
 -- | Run a stochastic simulation for a given number of steps.
 simulateStochastic :: Ord v
     => StateKernel Double v
     -> MonoidalMap v (Sum Double)
-    -> Int -- ^ initial seed
+    -> StdGen
     -> Int -- ^ number of steps
     -> [Map.Map v Double]
-simulateStochastic sk state0 seed steps =
+simulateStochastic sk state0 gen steps =
     map (fmap getSum . getMonoidalMap) . take (steps + 1)
     $ scanl (\st t -> runProb (runStateKernel sk st) t)
             state0
-            (let Tree _ children = randomTree (mkStdGen seed) in children)
+            (let Tree _ children = randomTree gen in children)
+
+-- | Generate an infinite list of independent StdGens via iterated split.
+independentGens :: StdGen -> [StdGen]
+independentGens g = let (g1, g2) = split g in g1 : independentGens g2
 
 -- | Build an initial state map from a function on places.
 mkState :: (Enum v, Bounded v, Ord v) => (v -> Double) -> MonoidalMap v (Sum Double)
@@ -115,7 +119,8 @@ chartTestN modelName numSteps kernel state0 =
                 { name = placeName p
                 , colour = placeColour p
                 , values = take numSteps $ map ((/ totalPop) . (Map.! p)) solution
+                , dashedLine = False
                 }
-        | seed <- [42 .. 42 + numSeeds - 1]
-        , let solution = simulateStochastic kernel state0 seed numSteps
+        | gen <- take numSeeds (independentGens (mkStdGen 42))
+        , let solution = simulateStochastic kernel state0 gen numSteps
         ]

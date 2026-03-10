@@ -9,10 +9,14 @@ data Variable = Variable
     { name :: String
     , colour :: Colour Double
     , values :: [Double]
+    , dashedLine :: Bool
     }
 
+varLineStyle :: (HasStyle a, V a ~ V2, N a ~ Double) => Variable -> a -> a
+varLineStyle Variable{colour, dashedLine} = lc colour . if dashedLine then dashingL [0.015, 0.008] 0 else id
+
 lineChartInner :: Renderable (Path V2 Double) b => Double -> [Variable] -> QDiagram b V2 Double Any
-lineChartInner aspectRatio = scaleToX aspectRatio . scaleToY 1 . mconcat . map (\Variable{colour, values} -> fromVertices (zipWith (curry p2) [0 ..] values) & strokeLocLine & lw 5 & lc colour)
+lineChartInner aspectRatio = scaleToX aspectRatio . scaleToY 1 . mconcat . map (\v -> fromVertices (zipWith (curry p2) [0 ..] (values v)) & strokeLocLine & lw 5 & varLineStyle v)
 
 areaChartInner :: Double -> [Variable] -> Diagram B
 areaChartInner aspectRatio vars =
@@ -90,7 +94,7 @@ lineChartMulti w runs =
         ]
   where
     n = length runs
-    legendVars = head runs
+    legendVars = (\(x:_) -> x) runs
     totalDuration = max 1 n -- 1 second per seed
 
     -- Use the first seed's envelope so off-screen seeds don't expand the bounding box
@@ -125,7 +129,7 @@ drawLines overallWidth alpha vars =
     mconcat
         [ fromVertices (zipWith (curry p2) [0, step ..] (values v))
             # strokeLocTrail
-            # lc (colour v)
+            # varLineStyle v
             # lwL 0.008
             # fcA transparent
             # opacity alpha
@@ -138,9 +142,9 @@ lineKey :: [Variable] -> Diagram B
 lineKey vars =
     vcat
         . map
-            ( \Variable{name, colour} ->
-                (hrule 0.15 # lc colour # lwL 0.02 # centerY)
-                    ||| ((text name & scale 0.1 & font "helvetica") <> (rect 0.8 0.15 & lcA transparent & fc whitesmoke)) # centerY
+            ( \v ->
+                (hrule 0.15 # varLineStyle v # lwL 0.02 # centerY)
+                    ||| ((text (name v) & scale 0.1 & font "helvetica") <> (rect 0.8 0.15 & lcA transparent & fc whitesmoke)) # centerY
             )
         . reverse
         $ vars

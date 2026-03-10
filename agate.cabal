@@ -110,6 +110,7 @@ test-suite agate-test
         Tests.PetriNet,
         Tests.OgPoset.OgPosetSpec,
         Tests.Stochastic.Charts,
+        Tests.Stochastic.Convergence,
         Tests.Stochastic.MarkovKernel,
         TestUtils,
     build-depends:
