@@ -7,6 +7,7 @@ import Data.GraphViz
 import Data.List.Extra
 import Data.Map.Lazy qualified as Map
 import Diagrams.AreaChart
+import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
 import Math.Agate.Examples.ODE.LotkaVolterra
@@ -49,35 +50,35 @@ petriTests =
                     assertBool "2 transitions present" $
                         length (transitions sir) == 2
                 ]
-            , allDiagramTests "sir" sir runSolverSIR
+            , allDiagramTests areaChart "sir" sir runSolverSIR
             ]
         , testGroup
             "SIRD"
-            [allDiagramTests "sird" sird runSolverSIRD]
+            [allDiagramTests areaChart "sird" sird runSolverSIRD]
         , testGroup
             "SIRS"
-            [allDiagramTests "sirs" sirs runSolverSIRS]
+            [allDiagramTests areaChart "sirs" sirs runSolverSIRS]
         , testGroup
             "SIS"
-            [allDiagramTests "sis" sis runSolverSIS]
+            [allDiagramTests areaChart "sis" sis runSolverSIS]
         , testGroup
             "Malthusian"
-            [allDiagramTests "malthusian" malthusian runSolverMalthusian]
+            [allDiagramTests lineChart "malthusian" malthusian runSolverMalthusian]
         , testGroup
             "SEIR"
-            [allDiagramTests "seir" seir runSolverSEIR]
+            [allDiagramTests areaChart "seir" seir runSolverSEIR]
         , testGroup
             "SEAIR"
-            [allDiagramTests "seair" seair runSolverSEAIR]
+            [allDiagramTests areaChart "seair" seair runSolverSEAIR]
         , testGroup
             "SCIR"
-            [allDiagramTests "scir" scir runSolverSCIR]
+            [allDiagramTests areaChart "scir" scir runSolverSCIR]
         , testGroup
             "SIWR"
-            [allDiagramTests "siwr" siwr runSolverSIWR]
+            [allDiagramTests lineChart "siwr" siwr runSolverSIWR]
         , testGroup
             "Lotka-Volterra"
-                [allDiagramTests "lotka-volterra" lotkaVolterra runSolverLotkaVolterra]
+                [allDiagramTests lineChart "lotka-volterra" lotkaVolterra runSolverLotkaVolterra]
         , testGroup
             "Madrid"
             [ testGroup
@@ -94,11 +95,12 @@ petriTests =
 
 allDiagramTests ::
     (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) =>
+    (Maybe Int -> Double -> [Variable] -> Diagram B) ->
     FilePath ->
     PetriNetImpl p t ->
     [Map.Map p Double] ->
     TestTree
-allDiagramTests name net solution =
+allDiagramTests chartType name net solution =
     testGroup
         "Diagrams"
         [ petriTest
@@ -115,7 +117,7 @@ allDiagramTests name net solution =
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
     drawOpts = defaultDrawOpts
     chart animated =
-        lineChart animated 3 $
+        chartType animated 3 $
             enumerate <&> \p ->
                 Variable
                     { name = placeName p
