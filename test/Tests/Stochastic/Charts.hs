@@ -17,7 +17,7 @@ import Math.Agate.Examples.PetriNet.LotkaVolterra qualified as LV
 import Diagrams.AreaChart
 import TestUtils (diagToSVGBS)
 
-import LazyPPL (runProb, randomTree)
+import LazyPPL (runProb, randomTree, Tree(..))
 
 import Data.Functor ((<&>))
 import Data.List.Extra (enumerate)
@@ -36,9 +36,9 @@ simulateStochastic :: Ord v
     -> [Map.Map v Double]
 simulateStochastic sk state0 seed steps =
     map (fmap getSum . getMonoidalMap) . take (steps + 1)
-    $ scanl (\st s -> runProb (runStateKernel sk st) (randomTree (mkStdGen s)))
+    $ scanl (\st t -> runProb (runStateKernel sk st) t)
             state0
-            [seed ..]
+            (let Tree _ children = randomTree (mkStdGen seed) in children)
 
 -- | Build an initial state map from a function on places.
 mkState :: (Enum v, Bounded v, Ord v) => (v -> Double) -> MonoidalMap v (Sum Double)

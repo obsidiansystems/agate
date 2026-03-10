@@ -12,7 +12,7 @@ data MadridPlace
     | S
     | W
     | NW
-    deriving (Eq, Ord, Show, PetriPlace)
+    deriving (Bounded, Enum, Eq, Ord, Show, PetriPlace)
 
 madridNet :: (Place net ~ MadridPlace, Transition net ~ Double, PetriNet net) => net
 madridNet =

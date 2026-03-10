@@ -2,7 +2,7 @@ module Math.Agate.Examples.ODE.LotkaVolterra where
 
 import Data.Map (Map)
 import Math.Agate.Examples.PetriNet.LotkaVolterra
-import Math.Agate.ODE.Polynomial.Solver
+import Math.Agate.ODE.Solver
 
 runSolverLotkaVolterra :: [Map LotkaVolterraPlace Double]
 runSolverLotkaVolterra = solvePetri lotkaVolterra \case

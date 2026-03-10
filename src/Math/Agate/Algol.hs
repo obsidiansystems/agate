@@ -1,5 +1,4 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE InstanceSigs #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Math.Agate.Algol where
@@ -39,50 +38,32 @@ instance (Num v, Eq v) => Algol (AlgolIO v) where
     var :: IORef v -> IO v
     var = readIORef
     ifThenElse :: IO v -> AlgolIO v -> AlgolIO v -> AlgolIO v
-    ifThenElse cond (AlgolIO thenBranch) (AlgolIO elseBranch) =
-        AlgolIO $ do
-            c <- cond
-            if c /= 0 then thenBranch else elseBranch
+    ifThenElse cond (AlgolIO thenBranch) (AlgolIO elseBranch) = AlgolIO $ do
+        c <- cond
+        if c /= 0 then thenBranch else elseBranch
     while :: IO v -> AlgolIO v -> AlgolIO v
-    while cond (AlgolIO body) =
-        AlgolIO $ do
-            c <- cond
-            when (c /= 0) $ body >> runAlgolIO (while cond (AlgolIO body))
+    while cond (AlgolIO body) = AlgolIO $ do
+        c <- cond
+        when (c /= 0) $ body >> runAlgolIO (while cond (AlgolIO body))
     new :: (IORef v -> AlgolIO v) -> AlgolIO v
-    new cont =
-        AlgolIO $ do
-            ref <- newIORef 0
-            runAlgolIO (cont ref)
+    new cont = AlgolIO $ do
+        ref <- newIORef 0
+        runAlgolIO (cont ref)
 
 sampleProgram :: forall system. (Algol system) => Var system -> system
-sampleProgram y =
-    new $ \x ->
-        assign x 5
-            <> assign y 0
-            <> while
-                (var @system x)
-                ( assign x (var @system x - 1)
-                    <> assign y (var @system y + 1)
-                )
+sampleProgram y = new $ \x ->
+    assign x 5
+        <> assign y 0
+        <> while
+            (var @system x)
+            ( assign x (var @system x - 1)
+                <> assign y (var @system y + 1)
+            )
 
-runIt :: IO ()
-runIt =
-    do
-        y <- newIORef (0 :: Double)
-        runAlgolIO (sampleProgram y)
-        v <- readIORef y
-        print "The value is..."
-        print v
-
--- runIt has to be an IO ()
--- so sampleProgram has to be an AlgolIO v
--- so the implicit Algol system has to be AlgolIO v
-
--- directions for Idealized Algol:
--- more conveniences: typed variables, lambdas
--- can it be an instance of a monad (not a monoid), with more operations
--- so your IA program can be a do expression
--- can our ODE solvers be IA programs?
--- change the kinds of 'system', their constraints? or a function type => type e.g. List
--- so Algol becomes a Monad => Monad ...? instead of a Monoid => Monoid ...
--- more implementations of Algol, other things you can do with it
+runSampleProgram :: IO ()
+runSampleProgram = do
+    y <- newIORef (0 :: Double)
+    runAlgolIO (sampleProgram y)
+    v <- readIORef y
+    putStrLn "The value is..."
+    print v

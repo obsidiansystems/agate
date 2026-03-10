@@ -9,24 +9,33 @@ import Data.Map.Lazy qualified as Map
 import Diagrams.AreaChart
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
+import Math.Agate.Examples.ODE.LotkaVolterra
+import Math.Agate.Examples.ODE.Malthusian
+import Math.Agate.Examples.ODE.SCIR
+import Math.Agate.Examples.ODE.SEAIR
+import Math.Agate.Examples.ODE.SEIR
 import Math.Agate.Examples.ODE.SIR
 import Math.Agate.Examples.ODE.SIRD
+import Math.Agate.Examples.ODE.SIRS
+import Math.Agate.Examples.ODE.SIS
+import Math.Agate.Examples.ODE.SIWR
+import Math.Agate.Examples.PetriNet.LotkaVolterra
 import Math.Agate.Examples.PetriNet.Madrid
+import Math.Agate.Examples.PetriNet.Malthusian
+import Math.Agate.Examples.PetriNet.SCIR
+import Math.Agate.Examples.PetriNet.SEAIR
+import Math.Agate.Examples.PetriNet.SEIR
 import Math.Agate.Examples.PetriNet.SIR
 import Math.Agate.Examples.PetriNet.SIRD
+import Math.Agate.Examples.PetriNet.SIRS
+import Math.Agate.Examples.PetriNet.SIS
+import Math.Agate.Examples.PetriNet.SIWR
 import Math.Agate.PetriNet
 import Test.Tasty
 import Test.Tasty.Golden
 import Test.Tasty.HUnit
 import TestUtils
-import Math.Agate.Examples.PetriNet.SIS
-import Math.Agate.Examples.ODE.SIS
-import Math.Agate.Examples.PetriNet.Malthusian
-import Math.Agate.Examples.ODE.Malthusian
-import Math.Agate.Examples.PetriNet.SEIR
-import Math.Agate.Examples.ODE.SEIR
-import Math.Agate.Examples.PetriNet.LotkaVolterra
-import Math.Agate.Examples.ODE.LotkaVolterra
+import Utils
 
 petriTests :: TestTree
 petriTests =
@@ -34,27 +43,38 @@ petriTests =
         "Petri nets"
         [ testGroup
             "SIR"
-            [
-                testGroup
-                    "Implementation"
-                    [ testCase "Transitions correct" $
-                        assertBool "2 transitions present" $
-                            length (transitions sir) == 2
-                    ]
-                , allDiagramTests "sir" sir runSolverSIR
+            [ testGroup
+                "Implementation"
+                [ testCase "Transitions correct" $
+                    assertBool "2 transitions present" $
+                        length (transitions sir) == 2
+                ]
+            , allDiagramTests "sir" sir runSolverSIR
             ]
         , testGroup
             "SIRD"
-                [allDiagramTests "sird" sird runSolverSIRD]
+            [allDiagramTests "sird" sird runSolverSIRD]
+        , testGroup
+            "SIRS"
+            [allDiagramTests "sirs" sirs runSolverSIRS]
         , testGroup
             "SIS"
-                [allDiagramTests "sis" sis runSolverSIS]
+            [allDiagramTests "sis" sis runSolverSIS]
         , testGroup
             "Malthusian"
-                [allDiagramTests "malthusian" malthusian runSolverMalthusian]
+            [allDiagramTests "malthusian" malthusian runSolverMalthusian]
         , testGroup
             "SEIR"
-                [allDiagramTests "seir" seir runSolverSEIR]
+            [allDiagramTests "seir" seir runSolverSEIR]
+        , testGroup
+            "SEAIR"
+            [allDiagramTests "seair" seair runSolverSEAIR]
+        , testGroup
+            "SCIR"
+            [allDiagramTests "scir" scir runSolverSCIR]
+        , testGroup
+            "SIWR"
+            [allDiagramTests "siwr" siwr runSolverSIWR]
         , testGroup
             "Lotka-Volterra"
                 [allDiagramTests "lotka-volterra" lotkaVolterra runSolverLotkaVolterra]
@@ -72,7 +92,12 @@ petriTests =
             ]
         ]
 
-allDiagramTests :: (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) => FilePath -> PetriNetImpl p t -> [Map.Map p Double] -> TestTree
+allDiagramTests ::
+    (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) =>
+    FilePath ->
+    PetriNetImpl p t ->
+    [Map.Map p Double] ->
+    TestTree
 allDiagramTests name net solution =
     testGroup
         "Diagrams"
@@ -81,7 +106,12 @@ allDiagramTests name net solution =
         , combinedTest
         ]
   where
-    solverResult = Map.fromList $ enumerate <&> \v -> (v, map (Map.! v) solution)
+    animationLength = 15
+    solverResult =
+        fmap
+            (takeEvery 10)
+            . Map.fromList
+            $ enumerate <&> \v -> (v, map (Map.! v) solution)
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
     drawOpts = defaultDrawOpts
     chart animated =
@@ -90,17 +120,17 @@ allDiagramTests name net solution =
                 Variable
                     { name = placeName p
                     , colour = placeColour p
-                    , values = take 1000 $ solverResult Map.! p
+                    , values = take 100 $ solverResult Map.! p
                     }
     petriTest =
         goldenVsString "Petri" ("test/outputs/petri/" <> name <> "/petri.svg") $
             diagToSVGBS <$> layoutAndDrawPetri layoutOpts drawOpts net
-    chartTest = goldenVsString "Chart" ("test/outputs/petri/" <> name <> "/chart.svg") . pure . diagToSVGBS $ chart False
+    chartTest = goldenVsString "Chart" ("test/outputs/petri/" <> name <> "/chart.svg") . pure . diagToSVGBS $ chart Nothing
     combinedTest = goldenVsString "Combined" ("test/outputs/petri/" <> name <> "/combined.svg") do
-        petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 1000 . (solverResult Map.!))} net
+        petri <- layoutAndDrawPetri layoutOpts drawOpts{animation = Just (take 100 . (solverResult Map.!), animationLength)} net
         pure
             . diagToSVGBS
             $ vcat
-                [ scaleUToX 1 $ chart True
+                [ scaleUToX 1 $ chart $ Just animationLength
                 , scaleUToX 1 petri
                 ]

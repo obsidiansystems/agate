@@ -2,6 +2,7 @@ module Main (main) where
 
 import Test.Tasty
 import Tests.ODE.Solver (odeSolverTests)
+import Tests.OgPoset.OgPosetSpec (ogPosetTests)
 import Tests.PetriNet (petriTests)
 import Tests.Stochastic.Charts (stochasticChartTests)
 import Tests.Stochastic.MarkovKernel (stochasticTests)
@@ -15,4 +16,5 @@ main =
             , petriTests
             , stochasticTests
             , stochasticChartTests
+            , ogPosetTests
             ]

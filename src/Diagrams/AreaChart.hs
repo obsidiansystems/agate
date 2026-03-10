@@ -1,11 +1,9 @@
-module Diagrams.AreaChart (areaChart, lineChart, lineChartMulti, Variable (..)) where
+module Diagrams.AreaChart (areaChart, lineChart, lineChartMulti, lineChartInner, Variable (..)) where
 
-import Control.Applicative
-import Data.List
-import Data.Maybe
-import Data.Monoid.Extra
+import Data.List (genericLength)
 import Diagrams.Backend.SVG
 import Diagrams.Prelude
+import Utils
 
 data Variable = Variable
     { name :: String
@@ -13,48 +11,44 @@ data Variable = Variable
     , values :: [Double]
     }
 
+lineChartInner :: Renderable (Path V2 Double) b => Double -> [Variable] -> QDiagram b V2 Double Any
+lineChartInner aspectRatio = scaleToX aspectRatio . scaleToY 1 . mconcat . map (\Variable{colour, values} -> fromVertices (zipWith (curry p2) [0 ..] values) & strokeLocLine & lw 5 & lc colour)
+
 areaChartInner :: Double -> [Variable] -> Diagram B
-areaChartInner overallWidth sirData =
-    mconcat $
+areaChartInner aspectRatio vars =
+    scaleToX aspectRatio . scaleToY 1 . mconcat $
         zipWith
-            ( \(bottoms, tops) Variable{colour} ->
-                fromVertices
-                    (zipWith (curry p2) [0, w ..] bottoms <> reverse (zipWith (curry p2) [0, w ..] tops))
-                    & closeLine
-                    & strokeLoop
-                    & translate (maybe 0 (V2 0) $ listToMaybe bottoms)
+            ( \(bottom, top) Variable{colour} ->
+                (bottom `catLocTrails` reverseLocLine top)
+                    & mapLoc closeLine
+                    & strokeLocLoop
                     & fc colour
                     & lcA transparent
             )
-            -- accumulate y bounds from sums of preceding data points
-            (map unzip $ mapColumns (adjacentPairs . scanl (+) 0) $ map (\Variable{values} -> values) sirData)
-            sirData
+            (adjacentPairs boundaries)
+            vars
   where
-    w = overallWidth / maximum (map (genericLength . \Variable{values} -> values) sirData)
-    adjacentPairs :: [a] -> [(a, a)]
-    adjacentPairs = \case
-        [] -> []
-        x : xs -> zip (x : xs) xs
-    mapColumns :: ([a] -> [b]) -> [[a]] -> [[b]]
-    mapColumns f = transpose . zipWithN f
-    zipWithN :: (Traversable t) => (t a -> b) -> t [a] -> [b]
-    zipWithN f xs = getZipList $ f <$> traverse ZipList xs
+    boundaries =
+        map (fromVertices . zipWith (curry p2) [0 ..])
+            . mapColumns (scanl (+) 0)
+            . map (\Variable{values} -> values)
+            $ vars
 
-areaChart :: Bool -> Double -> [Variable] -> Diagram B
-areaChart animated w sirData =
-    mwhen
-        animated
-        ( animate
-            (TransformAnimation 15 Nothing $ TranslateAnimation [V2 0 0, V2 w 0])
-            (rect 0.005 maxHeight)
+areaChart :: Maybe Int -> Double -> [Variable] -> Diagram B
+areaChart animated w vars =
+    maybe
+        mempty
+        ( \animationLength ->
+            animate
+                (TransformAnimation animationLength Nothing $ TranslateAnimation [V2 0 0, V2 w 0])
+                (rect 0.005 1)
         )
+        animated
         <> hsep
             0.1
-            [ named "chartInner" $ areaChartInner w sirData & centerY
-            , areaKey sirData & alignL & centerY
+            [ named "chartInner" $ areaChartInner w vars & centerY
+            , areaKey vars & alignL & centerY
             ]
-  where
-    maxHeight = maximum $ foldr1 (zipWith (+)) $ map (\Variable{values} -> values) sirData
 
 areaKey :: [Variable] -> Diagram B
 areaKey vars =
@@ -67,14 +61,16 @@ areaKey vars =
         . reverse
         $ vars
 
-lineChart :: Bool -> Double -> [Variable] -> Diagram B
+lineChart :: Maybe Int -> Double -> [Variable] -> Diagram B
 lineChart animated w vars =
-    mwhen
-        animated
-        ( animate
-            (TransformAnimation 15 Nothing $ TranslateAnimation [V2 0 0, V2 w 0])
-            (rect 0.005 maxHeight)
+    maybe
+        mempty
+        ( \animationLength ->
+            animate
+                (TransformAnimation animationLength Nothing $ TranslateAnimation [V2 0 0, V2 w 0])
+                (rect 0.005 maxHeight)
         )
+        animated
         <> hsep
             0.1
             [ named "chartInner" $ drawLines w 1 vars & centerY
@@ -148,3 +144,11 @@ lineKey vars =
             )
         . reverse
         $ vars
+
+-- see https://github.com/diagrams/diagrams-lib/pull/374
+catLocTrails ::
+    Located (Trail' Line V2 Double) ->
+    Located (Trail' Line V2 Double) ->
+    Located (Trail' Line V2 Double)
+catLocTrails a@(Loc aLoc aLine) b@(Loc _ bLine) =
+    Loc aLoc (aLine <> lineFromOffsets [atStart b .-. atEnd a] <> bLine)

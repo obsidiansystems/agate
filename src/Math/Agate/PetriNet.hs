@@ -25,7 +25,6 @@ instance forall system. (ODESystem system) => PetriNet (AsODE system) where
             mconcat [i += (-rate) * product (map (var @system) inputs) | i <- inputs]
                 <> mconcat [o += rate * product (map (var @system) inputs) | o <- outputs]
 
--- PETRI NET DEFINITION
 type TransId = Int
 data PetriNetImpl p t = PetriNetImpl
     { numTransitions :: Int
