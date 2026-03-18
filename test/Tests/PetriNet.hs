@@ -7,8 +7,10 @@ import Data.GraphViz
 import Data.List.Extra
 import Data.Map.Lazy qualified as Map
 import Diagrams.AreaChart
+import Diagrams.Backend.SVG (B)
 import Diagrams.Prelude hiding (outer)
 import Math.Agate.Diagrams.PetriNet
+import Math.Agate.Examples.ODE.LotkaVolterra
 import Math.Agate.Examples.ODE.Malthusian
 import Math.Agate.Examples.ODE.SCIR
 import Math.Agate.Examples.ODE.SEAIR
@@ -18,6 +20,7 @@ import Math.Agate.Examples.ODE.SIRD
 import Math.Agate.Examples.ODE.SIRS
 import Math.Agate.Examples.ODE.SIS
 import Math.Agate.Examples.ODE.SIWR
+import Math.Agate.Examples.PetriNet.LotkaVolterra
 import Math.Agate.Examples.PetriNet.Madrid
 import Math.Agate.Examples.PetriNet.Malthusian
 import Math.Agate.Examples.PetriNet.SCIR
@@ -47,32 +50,52 @@ petriTests =
                     assertBool "2 transitions present" $
                         length (transitions sir) == 2
                 ]
-            , allDiagramTests "sir" sir runSolverSIR
+            , allDiagramTests areaChart "sir" sir runSolverSIR
             ]
         , testGroup
             "SIRD"
-            [allDiagramTests "sird" sird runSolverSIRD]
+            [allDiagramTests areaChart "sird" sird runSolverSIRD]
         , testGroup
             "SIRS"
-            [allDiagramTests "sirs" sirs runSolverSIRS]
+            [allDiagramTests areaChart "sirs" sirs runSolverSIRS]
         , testGroup
             "SIS"
-            [allDiagramTests "sis" sis runSolverSIS]
+            [allDiagramTests areaChart "sis" sis runSolverSIS]
         , testGroup
             "Malthusian"
-            [allDiagramTests "malthusian" malthusian runSolverMalthusian]
+            [allDiagramTests lineChart "malthusian" malthusian runSolverMalthusian]
         , testGroup
             "SEIR"
-            [allDiagramTests "seir" seir runSolverSEIR]
+            [allDiagramTests areaChart "seir" seir runSolverSEIR]
         , testGroup
             "SEAIR"
-            [allDiagramTests "seair" seair runSolverSEAIR]
+            [allDiagramTests areaChart "seair" seair runSolverSEAIR]
         , testGroup
             "SCIR"
-            [allDiagramTests "scir" scir runSolverSCIR]
+            [allDiagramTests areaChart "scir" scir runSolverSCIR]
         , testGroup
             "SIWR"
-            [allDiagramTests "siwr" siwr runSolverSIWR]
+            [allDiagramTests lineChart "siwr" siwr runSolverSIWR]
+        , testGroup
+            "Lotka-Volterra"
+                [allDiagramTests lineChart "lotka-volterra" lotkaVolterra runSolverLotkaVolterra]
+        , testGroup
+            "P-invariants"
+            [ testCase "SIR: S+I+R conserved" $
+                pInvariants (sir :: PetriNetImpl SIRPlace Rational) @?= [[1, 1, 1]]
+            , testCase "SIRD: S+I+R+D conserved" $
+                pInvariants (sird :: PetriNetImpl SIRDPlace Rational) @?= [[1, 1, 1, 1]]
+            , testCase "SIRS: S+I+R conserved" $
+                pInvariants (sirs :: PetriNetImpl SIRSPlace Rational) @?= [[1, 1, 1]]
+            , testCase "SIS: S+I conserved" $
+                pInvariants (sis :: PetriNetImpl SISPlace Rational) @?= [[1, 1]]
+            , testCase "Malthusian: no invariant" $
+                pInvariants (malthusian :: PetriNetImpl MalthusianPlace Rational) @?= []
+            , testCase "SEIR: no invariant (vital dynamics)" $
+                pInvariants (seir :: PetriNetImpl SEIRPlace Rational) @?= []
+            , testCase "Lotka-Volterra: no invariant" $
+                pInvariants (lotkaVolterra :: PetriNetImpl LotkaVolterraPlace Rational) @?= []
+            ]
         , testGroup
             "Madrid"
             [ testGroup
@@ -89,11 +112,12 @@ petriTests =
 
 allDiagramTests ::
     (PetriPlace p, Bounded p, Enum p, Show p, Show t, Real t, Ord p) =>
+    (Maybe Int -> Double -> [Variable] -> Diagram B) ->
     FilePath ->
     PetriNetImpl p t ->
     [Map.Map p Double] ->
     TestTree
-allDiagramTests name net solution =
+allDiagramTests chartType name net solution =
     testGroup
         "Diagrams"
         [ petriTest
@@ -110,12 +134,13 @@ allDiagramTests name net solution =
     layoutOpts = LayoutOpts{command = Neato, aspectRatio = 1 / 3}
     drawOpts = defaultDrawOpts
     chart animated =
-        areaChart animated 3 $
+        chartType animated 3 $
             enumerate <&> \p ->
                 Variable
                     { name = placeName p
                     , colour = placeColour p
                     , values = take 100 $ solverResult Map.! p
+                    , dashedLine = False
                     }
     petriTest =
         goldenVsString "Petri" ("test/outputs/petri/" <> name <> "/petri.svg") $

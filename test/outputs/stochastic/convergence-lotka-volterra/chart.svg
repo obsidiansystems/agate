@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg font-size="1" viewBox="0.0 0.0 1000.0 458.22681704260646" stroke="rgb(0,0,0)" xmlns="http://www.w3.org/2000/svg" width="1000.0000" stroke-opacity="1" height="458.2268" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+  </defs>
+  <g stroke-linejoin="miter" fill-opacity="1.0" fill="rgb(245,245,245)" stroke="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="0.0" stroke-width="2.7076981132839943">
+    <path d="M 1000.0000,304.3014 l -0.0000,-37.5940 h -200.5013 l -0.0000,37.5940 Z"/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="1.0" font-size="25.062656641604004px" fill="rgb(0,0,0)" stroke="rgb(0,0,0)" font-family="helvetica" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="2.7076981132839943">
+    <text transform="matrix(1.0000,0.0000,0.0000,1.0000,899.7494,285.5044)" stroke="none" dominant-baseline="middle" text-anchor="middle">prey (ODE)
+    </text>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" stroke-dashoffset="0.0" fill="rgb(0,0,0)" stroke="rgb(31,173,31)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-dasharray="3.7593984962406,2.0050125313283202" stroke-width="5.012531328320801">
+    <path d="M 761.9048,285.5044 h 37.5940 "/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="1.0" fill="rgb(245,245,245)" stroke="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="0.0" stroke-width="2.7076981132839943">
+    <path d="M 1000.0000,266.7074 l -0.0000,-37.5940 h -200.5013 l -0.0000,37.5940 Z"/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="1.0" font-size="25.062656641604004px" fill="rgb(0,0,0)" stroke="rgb(0,0,0)" font-family="helvetica" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="2.7076981132839943">
+    <text transform="matrix(1.0000,0.0000,0.0000,1.0000,899.7494,247.9104)" stroke="none" dominant-baseline="middle" text-anchor="middle">predator (ODE)
+    </text>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" stroke-dashoffset="0.0" fill="rgb(0,0,0)" stroke="rgb(230,128,25)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-dasharray="3.7593984962406,2.0050125313283202" stroke-width="5.012531328320801">
+    <path d="M 761.9048,247.9104 h 37.5940 "/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="1.0" fill="rgb(245,245,245)" stroke="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="0.0" stroke-width="2.7076981132839943">
+    <path d="M 1000.0000,229.1134 l -0.0000,-37.5940 h -200.5013 l -0.0000,37.5940 Z"/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="1.0" font-size="25.062656641604004px" fill="rgb(0,0,0)" stroke="rgb(0,0,0)" font-family="helvetica" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="2.7076981132839943">
+    <text transform="matrix(1.0000,0.0000,0.0000,1.0000,899.7494,210.3164)" stroke="none" dominant-baseline="middle" text-anchor="middle">prey (mean)
+    </text>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" fill="rgb(0,0,0)" stroke="rgb(31,173,31)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="5.012531328320801">
+    <path d="M 761.9048,210.3164 h 37.5940 "/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="1.0" fill="rgb(245,245,245)" stroke="rgb(0,0,0)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="0.0" stroke-width="2.7076981132839943">
+    <path d="M 1000.0000,191.5194 l -0.0000,-37.5940 h -200.5013 l -0.0000,37.5940 Z"/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="1.0" font-size="25.062656641604004px" fill="rgb(0,0,0)" stroke="rgb(0,0,0)" font-family="helvetica" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="2.7076981132839943">
+    <text transform="matrix(1.0000,0.0000,0.0000,1.0000,899.7494,172.7224)" stroke="none" dominant-baseline="middle" text-anchor="middle">predator (mean)
+    </text>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" fill="rgb(0,0,0)" stroke="rgb(230,128,25)" stroke-linecap="butt" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="5.012531328320801">
+    <path d="M 761.9048,172.7224 h 37.5940 "/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" fill="rgb(0,0,0)" stroke="rgb(230,128,25)" stroke-linecap="butt" opacity="1.0" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="2.0050125313283202">
+    <path d="M 0.0000,419.4687 l 15.0376,-6.0025 l 15.0376,-9.0276 l 15.0376,-13.1529 l 15.0376,-18.1115 l 15.0376,-26.0852 l 15.0376,-34.9662 l 15.0376,-45.7895 l 15.0376,-54.3835 l 15.0376,-54.0464 l 15.0376,-38.4035 l 15.0376,-9.8571 l 15.0376,19.1053 l 15.0376,36.5351 l 15.0376,42.6378 l 15.0376,41.4336 l 15.0376,36.3609 l 15.0376,31.2581 l 15.0376,26.7281 l 15.0376,22.0752 l 15.0376,18.5050 l 15.0376,14.7306 l 15.0376,12.3810 l 15.0376,10.0075 l 15.0376,7.8484 l 15.0376,6.7155 l 15.0376,5.2130 l 15.0376,4.3772 l 15.0376,3.3571 l 15.0376,2.7456 l 15.0376,2.1930 l 15.0376,1.6178 l 15.0376,1.1905 l 15.0376,0.9812 l 15.0376,0.4912 l 15.0376,0.0952 l 15.0376,-0.2895 l 15.0376,-0.8810 l 15.0376,-1.6479 l 15.0376,-2.7018 l 15.0376,-4.5514 l 15.0376,-7.5476 l 15.0376,-12.6153 l 15.0376,-20.6353 l 15.0376,-33.3083 l 15.0376,-50.2231 l 15.0376,-67.1228 l 15.0376,-75.8271 l 15.0376,-70.5363 l 15.0376,-59.0414 "/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" fill="rgb(0,0,0)" stroke="rgb(31,173,31)" stroke-linecap="butt" opacity="1.0" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-width="2.0050125313283202">
+    <path d="M 0.0000,269.0927 l 15.0376,-24.2005 l 15.0376,-24.7005 l 15.0376,-23.4311 l 15.0376,-20.6842 l 15.0376,-13.7444 l 15.0376,-2.2406 l 15.0376,15.4699 l 15.0376,36.5789 l 15.0376,53.8772 l 15.0376,60.1128 l 15.0376,51.4211 l 15.0376,34.8358 l 15.0376,19.9173 l 15.0376,10.5501 l 15.0376,5.6767 l 15.0376,3.1654 l 15.0376,1.5113 l 15.0376,0.7882 l 15.0376,0.0013 l 15.0376,-0.5401 l 15.0376,-0.8571 l 15.0376,-1.4875 l 15.0376,-1.9135 l 15.0376,-2.3947 l 15.0376,-3.0990 l 15.0376,-3.8321 l 15.0376,-4.6654 l 15.0376,-5.6654 l 15.0376,-6.8910 l 15.0376,-7.9837 l 15.0376,-9.4561 l 15.0376,-11.2256 l 15.0376,-13.4148 l 15.0376,-15.6554 l 15.0376,-18.8246 l 15.0376,-22.3897 l 15.0376,-25.9536 l 15.0376,-30.5376 l 15.0376,-35.0752 l 15.0376,-39.7794 l 15.0376,-43.8935 l 15.0376,-46.3183 l 15.0376,-44.4724 l 15.0376,-37.3985 l 15.0376,-20.2732 l 15.0376,1.4261 l 15.0376,24.7682 l 15.0376,39.8145 l 15.0376,50.0539 "/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" stroke-dashoffset="0.0" fill="rgb(0,0,0)" stroke="rgb(230,128,25)" stroke-linecap="butt" opacity="1.0" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-dasharray="3.7593984962406,2.0050125313283202" stroke-width="2.0050125313283202">
+    <path d="M 0.0000,418.8672 l 15.0376,-7.6405 l 15.0376,-11.3912 l 15.0376,-16.5769 l 15.0376,-23.4260 l 15.0376,-31.4999 l 15.0376,-38.8833 l 15.0376,-41.8880 l 15.0376,-36.8728 l 15.0376,-23.7828 l 15.0376,-7.0790 l 15.0376,7.8334 l 15.0376,18.0984 l 15.0376,23.6077 l 15.0376,25.5284 l 15.0376,25.1649 l 15.0376,23.5256 l 15.0376,21.2784 l 15.0376,18.8289 l 15.0376,16.4073 l 15.0376,14.1342 l 15.0376,12.0640 l 15.0376,10.2124 l 15.0376,8.5733 l 15.0376,7.1283 l 15.0376,5.8523 l 15.0376,4.7168 l 15.0376,3.6904 l 15.0376,2.7386 l 15.0376,1.8224 l 15.0376,0.8942 l 15.0376,-0.1070 l 15.0376,-1.2657 l 15.0376,-2.7034 l 15.0376,-4.6009 l 15.0376,-7.2275 l 15.0376,-10.9677 l 15.0376,-16.3082 l 15.0376,-23.6675 l 15.0376,-32.8456 l 15.0376,-41.9649 l 15.0376,-46.7092 l 15.0376,-42.1642 l 15.0376,-27.6015 l 15.0376,-8.3763 l 15.0376,8.6892 l 15.0376,20.1231 l 15.0376,25.9742 l 15.0376,27.7744 l 15.0376,27.1030 "/>
+  </g>
+  <g stroke-linejoin="miter" fill-opacity="0.0" stroke-dashoffset="0.0" fill="rgb(0,0,0)" stroke="rgb(31,173,31)" stroke-linecap="butt" opacity="1.0" stroke-miterlimit="10.0" stroke-opacity="1.0" stroke-dasharray="3.7593984962406,2.0050125313283202" stroke-width="2.0050125313283202">
+    <path d="M 0.0000,266.6867 l 15.0376,-24.3475 l 15.0376,-23.5877 l 15.0376,-20.1455 l 15.0376,-12.8355 l 15.0376,-0.9309 l 15.0376,14.6301 l 15.0376,30.1576 l 15.0376,40.2887 l 15.0376,41.8419 l 15.0376,36.3606 l 15.0376,27.9923 l 15.0376,20.0105 l 15.0376,13.7206 l 15.0376,9.1661 l 15.0376,5.9540 l 15.0376,3.6658 l 15.0376,1.9776 l 15.0376,0.6634 l 15.0376,-0.4296 l 15.0376,-1.4053 l 15.0376,-2.3372 l 15.0376,-3.2799 l 15.0376,-4.2769 l 15.0376,-5.3650 l 15.0376,-6.5771 l 15.0376,-7.9433 l 15.0376,-9.4911 l 15.0376,-11.2433 l 15.0376,-13.2144 l 15.0376,-15.4044 l 15.0376,-17.7861 l 15.0376,-20.2865 l 15.0376,-22.7539 l 15.0376,-24.9074 l 15.0376,-26.2611 l 15.0376,-26.0267 l 15.0376,-23.0358 l 15.0376,-15.8275 l 15.0376,-3.2360 l 15.0376,14.1633 l 15.0376,32.3541 l 15.0376,44.6485 l 15.0376,46.6258 l 15.0376,40.0379 l 15.0376,30.1660 l 15.0376,21.0464 l 15.0376,14.1103 l 15.0376,9.2554 l 15.0376,5.9341 "/>
+  </g>
+</svg>

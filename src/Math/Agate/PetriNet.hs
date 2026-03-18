@@ -1,7 +1,10 @@
-module Math.Agate.PetriNet (PetriNet (..), AsODE (..), PetriNetImpl (..)) where
+module Math.Agate.PetriNet (PetriNet (..), AsODE (..), PetriNetImpl (..), incidenceMatrix, pInvariants) where
 
+import Data.List (transpose)
 import Data.Map.Lazy qualified as M
+import Data.Ratio (denominator, numerator)
 import Data.Set qualified as S
+import Math.Algebra.LinearAlgebra (kernel)
 import Math.Agate.ODE
 import Prelude hiding (id)
 
@@ -69,3 +72,34 @@ instance (Ord p, Ord t) => PetriNet (PetriNetImpl p t) where
             , placeToTransitions = M.fromListWith (+) [(pair, 1) | pair <- (,0) <$> sources]
             , transitionToPlaces = M.fromListWith (+) [(pair, 1) | pair <- (0,) <$> targets]
             }
+
+-- | The incidence matrix C where C[p,t] = (output arcs from t to p) - (input arcs from p to t).
+-- Rows are places (in Enum order), columns are transitions (by TransId).
+incidenceMatrix :: (Bounded p, Enum p, Ord p) => PetriNetImpl p t -> [[Int]]
+incidenceMatrix net =
+    [ [ M.findWithDefault 0 (tId, p) (transitionToPlaces net)
+      - M.findWithDefault 0 (p, tId) (placeToTransitions net)
+      | tId <- [0 .. numTransitions net - 1]
+      ]
+    | p <- [minBound .. maxBound]
+    ]
+
+-- | Compute a basis of integer P-invariants: vectors y such that y · C = 0.
+-- A P-invariant certifies that the weighted sum y · marking is conserved under any firing.
+pInvariants :: (Bounded p, Enum p, Ord p) => PetriNetImpl p t -> [[Int]]
+pInvariants =
+    map clearDenominators
+    . kernel
+    . transpose
+    . map (map fromIntegral)
+    . incidenceMatrix
+
+clearDenominators :: [Rational] -> [Int]
+clearDenominators xs =
+    let l = foldl lcm 1 (map denominator xs)
+        ints = [fromIntegral (numerator x * (l `div` denominator x)) | x <- xs]
+        g = foldl gcd 0 (map abs ints)
+        result = if g == 0 then ints else map (`div` g) ints
+    in  case dropWhile (== 0) result of
+            (x : _) | x < 0 -> map negate result
+            _ -> result

@@ -37,6 +37,7 @@ odeSolverTests =
                         { name = "x"
                         , colour = green
                         , values = takeEvery 100 $ take 10000 runSolverExponential
+                        , dashedLine = False
                         }
                     ]
             ]
@@ -52,6 +53,7 @@ odeSolverTests =
                         { name = "X"
                         , colour = blue
                         , values = takeEvery 1000 $ take 1000000 runSolverRossler
+                        , dashedLine = False
                         }
                     ]
             , testGroup
@@ -66,6 +68,7 @@ odeSolverTests =
                                     { name = placeSymbol v
                                     , colour = placeColour v
                                     , values = take 100 . takeEvery 100 $ (M.! v) <$> runSolverDoublePendulum
+                                    , dashedLine = False
                                     }
                           )
                             <$> [Theta1, Theta2]

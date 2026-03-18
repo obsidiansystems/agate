@@ -14,6 +14,7 @@
         rev = "animations";
         hash = "sha256-zBBES3ocTLAzpNqjwKLUO9Gg4fwVMZmFKLGWrppBYI0=";
       }) {});
+      lazyppl = pkgs.haskell.lib.doJailbreak super.lazyppl;
     };
   };
 in (hsPkgs.developPackage {

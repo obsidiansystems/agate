@@ -7,7 +7,7 @@ import Math.Agate.PetriNet
 data MalthusianPlace = N
     deriving (Show, Eq, Ord, Enum, Bounded)
 instance PetriPlace MalthusianPlace where
-    placeColour N = yellow
+    placeColour N = orange
     placeName N = "population"
 
 malthusian :: (Place net ~ MalthusianPlace, Fractional (Transition net), PetriNet net) => net
