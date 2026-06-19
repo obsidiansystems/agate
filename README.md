@@ -134,9 +134,9 @@ dependencies needed for diagram and animation rendering.
 
 ## About Obsidian Systems
 
-Agate is built and maintained by **[Obsidian Systems](https://obsidian.systems)**. We provide frontier engineering for high-assurance systems, and we're long-time stewards of open-source Nix and Haskell tooling, including [Obelisk](https://github.com/obsidiansystems/obelisk), [Reflex](https://reflex-frp.org/), and [nix-thunk](https://github.com/obsidiansystems/nix-thunk).
+Agate is built and maintained by **[Obsidian Systems](https://obsidian.systems)**. We provide frontier engineering for high-assurance systems: we build production software in Haskell and Nix, and we're long-time stewards of open-source tooling like [Obelisk](https://github.com/obsidiansystems/obelisk), [Reflex](https://reflex-frp.org/), and [nix-thunk](https://github.com/obsidiansystems/nix-thunk).
 
-If you're working on safe-by-design systems, formal modelling, or Haskell tooling and want a partner to help design, build, or ship it, we'd love to hear from you.
+If you're working on safe-by-design systems, formal modelling, or Haskell and want a partner to help design, build, or ship it, we'd love to hear from you.
 
 - Website: <https://obsidian.systems>
 - Blog: <https://blog.obsidian.systems>
