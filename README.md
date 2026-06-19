@@ -1,20 +1,28 @@
-Agate
-=====
+<div align="center">
+
+# Agate
 
 **Write a dynamical system down once. Run it as differential equations, simulate
-it stochastically, and draw it — all from the same definition.**
+it stochastically, and draw it, all from the same definition.**
+
+[![Haskell Programming Language](https://img.shields.io/badge/language-Haskell-blue.svg)](http://www.haskell.org)
+[![License: BSD-2-Clause](https://img.shields.io/badge/license-BSD--2--Clause-green.svg)](LICENSE)
+
+<img src="test/outputs/petri/sir/combined.svg" width="85%" alt="SIR dynamics">
+
+</div>
 
 Agate is a Haskell library for modelling dynamical systems as
 [Petri nets](https://en.wikipedia.org/wiki/Petri_net). A Petri net captures the
-*structure* of a system — what flows into what, and at what rate — independently
+*structure* of a system (what flows into what, and at what rate), independently
 of how you choose to read it. Agate turns that one structural description into
 several interpretations: a deterministic ODE system, a stochastic process, an
 incidence matrix for analysis, and an animated diagram.
 
-## The idea, in one model
+## How it works
 
-Here is the classic SIR epidemic — susceptible people become infected on contact,
-infected people recover:
+Here is the classic SIR epidemic, in which susceptible people become infected on
+contact and infected people recover:
 
 ```haskell
 sir :: (Place net ~ SIRPlace, Fractional (Transition net), PetriNet net) => net
@@ -29,22 +37,20 @@ sir =
 ```
 
 Notice the type: `sir` is polymorphic in `net`. It isn't an ODE, or a simulation,
-or a picture — it's all of them, waiting to be chosen. The same `sir` value can be:
+or a picture. It is all of them, waiting to be chosen. The same `sir` value can be:
 
-- **solved as ODEs** — mass-action kinetics give `S' = -βSI`, `I' = βSI - γI`,
+- **solved as ODEs**: mass-action kinetics give `S' = -βSI`, `I' = βSI - γI`,
   `R' = γI`, integrated with `solvePetri sir initialConditions`;
-- **simulated stochastically** — transitions fire at Poisson-distributed rates (a
+- **simulated stochastically**: transitions fire at Poisson-distributed rates (a
   form of the Gillespie algorithm), built on
   [LazyPPL](https://lazyppl-team.github.io/)'s probabilistic primitives;
-- **analysed** — `pInvariants sir` discovers that `S + I + R` is conserved, with no
+- **analysed**: `pInvariants sir` discovers that `S + I + R` is conserved, with no
   modelling effort on your part;
-- **drawn** — `layoutAndDrawPetri` lays the net out with GraphViz and renders it as
+- **drawn**: `layoutAndDrawPetri` lays the net out with GraphViz and renders it as
   an SVG whose places pulse with the population dynamics over time.
 
 Building a bigger model is just `mconcat` of more transitions. The structure
 composes monoidally, and every interpretation comes along for free.
-
-![SIR dynamics](test/outputs/petri/sir/combined.svg)
 
 ## What's in the box
 
@@ -52,7 +58,7 @@ composes monoidally, and every interpretation comes along for free.
 A type class with a monoidal structure, so nets are assembled from individual
 transitions. Ships with a concrete set-based implementation, mass-action ODE
 semantics, incidence matrices, integer P-invariant computation, and
-GraphViz-based diagrams — including animated SVGs that show populations evolving.
+GraphViz-based diagrams, including animated SVGs that show populations evolving.
 
 ### ODE systems
 A type class for first-order ODE systems, with instances for polynomial systems
@@ -78,10 +84,10 @@ subsets, and verification of algebraic identities.
 
 The `agate-examples` component is a gallery of ready-to-run models:
 
-- **Epidemiology** — SIR, SIS, SIRS, SIRD, SEIR, SEAIR, SIWR
-- **Population dynamics** — Lotka–Volterra, Malthusian growth
-- **Physics** — double pendulum, Rössler attractor
-- **General** — exponential growth
+- **Epidemiology**: SIR, SIS, SIRS, SIRD, SEIR, SEAIR, SIWR
+- **Population dynamics**: Lotka-Volterra, Malthusian growth
+- **Physics**: double pendulum, Rössler attractor
+- **General**: exponential growth
 
 Each one defines its places and rates in a few lines, then gets charts, diagrams,
 and (where applicable) stochastic trajectories for free.
@@ -90,27 +96,27 @@ and (where applicable) stochastic trajectories for free.
   <tr>
     <td width="50%" align="center">
       <img src="test/outputs/petri/lotka-volterra/combined.svg" width="100%"><br>
-      <sub><b>Lotka–Volterra</b> — predator/prey oscillation</sub>
+      <sub><b>Lotka-Volterra</b>: predator/prey oscillation</sub>
     </td>
     <td width="50%" align="center">
       <img src="test/outputs/petri/seair/combined.svg" width="100%"><br>
-      <sub><b>SEAIR</b> — a richer compartmental epidemic</sub>
+      <sub><b>SEAIR</b>: a richer compartmental epidemic</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <img src="test/outputs/ode/rossler/chart.svg" width="100%"><br>
-      <sub><b>Rössler attractor</b> — chaotic dynamics</sub>
+      <sub><b>Rössler attractor</b>: chaotic dynamics</sub>
     </td>
     <td width="50%" align="center">
       <img src="test/outputs/ode/pendulum/pendulum.svg" width="100%"><br>
-      <sub><b>Double pendulum</b> — a non-polynomial system</sub>
+      <sub><b>Double pendulum</b>: a non-polynomial system</sub>
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
       <img src="test/outputs/petri/madrid/petri.svg" width="70%"><br>
-      <sub><b>Madrid</b> — movement between geographic zones</sub>
+      <sub><b>Madrid</b>: movement between geographic zones</sub>
     </td>
   </tr>
 </table>
