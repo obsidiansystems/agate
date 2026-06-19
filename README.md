@@ -6,6 +6,7 @@
 it stochastically, and draw it, all from the same definition.**
 
 [![Haskell Programming Language](https://img.shields.io/badge/language-Haskell-blue.svg)](http://www.haskell.org)
+[![Obsidian](https://img.shields.io/badge/Obsidian-Systems-white)](https://obsidian.systems)
 [![License: BSD-2-Clause](https://img.shields.io/badge/license-BSD--2--Clause-green.svg)](LICENSE)
 
 <img src="test/outputs/petri/sir/combined.svg" width="85%" alt="SIR dynamics">
@@ -131,13 +132,22 @@ Agate uses Cabal:
 A Nix shell (`shell.nix`) provides the pinned GHC 9.12 toolchain and the
 dependencies needed for diagram and animation rendering.
 
+## About Obsidian Systems
+
+Agate is built and maintained by **[Obsidian Systems](https://obsidian.systems)**. We provide frontier engineering for high-assurance systems, and we're long-time stewards of open-source Nix and Haskell tooling, including [Obelisk](https://github.com/obsidiansystems/obelisk), [Reflex](https://reflex-frp.org/), and [nix-thunk](https://github.com/obsidiansystems/nix-thunk).
+
+If you're working on safe-by-design systems, formal modelling, or Haskell tooling and want a partner to help design, build, or ship it, we'd love to hear from you.
+
+- Website: <https://obsidian.systems>
+- Blog: <https://blog.obsidian.systems>
+- GitHub: <https://github.com/obsidiansystems>
+
 ## Funding
 
-Agate was developed by [Obsidian Systems](https://obsidian.systems/) as part of
-[ARIA](https://aria.org.uk/)'s
+Agate was developed as part of [ARIA](https://aria.org.uk/)'s
 [Safeguarded AI](https://aria.org.uk/opportunity-spaces/mathematics-for-safe-ai/safeguarded-ai/funded-projects?tabId=tooling-platforms&cardId=obsidian-systems)
 programme, within the *Mathematics for Safe AI* opportunity space.
 
 ## License
 
-BSD-2-Clause. See [LICENSE](LICENSE) for details.
+Agate is released under the [BSD-2-Clause License](LICENSE), © 2025 Obsidian Systems.
